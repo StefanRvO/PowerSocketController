@@ -5,29 +5,30 @@
 #include <cstdint>
 extern "C"
 {
-#include "lwip/tcp.h"
-#include "lwip/sockets.h"
-#include "FreeRTOS.h"
-#include "queue.h"
-#include "semphr.h"
+    #include "lwip/opt.h"
+    #include "lwip/sockets.h"
+    #include "lwip/sys.h"
 }
 
-#define IN_QUEUE_SIZE 300
+class Connection;
 
 class Connection
 {
     private:
-        tcp_pcb *socket;
-        xQueueHandle recv_queue;
+        static struct sockaddr_in bind_addr;
+        static int bind_socket_fd;
+
+        int socket_fd = -1;
         bool connected = true;
-        xSemaphoreHandle lock = NULL;
     public:
-        static err_t recieve_callback(void *con_object, tcp_pcb *socket, pbuf *p, err_t err);
-        uint16_t queue_bytes(void *data, uint16_t data_len);
-        Connection(tcp_pcb *_socket);
+        static bool bind_to(uint16_t port);
+        Connection(int _socket_fd);
         ~Connection();
-        bool sendall(void *data_ptr, uint16_t data_len); //Blocking
-        bool recvall(void *data_ptr, uint16_t len); //Blocking
-        void close();
+        void close_connection();
         bool is_connected();
+        bool recieve_all(void *data, uint16_t data_len);
+        bool send_all(void *data, uint16_t data_len);
+        static Connection *get_next_incomming();
+        void get_client_ip(char *buf);
+        uint16_t get_client_port();
 };

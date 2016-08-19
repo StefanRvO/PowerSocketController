@@ -8,13 +8,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-#include "lwip/tcp.h"
-#include "lwip/sockets.h"
-#include "lwip/sys.h"
-#include "lwip/tcp_impl.h"
-#include "lwip/init.h"
-#include "lwip/timers.h"
-#include "lwip/ip_addr.h"
+
 #include <esp/uart.h>
 #include "ssid_config.h"
 }
@@ -25,18 +19,7 @@
 
 #define delay_ms(ms) vTaskDelay((ms) / portTICK_RATE_MS)
 
-tcp_pcb *listner_socket = nullptr;
 void Connection_Handler(void *PvParameters);
-
-
-err_t new_connection(void *arg, tcp_pcb *newpcb, err_t err)
-{
-    Connection *new_con = new Connection(newpcb);
-    xTaskCreate(Connection_Handler, (signed char *)"Conn Handler", 250, new_con, 10, NULL);
-
-    tcp_accepted(listner_socket);
-    return err;
-}
 
 bool is_connected()
 {
@@ -44,31 +27,23 @@ bool is_connected()
     return status == STATION_GOT_IP;
 }
 
-void TCP_Timer(void *pvParameters)
-{
-    while(true)
-    {
-        tcp_tmr();
-        delay_ms(TCP_TMR_INTERVAL);
-    }
-}
-
 
 void Bind_Task(void *pvParameters)
 {
         delay_ms(0);
-        tcp_pcb *listner_socket = tcp_new();
-        ip_addr bind_ip;
-        bind_ip.addr = inet_addr("192.168.0.102");
-
-        tcp_bind(listner_socket, &bind_ip, 5000);
-        listner_socket = tcp_listen(listner_socket);
-        printf("Bound to port 5000");
-        tcp_accept(listner_socket, new_connection);
+        uint16_t port = 4999;
+        if(!Connection::bind_to(port))
+        {
+            printf("Listen on port %u failed!\n", (unsigned int)port);
+        }
+        else printf("Listening on port %u\n", (unsigned int)port);
         while(true)
         {
-            delay_ms(100);
+            delay_ms(1);
             printf("%d\n", sdk_system_get_free_heap_size());
+            Connection *new_connection = Connection::get_next_incomming();
+            if(new_connection == nullptr) continue;
+            xTaskCreate(Connection_Handler, (signed char *)"Con_handler", 1000, new_connection, 10, NULL);
         }
 }
 
@@ -100,30 +75,32 @@ extern "C" void user_init(void)
     printf("SDK version:%s\n", sdk_system_get_sdk_version());
     setup_wifi();
 
-    lwip_init();
     xTaskCreate(Bind_Task, (signed char *)"Bind Task", 1000, NULL, 10, NULL);
-    xTaskCreate(TCP_Timer, (signed char *)"TCP_Timer", 1000, NULL, 10, NULL);
 }
 
 void Connection_Handler(void *PvParameters)
 {
     Connection *connection = (Connection *)PvParameters;
     MessageParser parser(connection);
-    printf("Entered connection handler\n");
-    char recv_char;
+    char *clientip = new char[20];
+    connection->get_client_ip(clientip);
+    uint16_t port = connection->get_client_port();
+    printf("Entered connection handler for client with IP: %s and port %u\n", clientip, (unsigned int)port);
+
+    delete[] clientip;
     while(connection->is_connected())
     {
         delay_ms(0);
         Message *msg = Message::receive_message(connection);
         if(msg == nullptr)
         {
-            connection->close();
+            connection->close_connection();
             break;
         }
         parser.parse_message(msg);
         delete msg;
     }
-    printf("Connection was closed");
+    printf("Connection was closed\n");
     delete connection;
     vTaskDelete( NULL );
 }

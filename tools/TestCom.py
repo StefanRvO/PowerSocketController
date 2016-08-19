@@ -7,7 +7,6 @@ import time
 def recv_thread(socket):
     while(True):
         length = socket.recv(2)
-        print(length)
         if(len(length) == 1):
             length += socket.recv(1)
         msg = length

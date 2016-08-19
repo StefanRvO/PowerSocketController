@@ -18,10 +18,17 @@ extern "C" {
 enum Message_Type : uint16_t
 {
     set_switch      = 0x0000, //Set the switch state. Payload: [uint8_t switch id, uint8_t state]
-    read_switch     = 0x0001, //Request switch state. Payload: [uint8_t switch id]
-    switch_state    = 0x0002, //Inform about switch state. Payload [uint8_t switch id, uint8_t state]
+    get_switch      = 0x0001, //Request switch state. Payload: [uint8_t switch id]
+    switch_info     = 0x0002, //Inform about switch state. Payload [uint8_t switch id, uint8_t state]
     ping            = 0x0003, //ping msg, should answer with ping_ack
     ping_ack        = 0x0004, //ack for the ping
+    set_name        = 0x0005, //Save name to device. Payload[string (0x00 terminated)]
+    get_name        = 0x0006, //Request name from device.
+    name_info       = 0x0007, //Message with the name of source device. Payload [string 0x00 terminated]
+    get_current     = 0x0008, //Message used to request the current being drawn through the device at the moment.
+    current_info    = 0x0009, //Inform about the current being drawn. Payload : [ float amps]
+    set_id          = 0x0010, //Set the id of the device. Payload : [uint32_t id]
+    
 };
 
 class Message

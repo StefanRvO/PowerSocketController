@@ -1,121 +1,118 @@
 #include "Connection.h"
 #include "global_includes.h"
-#define MIN_EMPTY 10
+#include <cstring>
 
-Connection::Connection(tcp_pcb *_socket)
+struct sockaddr_in Connection::bind_addr;
+int Connection::bind_socket_fd;
+
+bool Connection::bind_to(uint16_t port)
 {
-    if(this->lock == NULL)
-        vSemaphoreCreateBinary(this->lock);
-    this->socket = _socket;
-    //Create a queue for incomming packets
-    this->recv_queue = xQueueCreate(IN_QUEUE_SIZE,
-        sizeof(uint8_t));
-    tcp_arg(this->socket, this);
-    tcp_recv(this->socket, this->recieve_callback);
+    //Create the address
+    Connection::bind_socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (Connection::bind_socket_fd == -1)
+    {
+      printf("cannot create socket");
+      return false;
+    }
+    memset(&(Connection::bind_addr), 0, sizeof(Connection::bind_addr));
+    Connection::bind_addr.sin_family = AF_INET;
+    Connection::bind_addr.sin_port = htons(port);
+    Connection::bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(Connection::bind_socket_fd,(struct sockaddr *)&(Connection::bind_addr), sizeof sizeof(Connection::bind_addr)) == -1) {
+      printf("bind failed");
+      close(Connection::bind_socket_fd);
+      return false;
+    }
+
+    if (listen(Connection::bind_socket_fd, 10) == -1) {
+      printf("listen failed");
+      close(Connection::bind_socket_fd);
+      return false;
+    }
+    return true;
 }
+
+Connection::Connection(int _socket_fd)
+{
+    this->socket_fd = _socket_fd;
+}
+
 
 Connection::~Connection()
 {
-    this->close();
-    vQueueDelete(recv_queue);
+    this->close_connection();
 }
 
-bool Connection::sendall(void *data_ptr, uint16_t data_len)
-{
-    printf("sending %d bytes\n", data_len);
-    xSemaphoreTake(this->lock, portMAX_DELAY);
-    __attribute__((unused)) err_t  err;
-    uint16_t sent_bytes = 0;
-    while(sent_bytes < data_len)
-    {
-        //Check if we have at least MIN_EMPTY bytes emty space in the buffer.
-        //if not, sleep(unless the message is small enough that we can actually send it)
 
-        uint16_t available_buffer = tcp_sndbuf(this->socket);
-        while(available_buffer < 10 && data_len - sent_bytes > available_buffer)
-        {
-            delay_ms(1);
-            available_buffer = tcp_sndbuf(this->socket);
-        }
-        if(data_len - sent_bytes <= available_buffer)
-        {
-            err = tcp_write(this->socket, (char *)data_ptr + sent_bytes,
-                data_len - sent_bytes, TCP_WRITE_FLAG_COPY);
-            sent_bytes = data_len;
-        }
-        else
-        {
-            err = tcp_write(this->socket, (char *)data_ptr + sent_bytes,
-                available_buffer, TCP_WRITE_FLAG_COPY | TCP_WRITE_FLAG_MORE);
-            sent_bytes += available_buffer;
-        }
-    }
-    xSemaphoreGive(this->lock);
-    printf("%d bytes send\n", data_len);
-
-    return true;
-}
 bool Connection::is_connected()
 {
     return this->connected;
 }
 
-void Connection::close()
+void Connection::close_connection()
 {
     printf("closing socket\n");
-    printf("socket address is %p\n", this->socket);
+    close(this->socket_fd);
     this->connected = false;
-    if(this->socket && this->connected)
-    {
-        err_t err = tcp_close(this->socket);
-        //Forceclose connection if failed.
-        if(err == ERR_MEM)
-            tcp_abort(this->socket);
-    }
+    return;
 }
 
-uint16_t Connection::queue_bytes(void *data, uint16_t data_len)
+Connection *Connection::get_next_incomming()
 {
-    for(uint16_t i = 0; i < data_len; i++)
+    int new_socket = accept(Connection::bind_socket_fd, NULL, NULL);
+    if (0 > new_socket)
     {
-        xQueueSendToBack(this->recv_queue, (uint8_t *)data + i, portMAX_DELAY);
+        perror("accept failed");
+        close(Connection::bind_socket_fd);
+        return nullptr;
     }
-
-    return data_len;
+    return new Connection(new_socket);
 }
 
-err_t Connection::recieve_callback(void *con_object, tcp_pcb *socket, pbuf *p, err_t err)
+bool Connection::recieve_all(void *data, uint16_t data_len)
 {
-    Connection *this_connection = (Connection *)con_object;
-    if(p == NULL || err != 0)
+    uint16_t recieved = 0;
+    while(recieved < data_len)
     {
-        delay_ms(1000);
-        this_connection->close();
-        return err;
-    }
-    do
-    {
-        this_connection->queue_bytes(p->payload, p->len);
-        auto last_p = p;
-        p = p->next;
-        xSemaphoreTake(this_connection->lock, portMAX_DELAY);
-        pbuf_free(last_p);
-        tcp_recved(socket, last_p->len);
-        xSemaphoreGive(this_connection->lock);
-    } while(p != NULL);
-    return ERR_OK;
-}
-
-bool Connection::recvall(void *data_ptr, uint16_t data_len)
-{
-    for(uint16_t i = 0; i < data_len; i++)
-    {
-        int ret_val = pdFALSE;
-        while(this->is_connected() and ret_val == pdFALSE)
+        uint16_t read_bytes = read(this->socket_fd, (uint8_t *)data + recieved, data_len - recieved);
+        if(read_bytes == 0)
         {
-            ret_val = xQueueReceive(this->recv_queue, (uint8_t *)data_ptr + i, portTICK_RATE_MS * 10);
+            this->close_connection();
+            return false;
         }
-        if(ret_val == pdFALSE) return false;
+        recieved += read_bytes;
     }
     return true;
+}
+
+bool Connection::send_all(void *data, uint16_t data_len)
+{
+    uint16_t send_total = 0;
+    while(send_total < data_len)
+    {
+        uint16_t send_bytes = send(this->socket_fd, (uint8_t *)data + send_total, data_len - send_total, 0);
+        if(send_bytes == 0)
+        {
+            this->close_connection();
+            return false;
+        }
+        send_total += send_bytes;
+    }
+    return true;
+}
+
+void Connection::get_client_ip(char *buf)
+{
+    sockaddr_in client_addr;
+    socklen_t sock_len = sizeof(sockaddr_in);
+    int get_client_addr = getpeername(this->socket_fd, (sockaddr *)&client_addr, &sock_len );
+    strcpy(buf, inet_ntoa(client_addr.sin_addr));
+}
+uint16_t Connection::get_client_port()
+{
+    sockaddr_in client_addr;
+    socklen_t sock_len = sizeof(sockaddr_in);
+    int get_client_addr = getpeername(this->socket_fd, (sockaddr *)&client_addr, &sock_len);
+    return ntohs(client_addr.sin_port);
 }

@@ -25,13 +25,12 @@ uint8_t MessageParser::parse_message(Message *msg)
         return PARSED;
     }
     return NOT_PARSED;
-
-
 }
 
 uint8_t MessageParser::parse_ping(MessageParser *parser, Message *msg)
 {
     //Create ack message and send it
+
     auto response = Message(msg->get_type(), nullptr, 0);
     response.send_message(msg->get_source(), parser->connection);
     return 0;
