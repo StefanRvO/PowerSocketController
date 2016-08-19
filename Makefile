@@ -23,4 +23,11 @@ LIBS += "supc++"
 ESPBAUD= 460800
 ESPPORT=/dev/ttyUSB0
 FLASH_SIZE=32
+EXTRA_COMPONENTS = extras/spiffs extras/rboot-ota
+
+SPIFFS_BASE_ADDR = 0x300000
+SPIFFS_SIZE = 0x10000
+
 include ../../common.mk
+
+$(eval $(call make_spiffs_image,files))

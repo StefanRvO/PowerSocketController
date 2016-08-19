@@ -4,20 +4,29 @@
  */
  extern "C"
  {
-#include "espressif/esp_common.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
+    #include "espressif/esp_common.h"
+    #include "FreeRTOS.h"
+    #include "task.h"
+    #include "queue.h"
 
-#include <esp/uart.h>
-#include "ssid_config.h"
+    #include <esp/uart.h>
+    #include "ssid_config.h"
+    #include "rboot-api.h"
+    #include "ota-tftp.h"
+
 }
 
 #include "Connection.h"
 #include "Message.h"
 #include "MessageParser.h"
+#include "SettingsReader.h"
 
 #define delay_ms(ms) vTaskDelay((ms) / portTICK_RATE_MS)
+
+#define TFTP_IMAGE_SERVER "192.168.1.23"
+#define TFTP_IMAGE_FILENAME1 "firmware1.bin"
+#define TFTP_IMAGE_FILENAME2 "firmware2.bin"
+
 
 void Connection_Handler(void *PvParameters);
 
@@ -47,6 +56,33 @@ void Bind_Task(void *pvParameters)
         }
 }
 
+void Status_Print(void *pvParameters)
+{
+
+    while(true)
+    {
+        delay_ms(1000);
+        printf("free heap: %d\n", sdk_system_get_free_heap_size());
+    }
+
+}
+void ota_task(void *pvParameters)
+{
+    while(true)
+    {
+        rboot_config conf = rboot_get_config();
+        int slot = (conf.current_rom + 1) % conf.count;
+        if(slot == conf.current_rom) {
+            printf("FATAL ERROR: Only one OTA slot is configured!\n");
+            while(1) {}
+        }
+        int res = ota_tftp_download(TFTP_IMAGE_SERVER, TFTP_PORT+1, TFTP_IMAGE_FILENAME2, 1000, slot, NULL);
+        vTaskDelay(5000 / portTICK_RATE_MS);
+    }
+
+
+}
+
 extern "C" void wifi_reconnect()
 {
     sdk_wifi_station_disconnect();
@@ -57,9 +93,13 @@ extern "C" void wifi_reconnect()
 void setup_wifi()
 {
     struct sdk_station_config config = {
-        WIFI_SSID,
-        WIFI_PASS,
+        "Troldkaervej 24",
+        "\000000000000000000000",
     };
+
+    SettingsReader::readfile(WIFI_SSID_FILE, (char *)config.ssid, 20);
+    SettingsReader::readfile(WIFI_SSID_FILE, (char *)config.password, 20);
+
     config.bssid_set = 0;
     sdk_wifi_set_opmode(STATION_MODE);
     sdk_wifi_station_set_config(&config);
@@ -69,13 +109,27 @@ void setup_wifi()
 
 
 
+
 extern "C" void user_init(void)
 {
     uart_set_baud(0, 115200);
     printf("SDK version:%s\n", sdk_system_get_sdk_version());
-    setup_wifi();
+    rboot_config conf = rboot_get_config();
+    printf("\r\n\r\nOTA Basic demo.\r\nCurrently running on flash slot %d / %d.\r\n\r\n",
+           conf.current_rom, conf.count);
 
+    printf("Image addresses in flash:\r\n");
+    for(int i = 0; i <conf.count; i++) {
+        printf("%c%d: offset 0x%08x\r\n", i == conf.current_rom ? '*':' ', i, conf.roms[i]);
+    }
+
+    SettingsReader::init();
+
+    setup_wifi();
+    ota_tftp_init_server(TFTP_PORT);
     xTaskCreate(Bind_Task, (signed char *)"Bind Task", 1000, NULL, 10, NULL);
+    xTaskCreate(Status_Print, (signed char *)"Bind Task", 1000, NULL, 10, NULL);
+
 }
 
 void Connection_Handler(void *PvParameters)

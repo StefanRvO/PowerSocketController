@@ -5,16 +5,17 @@ import time
 
 
 def recv_thread(socket):
+    num = 0
     while(True):
         length = socket.recv(2)
         if(len(length) == 1):
             length += socket.recv(1)
         msg = length
         length = int.from_bytes(length, byteorder = "big", signed = False)
-        print(length)
         while(len(msg) < length):
             msg += socket.recv(length - len(msg))
-        print(msg.hex())
+        num+= 1
+        print("Got ping", num)
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
