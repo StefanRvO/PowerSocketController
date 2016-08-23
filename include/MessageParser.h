@@ -35,4 +35,10 @@ class MessageParser
         }
         uint8_t parse_message(Message *msg);
         static uint8_t parse_ping(MessageParser *parser, Message *msg);
+        static uint8_t parse_set_name(MessageParser *parser, Message *msg);
+        static uint8_t parse_set_wifi_ssid(MessageParser *parser, Message *msg);
+        static uint8_t parse_set_wifi_password(MessageParser *parser, Message *msg);
+        static uint8_t parse_reboot(MessageParser *parser, Message *msg);
+
+
 };

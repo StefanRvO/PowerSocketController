@@ -28,20 +28,11 @@ bool SettingsReader::init()
         }
     }
 
-    spiffs_DIR d;
-    struct spiffs_dirent e;
-    struct spiffs_dirent *pe = &e;
-
-    SPIFFS_opendir(&fs, "/", &d);
-    while ((pe = SPIFFS_readdir(&d, pe))) {
-      printf("%s [%04x] size:%i\n", pe->name, pe->obj_id, pe->size);
-    }
-    SPIFFS_closedir(&d);
     return true;
 }
 
 
-bool SettingsReader::readfile(const char *filepath, char *buf, uint16_t max_len)
+bool SettingsReader::readfile(const char *filepath, char *buf, uint16_t max_len, bool binary)
 {
     if(!SettingsReader::file_exists(filepath)) return false;
     xSemaphoreTake(SettingsReader::access_lock, portMAX_DELAY);
@@ -50,7 +41,8 @@ bool SettingsReader::readfile(const char *filepath, char *buf, uint16_t max_len)
 
     if(read_bytes == SPIFFS_ERR_END_OF_OBJECT) read_bytes = 0;
 
-    buf[read_bytes] = '\0';
+    if(!binary)
+        buf[read_bytes] = '\0';
     //printf("%s\n", buf);
     SPIFFS_close(&fs, fd);
     xSemaphoreGive(SettingsReader::access_lock);
@@ -61,7 +53,7 @@ bool SettingsReader::readfile(const char *filepath, char *buf, uint16_t max_len)
 bool SettingsReader::writefile(const char *filepath, char *buf, uint16_t write_len)
 {
     xSemaphoreTake(SettingsReader::access_lock, portMAX_DELAY);
-    int fd = SPIFFS_open(&fs, filepath, SPIFFS_TRUNC | SPIFFS_CREAT, 0);
+    int fd = SPIFFS_open(&fs, filepath, SPIFFS_TRUNC | SPIFFS_CREAT | SPIFFS_WRONLY, 0);
     int written = SPIFFS_write(&fs, fd, buf, write_len);
     SPIFFS_close(&fs, fd);
     xSemaphoreGive(SettingsReader::access_lock);
@@ -79,4 +71,34 @@ bool SettingsReader::file_exists(const char *filepath)
     xSemaphoreGive(SettingsReader::access_lock);
     return res == SPIFFS_OK;
 
+}
+
+uint32_t SettingsReader::get_id(bool *success)
+{
+    uint32_t tmp_id;
+    bool got_id = SettingsReader::readfile(ID_FILE, (char *)&tmp_id, sizeof(tmp_id), true);
+    if(success != nullptr) *success = got_id;
+    return tmp_id;
+}
+
+bool SettingsReader::set_id(uint32_t id)
+{
+    return SettingsReader::writefile(ID_FILE, (char *)&id, sizeof(id));
+}
+
+bool SettingsReader::get_switch_state(uint8_t switch_number)
+{
+    uint8_t state;
+    char file_name[sizeof(SWITCH_FILE_PREFIX) + 10];
+    sprintf(file_name, SWITCH_FILE_PREFIX "%d", state);
+    bool got_state = SettingsReader::readfile(file_name, (char *)&state, sizeof(state), true);
+    if(!got_state) return false; //default to off
+    return state;
+}
+
+bool SettingsReader::set_switch_state(uint8_t switch_number, bool state)
+{
+    char file_name[sizeof(SWITCH_FILE_PREFIX) + 10];
+    sprintf(file_name, SWITCH_FILE_PREFIX "%d", state);
+    return SettingsReader::writefile(file_name, (char *)&state, sizeof(state));
 }
