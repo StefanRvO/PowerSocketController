@@ -50,14 +50,17 @@ uint8_t MessageParser::parse_set_name(MessageParser *parser, Message *msg)
 {
     SettingsReader::set_name((char *)msg->get_payload(), msg->get_payload_length());
 }
+
 uint8_t MessageParser::parse_set_wifi_ssid(MessageParser *parser, Message *msg)
 {
     SettingsReader::set_wifi_ssid((char *)msg->get_payload(), msg->get_payload_length());
 }
+
 uint8_t MessageParser::parse_set_wifi_password(MessageParser *parser, Message *msg)
 {
     SettingsReader::set_wifi_password((char *)msg->get_payload(), msg->get_payload_length());
 }
+
 uint8_t MessageParser::parse_reboot(MessageParser *parser, Message *msg)
 {
     printf("rebooting\n");

@@ -40,5 +40,4 @@ class MessageParser
         static uint8_t parse_set_wifi_password(MessageParser *parser, Message *msg);
         static uint8_t parse_reboot(MessageParser *parser, Message *msg);
 
-
 };
