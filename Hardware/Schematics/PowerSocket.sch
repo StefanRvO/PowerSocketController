@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.6.0">
+<eagle version="6.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -6716,6 +6716,7 @@ general purpose rectifier, 1 A</description>
 <part name="R23" library="eagle-ltspice" deviceset="R" device="R2010" value="10K"/>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="P+20" library="supply1" deviceset="VCC" device=""/>
+<part name="R24" library="eagle-ltspice" deviceset="R" device="R2010" value="0"/>
 </parts>
 <sheets>
 <sheet>
@@ -6834,6 +6835,7 @@ general purpose rectifier, 1 A</description>
 <instance part="R23" gate="G$1" x="292.1" y="256.54" rot="R270"/>
 <instance part="GND19" gate="1" x="292.1" y="266.7" rot="R180"/>
 <instance part="P+20" gate="VCC" x="299.72" y="269.24"/>
+<instance part="R24" gate="G$1" x="48.26" y="76.2" rot="R270"/>
 </instances>
 <busses>
 </busses>
@@ -7523,21 +7525,21 @@ general purpose rectifier, 1 A</description>
 <wire x1="373.38" y1="30.48" x2="373.38" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="241.3" y1="30.48" x2="241.3" y2="10.16" width="0.1524" layer="91"/>
 <pinref part="ACIN-PHASE" gate="1" pin="P"/>
-<wire x1="60.96" y1="66.04" x2="45.72" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="60.96" y1="66.04" x2="48.26" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="66.04" x2="45.72" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="60.96" y1="66.04" x2="60.96" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="T2" gate="G$1" pin="A1"/>
 <wire x1="60.96" y1="33.02" x2="162.56" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="162.56" y1="33.02" x2="162.56" y2="45.72" width="0.1524" layer="91"/>
-<wire x1="60.96" y1="66.04" x2="68.58" y2="73.66" width="0.1524" layer="91"/>
-<pinref part="D1" gate="1" pin="C"/>
-<wire x1="68.58" y1="73.66" x2="68.58" y2="152.4" width="0.1524" layer="91"/>
 <wire x1="241.3" y1="10.16" x2="162.56" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="162.56" y1="10.16" x2="162.56" y2="33.02" width="0.1524" layer="91"/>
 <junction x="162.56" y="33.02"/>
 <wire x1="467.36" y1="15.24" x2="370.84" y2="15.24" width="0.1524" layer="91"/>
 <wire x1="370.84" y1="15.24" x2="370.84" y2="30.48" width="0.1524" layer="91"/>
 <junction x="370.84" y="30.48"/>
-<junction x="60.96" y="66.04"/>
+<pinref part="R24" gate="G$1" pin="2"/>
+<wire x1="48.26" y1="66.04" x2="48.26" y2="71.12" width="0.1524" layer="91"/>
+<junction x="48.26" y="66.04"/>
 </segment>
 </net>
 <net name="N$54" class="0">
@@ -7614,6 +7616,15 @@ general purpose rectifier, 1 A</description>
 <pinref part="U$2" gate="G$1" pin="IO5"/>
 <wire x1="182.88" y1="162.56" x2="289.56" y2="162.56" width="0.1524" layer="91"/>
 <wire x1="289.56" y1="162.56" x2="289.56" y2="243.84" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$53" class="0">
+<segment>
+<pinref part="R24" gate="G$1" pin="1"/>
+<wire x1="48.26" y1="81.28" x2="48.26" y2="83.82" width="0.1524" layer="91"/>
+<pinref part="D1" gate="1" pin="C"/>
+<wire x1="48.26" y1="83.82" x2="68.58" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="83.82" x2="68.58" y2="152.4" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
