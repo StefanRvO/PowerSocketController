@@ -1664,7 +1664,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <class number="0" name="default" width="0" drill="0">
 </class>
 </classes>
-<designrules name="dirt_cheap_dirty_boards.v1">
+<designrules name="dirt_cheap_dirty_boards.v1 *">
 <description language="en">&lt;b&gt;Dirty Cheap Dirty Board Design Rules&lt;/b&gt;
 &lt;br&gt;
 &lt;br&gt;Min width/Spacing: 5/5mil
@@ -2024,40 +2024,16 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <wire x1="17.895" y1="21.505" x2="18.7" y2="20.7" width="0.4064" layer="1"/>
 <wire x1="18.7" y1="20.7" x2="18.7" y2="17.58" width="0.4064" layer="1"/>
 <wire x1="18.7" y1="17.58" x2="17.4" y2="16.28" width="0.4064" layer="1"/>
-<wire x1="15.095" y1="13.9" x2="15.045" y2="12.945" width="0.4064" layer="16"/>
-<wire x1="15.045" y1="12.945" x2="15" y2="12.1" width="0.4064" layer="16"/>
-<wire x1="15" y1="12.1" x2="10.5" y2="12.1" width="0.4064" layer="16"/>
 <wire x1="10.4" y1="12.1" x2="10.5" y2="12.1" width="0.4064" layer="16"/>
-<via x="10.5" y="12.1" extent="1-16" drill="0.5" shape="square"/>
-<wire x1="10.5" y1="12.1" x2="8.51" y2="13.99" width="0.4064" layer="1"/>
-<wire x1="8.51" y1="13.99" x2="8.51" y2="16.28" width="0.4064" layer="1"/>
 <wire x1="17.4" y1="16.28" x2="17.5" y2="16.18" width="0.4064" layer="1"/>
 <wire x1="17.4" y1="16.28" x2="17.6" y2="16.08" width="0.4064" layer="1"/>
-<wire x1="17.6" y1="16.08" x2="17.6" y2="13.8" width="0.4064" layer="1"/>
-<via x="17.6" y="13.8" extent="1-16" drill="0.5" shape="square"/>
-<wire x1="17.6" y1="13.8" x2="17.4" y2="13.9" width="0.4064" layer="16"/>
-<wire x1="17.4" y1="13.9" x2="15.095" y2="13.9" width="0.4064" layer="16"/>
 <wire x1="41.23" y1="16.475" x2="41.6" y2="16.105" width="0.4064" layer="1"/>
-<wire x1="41.6" y1="16.105" x2="41.6" y2="13.8" width="0.4064" layer="1"/>
-<via x="41.6" y="13.8" extent="1-16" drill="0.5" shape="square"/>
 <wire x1="39.18" y1="13.85" x2="39.68" y2="13.8" width="0.4064" layer="16"/>
-<wire x1="39.68" y1="13.8" x2="41.6" y2="13.8" width="0.4064" layer="16"/>
 <wire x1="64.43" y1="16.875" x2="64.4" y2="16.802575" width="0.254" layer="1" curve="45"/>
 <wire x1="64.4" y1="16.802575" x2="64.4" y2="14" width="0.254" layer="1"/>
 <via x="64.4" y="14" extent="1-16" drill="0.5" shape="square"/>
 <wire x1="64.4" y1="14" x2="64.279290625" y2="14.05" width="0.254" layer="16" curve="45"/>
 <wire x1="64.279290625" y1="14.05" x2="62.28" y2="14.05" width="0.254" layer="16"/>
-<wire x1="39.18" y1="13.85" x2="39.18" y2="12.285209375" width="0.254" layer="16"/>
-<wire x1="39.18" y1="12.285209375" x2="39.10560625" y2="12.10560625" width="0.254" layer="16" curve="-44.999502"/>
-<wire x1="39.10560625" y1="12.10560625" x2="38.7" y2="11.7" width="0.254" layer="16"/>
-<wire x1="38.7" y1="11.7" x2="36.8" y2="11.7" width="0.254" layer="16"/>
-<via x="36.8" y="11.7" extent="1-16" drill="0.5" shape="square"/>
-<wire x1="36.8" y1="11.7" x2="35.405209375" y2="11.7" width="0.254" layer="1"/>
-<wire x1="35.405209375" y1="11.7" x2="35.22560625" y2="11.77439375" width="0.254" layer="1" curve="-44.999502"/>
-<wire x1="35.22560625" y1="11.77439375" x2="33.2" y2="13.8" width="0.254" layer="1"/>
-<wire x1="33.2" y1="13.8" x2="32.594" y2="13.8" width="0.254" layer="1"/>
-<wire x1="32.594" y1="13.8" x2="32.34" y2="14.054" width="0.254" layer="1" curve="-90"/>
-<wire x1="32.34" y1="14.054" x2="32.34" y2="16.475" width="0.254" layer="1"/>
 <wire x1="62.28" y1="14.05" x2="62.28" y2="12.585209375" width="0.254" layer="16"/>
 <wire x1="62.28" y1="12.585209375" x2="62.20560625" y2="12.40560625" width="0.254" layer="16" curve="-44.999502"/>
 <wire x1="62.20560625" y1="12.40560625" x2="61.2" y2="11.4" width="0.254" layer="16"/>
@@ -2119,6 +2095,24 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <vertex x="44.4" y="33.8"/>
 <vertex x="0" y="33.8"/>
 </polygon>
+<polygon width="0.4064" layer="1">
+<vertex x="0" y="15.5"/>
+<vertex x="73.9" y="15.5"/>
+<vertex x="73.9" y="1.1"/>
+<vertex x="100" y="1.1"/>
+<vertex x="100" y="48.6"/>
+<vertex x="46.7" y="48.6"/>
+<vertex x="46.7" y="35.5"/>
+<vertex x="0" y="35.5"/>
+</polygon>
+<wire x1="8.51" y1="16.28" x2="8.51" y2="14.79" width="0.4064" layer="1"/>
+<wire x1="8.51" y1="14.79" x2="10.4" y2="12.9" width="0.4064" layer="1"/>
+<wire x1="10.4" y1="12.9" x2="15.5" y2="12.9" width="0.4064" layer="1"/>
+<wire x1="15.5" y1="12.9" x2="15.8" y2="13.2" width="0.4064" layer="1"/>
+<wire x1="15.8" y1="13.2" x2="16.7" y2="13.2" width="0.4064" layer="1"/>
+<wire x1="16.7" y1="13.2" x2="17.4" y2="13.9" width="0.4064" layer="1"/>
+<wire x1="17.4" y1="13.9" x2="17.4" y2="16.28" width="0.4064" layer="1"/>
+<wire x1="10.4" y1="12.1" x2="10.4" y2="12.9" width="0" layer="19" extent="1-16"/>
 </signal>
 <signal name="VCC">
 <contactref element="C3" pad="1"/>
@@ -2846,17 +2840,25 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <signal name="N$50">
 <contactref element="U$4" pad="13"/>
 </signal>
+<signal name="N$61">
+<via x="1.9" y="31.1" extent="1-16" drill="0.6" shape="square"/>
+</signal>
+<signal name="N$66">
+<via x="52.7" y="37.9" extent="1-16" drill="0.6" shape="square"/>
+</signal>
+<signal name="N$67">
+<via x="4.8" y="16.6" extent="1-16" drill="0.6" shape="square"/>
+</signal>
 <signal name="N$37">
-<polygon width="0.4064" layer="1">
-<vertex x="0" y="15.5"/>
-<vertex x="73.9" y="15.5"/>
-<vertex x="73.9" y="1.1"/>
-<vertex x="100" y="1.1"/>
-<vertex x="100" y="48.6"/>
-<vertex x="46.7" y="48.6"/>
-<vertex x="46.7" y="35.5"/>
-<vertex x="0" y="35.5"/>
-</polygon>
+<wire x1="3.3" y1="45.6" x2="37.6" y2="45.6" width="3.81" layer="16"/>
+</signal>
+<signal name="N$68">
+<wire x1="6" y1="4.5" x2="6" y2="3.3" width="1.27" layer="1"/>
+<wire x1="6" y1="3.3" x2="52.7" y2="3.3" width="3.81" layer="1"/>
+<wire x1="52.7" y1="3.3" x2="52.7" y2="4" width="3.81" layer="1"/>
+</signal>
+<signal name="N$69">
+<wire x1="22.5" y1="4" x2="22.5" y2="4.2" width="3.81" layer="1"/>
 </signal>
 </signals>
 <errors>
