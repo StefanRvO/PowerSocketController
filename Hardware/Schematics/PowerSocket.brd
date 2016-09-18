@@ -1953,7 +1953,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <element name="BUTTON_LED-2" library="wirepad" package="2,15/1,0" value="-" x="77.08" y="9.18"/>
 <element name="BUTTON_LED+2" library="wirepad" package="2,15/1,0" value="-" x="91.825" y="3.42"/>
 <element name="R22" library="rcl" package="R0805" value="100" x="78.58" y="12.545" rot="R90"/>
-<element name="BUTTON_SWITCH5" library="wirepad" package="2,15/1,0" value="-" x="73.38" y="9.205"/>
+<element name="BUTTON_SWITCH5" library="wirepad" package="2,15/1,0" value="-" x="73.98" y="9.105"/>
 <element name="R23" library="rcl" package="R0805" value="10K" x="78.805" y="22.67" rot="MR270"/>
 <element name="JTAG" library="pinhead" package="1X04" value="-" x="70.69" y="28.455" rot="R90"/>
 <element name="R11" library="rcl" package="R0805" value="10K" x="70.155" y="6.225" rot="MR0"/>
@@ -2109,13 +2109,15 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <via x="61.5" y="26.1" extent="1-16" drill="0.6" shape="square"/>
 <wire x1="61.5" y1="26.1" x2="61.5" y2="46.195" width="0.8128" layer="16"/>
 <wire x1="61.5" y1="46.195" x2="61.51" y2="46.205" width="0.8128" layer="16"/>
-<polygon width="0.4064" layer="16" isolate="0.8128">
-<vertex x="0" y="1.2"/>
-<vertex x="0" y="48.6"/>
+<polygon width="0.4064" layer="16" isolate="0.254">
+<vertex x="0" y="9.7"/>
+<vertex x="59.6" y="9.7"/>
+<vertex x="59.6" y="1.1"/>
+<vertex x="100" y="1.1"/>
 <vertex x="100" y="48.6"/>
-<vertex x="100" y="48.5"/>
-<vertex x="100" y="1"/>
-<vertex x="0" y="1"/>
+<vertex x="44.4" y="48.6"/>
+<vertex x="44.4" y="33.8"/>
+<vertex x="0" y="33.8"/>
 </polygon>
 </signal>
 <signal name="VCC">
@@ -2415,8 +2417,8 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <contactref element="U$2" pad="IO4"/>
 <wire x1="72.125" y1="4.015" x2="72.105" y2="4.035" width="0.4064" layer="16"/>
 <wire x1="72.105" y1="4.035" x2="71.105" y2="6.225" width="0.4064" layer="16"/>
-<wire x1="71.105" y1="6.225" x2="69.3" y2="16.42" width="0.4064" layer="16"/>
-<wire x1="69.3" y1="16.42" x2="72.9" y2="18.9" width="0.4064" layer="16"/>
+<wire x1="71.105" y1="6.225" x2="72.5" y2="10.62" width="0.4064" layer="16"/>
+<wire x1="72.5" y1="10.62" x2="72.9" y2="18.9" width="0.4064" layer="16"/>
 <via x="72.9" y="18.9" extent="1-16" drill="0.6" shape="square"/>
 <wire x1="72.9" y1="18.9" x2="73.87" y2="19.83" width="0.4064" layer="1"/>
 <wire x1="73.87" y1="19.83" x2="75.565" y2="20.63" width="0.4064" layer="1"/>
@@ -2672,7 +2674,7 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <via x="78.3" y="19.8" extent="1-16" drill="0.6" shape="square"/>
 <wire x1="78.3" y1="19.8" x2="78.3" y2="17.465" width="0.4064" layer="1"/>
 <wire x1="78.3" y1="17.465" x2="78.265" y2="17.43" width="0.4064" layer="1"/>
-<wire x1="73.38" y1="9.205" x2="74.5" y2="10.825" width="0.4064" layer="1"/>
+<wire x1="73.98" y1="9.105" x2="74.5" y2="10.825" width="0.4064" layer="1"/>
 <wire x1="74.5" y1="10.825" x2="77.3" y2="14.8" width="0.4064" layer="1"/>
 <wire x1="77.3" y1="14.8" x2="78.265" y2="15.765" width="0.4064" layer="1"/>
 <wire x1="78.265" y1="15.765" x2="78.265" y2="17.43" width="0.4064" layer="1"/>
@@ -2845,11 +2847,15 @@ diameter 2.54 mm, horizontal, grid 10.16 mm</description>
 <contactref element="U$4" pad="13"/>
 </signal>
 <signal name="N$37">
-<polygon width="0.4064" layer="1" isolate="0.8128">
+<polygon width="0.4064" layer="1">
+<vertex x="0" y="15.5"/>
+<vertex x="73.9" y="15.5"/>
+<vertex x="73.9" y="1.1"/>
 <vertex x="100" y="1.1"/>
-<vertex x="0" y="1.1"/>
-<vertex x="0" y="48.6"/>
 <vertex x="100" y="48.6"/>
+<vertex x="46.7" y="48.6"/>
+<vertex x="46.7" y="35.5"/>
+<vertex x="0" y="35.5"/>
 </polygon>
 </signal>
 </signals>
