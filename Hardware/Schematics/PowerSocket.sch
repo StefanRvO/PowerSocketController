@@ -8,20 +8,20 @@
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
-<layer number="17" name="Pads" color="2" fill="1" visible="no" active="no"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="no" active="no"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="no"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="no"/>
-<layer number="21" name="tPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="no" active="no"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="no" active="no"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="no" active="no"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="no" active="no"/>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="no"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="no"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="no"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="no"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="no"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="no"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="no"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="no"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="no"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="no"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="no"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="no"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="no"/>
@@ -30,8 +30,8 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="no"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="no"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="no"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="no" active="no"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="no" active="no"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="no"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="no"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="no"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="no"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="no"/>
@@ -39,14 +39,14 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="no"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="no"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="no"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="no"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="no" active="no"/>
-<layer number="48" name="Document" color="7" fill="1" visible="no" active="no"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="no" active="no"/>
-<layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="no"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="no"/>
-<layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="no"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="no"/>
+<layer number="48" name="Document" color="7" fill="1" visible="yes" active="no"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="no"/>
+<layer number="50" name="dxf" color="7" fill="1" visible="yes" active="no"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="56" name="wert" color="7" fill="1" visible="yes" active="no"/>
 <layer number="90" name="Modules" color="5" fill="1" visible="yes" active="yes"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
@@ -8928,19 +8928,19 @@ general purpose rectifier, 1 A</description>
 <text x="-6.35" y="-2.54" size="1.524" layer="95">IP+</text>
 <pin name="IP-" x="-7.62" y="-35.56" visible="pad" length="middle" direction="pas" rot="R90"/>
 <pin name="IP+" x="-7.62" y="15.24" visible="pad" length="middle" direction="pas" rot="R270"/>
-<pin name="NFAULT" x="15.24" y="-7.62" length="short" direction="pwr" rot="R180"/>
-<pin name="FAULT_EN" x="15.24" y="7.62" length="short" direction="pwr" rot="R180"/>
-<pin name="VOC" x="15.24" y="2.54" length="short" direction="out" rot="R180"/>
+<pin name="NFAULT" x="15.24" y="-7.62" length="short" direction="out" rot="R180"/>
+<pin name="FAULT_EN" x="15.24" y="7.62" length="short" direction="in" rot="R180"/>
+<pin name="VOC" x="15.24" y="2.54" length="short" direction="in" rot="R180"/>
 <pin name="IP+1" x="-2.54" y="15.24" visible="pad" length="middle" direction="pas" rot="R270"/>
 <pin name="IP-1" x="-2.54" y="-35.56" visible="pad" length="middle" direction="pas" rot="R90"/>
-<pin name="VCC" x="15.24" y="-2.54" length="short" rot="R180"/>
+<pin name="VCC" x="15.24" y="-2.54" length="short" direction="pwr" rot="R180"/>
 <pin name="IP+2" x="-5.08" y="15.24" visible="pad" length="middle" direction="pas" rot="R270"/>
 <pin name="IP+3" x="0" y="15.24" visible="pad" length="middle" direction="pas" rot="R270"/>
 <pin name="IP-2" x="-5.08" y="-35.56" visible="pad" length="middle" direction="pas" rot="R90"/>
 <pin name="IP-3" x="0" y="-35.56" visible="pad" length="middle" direction="pas" rot="R90"/>
-<pin name="VIOUT" x="15.24" y="-12.7" length="short" direction="pwr" rot="R180"/>
-<pin name="FILTER" x="15.24" y="-17.78" length="short" direction="pwr" rot="R180"/>
-<pin name="VZCR" x="15.24" y="-22.86" length="short" direction="pwr" rot="R180"/>
+<pin name="VIOUT" x="15.24" y="-12.7" length="short" direction="out" rot="R180"/>
+<pin name="FILTER" x="15.24" y="-17.78" length="short" direction="in" rot="R180"/>
+<pin name="VZCR" x="15.24" y="-22.86" length="short" direction="out" rot="R180"/>
 <pin name="GND" x="15.24" y="-27.94" length="short" direction="pwr" rot="R180"/>
 </symbol>
 </symbols>
@@ -9024,7 +9024,7 @@ general purpose rectifier, 1 A</description>
 <part name="OK1" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+6" library="supply1" deviceset="VCC" device=""/>
 <part name="R4" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
-<part name="R9" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R9" library="rcl" deviceset="R-EU_" device="R0805" value="150"/>
 <part name="OK2" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+10" library="supply1" deviceset="VCC" device=""/>
 <part name="R10" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
@@ -9042,7 +9042,7 @@ general purpose rectifier, 1 A</description>
 <part name="OK3" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+12" library="supply1" deviceset="VCC" device=""/>
 <part name="R13" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
-<part name="R14" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R14" library="rcl" deviceset="C-EU" device="C0805" value="150"/>
 <part name="OK4" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+13" library="supply1" deviceset="VCC" device=""/>
 <part name="R15" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
@@ -9054,7 +9054,7 @@ general purpose rectifier, 1 A</description>
 <part name="OK5" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+15" library="supply1" deviceset="VCC" device=""/>
 <part name="R17" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
-<part name="R18" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R18" library="rcl" deviceset="C-EU" device="C0805" value="150"/>
 <part name="OK6" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+16" library="supply1" deviceset="VCC" device=""/>
 <part name="R19" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
@@ -9080,23 +9080,23 @@ general purpose rectifier, 1 A</description>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="P+21" library="supply1" deviceset="VCC" device=""/>
-<part name="C9" library="rcl" deviceset="C-EU" device="C1206" value="470nF"/>
-<part name="C10" library="rcl" deviceset="C-EU" device="C1206" value="1nF"/>
-<part name="C11" library="rcl" deviceset="C-EU" device="C1206" value="100nF"/>
+<part name="C9" library="rcl" deviceset="C-EU" device="C0805" value="470nF"/>
+<part name="C10" library="rcl" deviceset="C-EU" device="C0805" value="1nF"/>
+<part name="C11" library="rcl" deviceset="C-EU" device="C0805" value="100nF"/>
 <part name="U$3" library="PowerSocket" deviceset="ACS710" device=""/>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
 <part name="P+7" library="supply1" deviceset="VCC" device=""/>
-<part name="C1" library="rcl" deviceset="C-EU" device="C1206" value="470nF"/>
-<part name="C4" library="rcl" deviceset="C-EU" device="C1206" value="1nF"/>
-<part name="C12" library="rcl" deviceset="C-EU" device="C1206" value="100nF"/>
+<part name="C1" library="rcl" deviceset="C-EU" device="C0805" value="470nF"/>
+<part name="C4" library="rcl" deviceset="C-EU" device="C0805" value="1nF"/>
+<part name="C12" library="rcl" deviceset="C-EU" device="C0805" value="100nF"/>
 <part name="U$4" library="PowerSocket" deviceset="ACS710" device=""/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
 <part name="P+11" library="supply1" deviceset="VCC" device=""/>
-<part name="C5" library="rcl" deviceset="C-EU" device="C1206" value="470nF"/>
-<part name="C6" library="rcl" deviceset="C-EU" device="C1206" value="1nF"/>
-<part name="C13" library="rcl" deviceset="C-EU" device="C1206" value="100nF"/>
+<part name="C5" library="rcl" deviceset="C-EU" device="C0805" value="470nF"/>
+<part name="C6" library="rcl" deviceset="C-EU" device="C0805" value="1nF"/>
+<part name="C13" library="rcl" deviceset="C-EU" device="C0805" value="100nF"/>
 </parts>
 <sheets>
 <sheet>
@@ -9105,7 +9105,7 @@ general purpose rectifier, 1 A</description>
 <instances>
 <instance part="ACIN-NULL" gate="1" x="43.18" y="60.96"/>
 <instance part="ACIN-PHASE" gate="1" x="43.18" y="66.04"/>
-<instance part="ACOUT-PHASE" gate="1" x="157.48" y="48.26" rot="R180"/>
+<instance part="ACOUT-PHASE" gate="1" x="149.86" y="48.26" rot="R180"/>
 <instance part="ACOUT-NULL" gate="1" x="208.28" y="33.02" rot="R90"/>
 <instance part="GND3" gate="1" x="60.96" y="124.46" rot="R180"/>
 <instance part="P+1" gate="VCC" x="45.72" y="124.46"/>
@@ -9151,7 +9151,7 @@ general purpose rectifier, 1 A</description>
 <instance part="R6" gate="G$1" x="68.58" y="170.18" rot="R270"/>
 <instance part="SUPPLY_GND" gate="1" x="60.96" y="109.22" rot="R90"/>
 <instance part="SUPPLY_3.3" gate="1" x="45.72" y="109.22" rot="R90"/>
-<instance part="ACOUT-PHASE1" gate="1" x="330.2" y="50.8" rot="R180"/>
+<instance part="ACOUT-PHASE1" gate="1" x="330.2" y="58.42" rot="R180"/>
 <instance part="ACOUT-NULL1" gate="1" x="419.1" y="30.48" rot="R90"/>
 <instance part="T3" gate="G$1" x="403.86" y="38.1" rot="R270"/>
 <instance part="R12" gate="G$1" x="403.86" y="91.44" rot="R270"/>
@@ -9163,7 +9163,7 @@ general purpose rectifier, 1 A</description>
 <instance part="P+13" gate="VCC" x="388.62" y="86.36"/>
 <instance part="R15" gate="G$1" x="388.62" y="50.8" rot="R270"/>
 <instance part="T4" gate="G$1" x="375.92" y="43.18" rot="R270"/>
-<instance part="ACOUT-PHASE2" gate="1" x="525.78" y="48.26" rot="R180"/>
+<instance part="ACOUT-PHASE2" gate="1" x="528.32" y="48.26" rot="R180"/>
 <instance part="ACOUT-NULL2" gate="1" x="614.68" y="27.94" rot="R90"/>
 <instance part="T5" gate="G$1" x="599.44" y="35.56" rot="R270"/>
 <instance part="R16" gate="G$1" x="599.44" y="88.9" rot="R270"/>
@@ -9672,7 +9672,7 @@ general purpose rectifier, 1 A</description>
 <segment>
 <pinref part="R12" gate="G$1" pin="1"/>
 <pinref part="R14" gate="G$1" pin="2"/>
-<wire x1="403.86" y1="96.52" x2="393.7" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="403.86" y1="96.52" x2="388.62" y2="88.9" width="0.1524" layer="91"/>
 <wire x1="403.86" y1="96.52" x2="403.86" y2="104.14" width="0.1524" layer="91"/>
 <wire x1="132.08" y1="104.14" x2="403.86" y2="104.14" width="0.1524" layer="91"/>
 <junction x="403.86" y="96.52"/>
@@ -9705,7 +9705,7 @@ general purpose rectifier, 1 A</description>
 <net name="N$32" class="0">
 <segment>
 <pinref part="R14" gate="G$1" pin="1"/>
-<wire x1="383.54" y1="93.98" x2="378.46" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="388.62" y1="96.52" x2="378.46" y2="93.98" width="0.1524" layer="91"/>
 <pinref part="OK4" gate="-1" pin="C"/>
 <wire x1="378.46" y1="93.98" x2="378.46" y2="81.28" width="0.1524" layer="91"/>
 </segment>
@@ -9723,13 +9723,6 @@ general purpose rectifier, 1 A</description>
 <pinref part="T4" gate="G$1" pin="G"/>
 <wire x1="378.46" y1="60.96" x2="378.46" y2="48.26" width="0.1524" layer="91"/>
 <wire x1="378.46" y1="48.26" x2="375.92" y2="48.26" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$36" class="0">
-<segment>
-<wire x1="325.12" y1="50.8" x2="325.12" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="ACOUT-PHASE1" gate="1" pin="P"/>
-<wire x1="327.66" y1="50.8" x2="325.12" y2="50.8" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$38" class="0">
@@ -9802,7 +9795,7 @@ general purpose rectifier, 1 A</description>
 <net name="N$46" class="0">
 <segment>
 <pinref part="R18" gate="G$1" pin="1"/>
-<wire x1="579.12" y1="91.44" x2="574.04" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="584.2" y1="93.98" x2="574.04" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="OK6" gate="-1" pin="C"/>
 <wire x1="574.04" y1="91.44" x2="574.04" y2="78.74" width="0.1524" layer="91"/>
 </segment>
@@ -9882,7 +9875,7 @@ general purpose rectifier, 1 A</description>
 <wire x1="134.62" y1="106.68" x2="599.44" y2="106.68" width="0.1524" layer="91"/>
 <pinref part="R16" gate="G$1" pin="1"/>
 <pinref part="R18" gate="G$1" pin="2"/>
-<wire x1="599.44" y1="93.98" x2="589.28" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="599.44" y1="93.98" x2="584.2" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="599.44" y1="106.68" x2="599.44" y2="93.98" width="0.1524" layer="91"/>
 <junction x="599.44" y="93.98"/>
 <wire x1="134.62" y1="106.68" x2="134.62" y2="157.48" width="0.1524" layer="91"/>
@@ -9976,7 +9969,7 @@ general purpose rectifier, 1 A</description>
 <segment>
 <pinref part="ACOUT-PHASE" gate="1" pin="P"/>
 <pinref part="U$1" gate="G$1" pin="IP-2"/>
-<wire x1="154.94" y1="48.26" x2="142.24" y2="48.26" width="0.1524" layer="91"/>
+<wire x1="147.32" y1="48.26" x2="142.24" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="G$1" pin="IP-1"/>
 <wire x1="142.24" y1="48.26" x2="142.24" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="G$1" pin="IP-3"/>
@@ -10039,21 +10032,6 @@ general purpose rectifier, 1 A</description>
 <junction x="383.54" y="43.18"/>
 </segment>
 </net>
-<net name="N$61" class="0">
-<segment>
-<pinref part="U$3" gate="G$1" pin="IP-2"/>
-<wire x1="325.12" y1="55.88" x2="320.04" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="U$3" gate="G$1" pin="IP-1"/>
-<wire x1="320.04" y1="55.88" x2="320.04" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="U$3" gate="G$1" pin="IP-3"/>
-<wire x1="320.04" y1="58.42" x2="320.04" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="U$3" gate="G$1" pin="IP-"/>
-<wire x1="320.04" y1="55.88" x2="320.04" y2="53.34" width="0.1524" layer="91"/>
-<junction x="320.04" y="60.96"/>
-<junction x="320.04" y="58.42"/>
-<junction x="320.04" y="55.88"/>
-</segment>
-</net>
 <net name="N$62" class="0">
 <segment>
 <pinref part="U$3" gate="G$1" pin="FILTER"/>
@@ -10071,7 +10049,7 @@ general purpose rectifier, 1 A</description>
 <net name="N$35" class="0">
 <segment>
 <pinref part="U$4" gate="G$1" pin="IP-2"/>
-<wire x1="523.24" y1="48.26" x2="520.7" y2="48.26" width="0.1524" layer="91"/>
+<wire x1="525.78" y1="48.26" x2="520.7" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="U$4" gate="G$1" pin="IP-1"/>
 <wire x1="520.7" y1="48.26" x2="520.7" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="U$4" gate="G$1" pin="IP-3"/>
@@ -10081,6 +10059,7 @@ general purpose rectifier, 1 A</description>
 <junction x="520.7" y="53.34"/>
 <junction x="520.7" y="50.8"/>
 <junction x="520.7" y="48.26"/>
+<pinref part="ACOUT-PHASE2" gate="1" pin="P"/>
 </segment>
 </net>
 <net name="N$64" class="0">
@@ -10118,9 +10097,49 @@ general purpose rectifier, 1 A</description>
 <wire x1="289.56" y1="261.62" x2="289.56" y2="256.54" width="0.1524" layer="91"/>
 </segment>
 </net>
+<net name="N$36" class="0">
+<segment>
+<pinref part="U$3" gate="G$1" pin="IP-3"/>
+<pinref part="U$3" gate="G$1" pin="IP-1"/>
+<wire x1="320.04" y1="60.96" x2="320.04" y2="58.42" width="0.1524" layer="91"/>
+<pinref part="U$3" gate="G$1" pin="IP-2"/>
+<wire x1="320.04" y1="58.42" x2="320.04" y2="55.88" width="0.1524" layer="91"/>
+<pinref part="U$3" gate="G$1" pin="IP-"/>
+<wire x1="320.04" y1="55.88" x2="320.04" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="ACOUT-PHASE1" gate="1" pin="P"/>
+<wire x1="327.66" y1="58.42" x2="320.04" y2="58.42" width="0.1524" layer="91"/>
+<junction x="320.04" y="58.42"/>
+<junction x="320.04" y="60.96"/>
+<junction x="320.04" y="55.88"/>
+<junction x="320.04" y="53.34"/>
+</segment>
+</net>
+<net name="N$27" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="NFAULT"/>
+<wire x1="114.3" y1="68.58" x2="114.3" y2="71.12" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$40" class="0">
+<segment>
+<pinref part="U$3" gate="G$1" pin="NFAULT"/>
+<wire x1="292.1" y1="76.2" x2="292.1" y2="78.74" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$50" class="0">
+<segment>
+<pinref part="U$4" gate="G$1" pin="NFAULT"/>
+<wire x1="492.76" y1="68.58" x2="492.76" y2="71.12" width="0.1524" layer="91"/>
+</segment>
+</net>
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="106,1,114.3,68.58,N$27,,,,,"/>
+<approved hash="106,1,292.1,76.2,N$40,,,,,"/>
+<approved hash="106,1,492.76,68.58,N$50,,,,,"/>
+</errors>
 </schematic>
 </drawing>
 </eagle>
