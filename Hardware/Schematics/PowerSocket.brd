@@ -2130,13 +2130,13 @@ design rules under a new name.</description>
 <contactref element="AMP3" pad="5"/>
 <contactref element="C1" pad="2"/>
 <contactref element="C4" pad="2"/>
-<contactref element="R26" pad="2"/>
-<contactref element="R28" pad="2"/>
-<contactref element="R30" pad="2"/>
 <contactref element="U$1" pad="IN-"/>
 <contactref element="U$1" pad="GND"/>
 <contactref element="U$1" pad="D+"/>
 <contactref element="U$1" pad="D-"/>
+<contactref element="R30" pad="2"/>
+<contactref element="R26" pad="2"/>
+<contactref element="R28" pad="2"/>
 <wire x1="-74.295" y1="-55.88" x2="-92.075" y2="-61.595" width="0" layer="19" extent="1-1"/>
 <wire x1="-74.295" y1="-53.34" x2="-74.295" y2="-55.88" width="0" layer="19" extent="1-1"/>
 <wire x1="-74.295" y1="-50.8" x2="-74.295" y2="-53.34" width="0" layer="19" extent="1-1"/>
@@ -2264,18 +2264,24 @@ design rules under a new name.</description>
 </signal>
 <signal name="AMP3">
 <contactref element="ESP3212" pad="IO32"/>
-<contactref element="R30" pad="3"/>
-<wire x1="83" y1="31.4" x2="-87.75" y2="-35.02" width="0" layer="19" extent="1-1"/>
+<contactref element="R29" pad="1"/>
+<contactref element="R30" pad="1"/>
+<wire x1="-90.05" y1="-35.02" x2="-92.39" y2="-39.37" width="0" layer="19" extent="1-1"/>
+<wire x1="83" y1="31.4" x2="-90.05" y2="-35.02" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="AMP2">
 <contactref element="ESP3212" pad="IO35"/>
-<contactref element="R26" pad="3"/>
-<wire x1="-87.75" y1="-15.97" x2="84.5" y2="31.4" width="0" layer="19" extent="1-1"/>
+<contactref element="R25" pad="1"/>
+<contactref element="R26" pad="1"/>
+<wire x1="-92.39" y1="-5.08" x2="84.5" y2="31.4" width="0" layer="19" extent="1-1"/>
+<wire x1="-90.05" y1="-15.97" x2="-92.39" y2="-5.08" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="AMP1">
 <contactref element="ESP3212" pad="IO34"/>
-<contactref element="R28" pad="3"/>
-<wire x1="-87.75" y1="-22.32" x2="86" y2="31.4" width="0" layer="19" extent="1-1"/>
+<contactref element="R27" pad="1"/>
+<contactref element="R28" pad="1"/>
+<wire x1="-90.05" y1="-22.32" x2="-92.39" y2="-26.67" width="0" layer="19" extent="1-1"/>
+<wire x1="86" y1="31.4" x2="-90.05" y2="-22.32" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="N$66">
 <contactref element="ESP3212" pad="EN"/>
@@ -2605,31 +2611,6 @@ design rules under a new name.</description>
 <vertex x="6" y="1"/>
 </polygon>
 </signal>
-<signal name="N$37">
-<contactref element="AMP2" pad="7"/>
-<contactref element="R25" pad="2"/>
-<wire x1="38.365" y1="30.4" x2="-90.49" y2="-5.08" width="0" layer="19" extent="1-16"/>
-</signal>
-<signal name="N$38">
-<contactref element="R25" pad="1"/>
-<contactref element="R26" pad="1"/>
-<wire x1="-92.39" y1="-5.08" x2="-90.05" y2="-15.97" width="0" layer="19" extent="1-1"/>
-</signal>
-<signal name="N$39">
-<contactref element="R27" pad="1"/>
-<contactref element="R28" pad="1"/>
-<wire x1="-90.05" y1="-22.32" x2="-92.39" y2="-26.67" width="0" layer="19" extent="1-1"/>
-</signal>
-<signal name="N$40">
-<contactref element="R29" pad="1"/>
-<contactref element="R30" pad="1"/>
-<wire x1="-90.05" y1="-35.02" x2="-92.39" y2="-39.37" width="0" layer="19" extent="1-1"/>
-</signal>
-<signal name="N$43">
-<contactref element="AMP3" pad="7"/>
-<contactref element="R29" pad="2"/>
-<wire x1="16.365" y1="30.4" x2="-90.49" y2="-39.37" width="0" layer="19" extent="1-16"/>
-</signal>
 <signal name="+5V">
 <contactref element="U$1" pad="5V"/>
 <contactref element="AMP3" pad="8"/>
@@ -2645,7 +2626,17 @@ design rules under a new name.</description>
 <wire x1="-69.53" y1="87.63" x2="-56.83" y2="87.63" width="0" layer="19" extent="1-1"/>
 <wire x1="-82.23" y1="87.63" x2="-69.53" y2="87.63" width="0" layer="19" extent="1-1"/>
 </signal>
-<signal name="N$44">
+<signal name="N$37">
+<contactref element="AMP3" pad="7"/>
+<contactref element="R29" pad="2"/>
+<wire x1="16.365" y1="30.4" x2="-90.49" y2="-39.37" width="0" layer="19" extent="1-16"/>
+</signal>
+<signal name="N$39">
+<contactref element="AMP2" pad="7"/>
+<contactref element="R25" pad="2"/>
+<wire x1="38.365" y1="30.4" x2="-90.49" y2="-5.08" width="0" layer="19" extent="1-16"/>
+</signal>
+<signal name="N$41">
 <contactref element="AMP1" pad="7"/>
 <contactref element="R27" pad="2"/>
 <wire x1="60.365" y1="30.4" x2="-90.49" y2="-26.67" width="0" layer="19" extent="1-16"/>
