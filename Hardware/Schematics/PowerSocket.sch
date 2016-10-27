@@ -9215,11 +9215,11 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
 <part name="OK1" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+6" library="supply1" deviceset="VCC" device=""/>
-<part name="R4" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R4" library="eagle-ltspice" deviceset="R" device="R2010" value="300"/>
 <part name="R9" library="rcl" deviceset="R-EU_" device="R0805" value="150"/>
 <part name="OK2" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+10" library="supply1" deviceset="VCC" device=""/>
-<part name="R10" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R10" library="eagle-ltspice" deviceset="R" device="R2010" value="300"/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
 <part name="R5" library="eagle-ltspice" deviceset="R" device="R2010" value="0"/>
 <part name="D1" library="diode" deviceset="1N4004" device=""/>
@@ -9230,18 +9230,18 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="R12" library="rcl" deviceset="R-EU_" device="R0805" value="150"/>
 <part name="OK4" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+12" library="supply1" deviceset="VCC" device=""/>
-<part name="R13" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R13" library="eagle-ltspice" deviceset="R" device="R2010" value="300"/>
 <part name="OK3" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+13" library="supply1" deviceset="VCC" device=""/>
-<part name="R15" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R15" library="eagle-ltspice" deviceset="R" device="R2010" value="300"/>
 <part name="NULL3-OUT" library="wirepad" deviceset="3,81/1,4" device="" value="-"/>
 <part name="R16" library="rcl" deviceset="R-EU_" device="R0805" value="150"/>
 <part name="OK5" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+15" library="supply1" deviceset="VCC" device=""/>
-<part name="R17" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R17" library="eagle-ltspice" deviceset="R" device="R2010" value="300"/>
 <part name="OK6" library="optocoupler" deviceset="MOC30*" device="S" technology="41" value="MOC3041S"/>
 <part name="P+16" library="supply1" deviceset="VCC" device=""/>
-<part name="R19" library="eagle-ltspice" deviceset="R" device="R2010" value="150"/>
+<part name="R19" library="eagle-ltspice" deviceset="R" device="R2010" value="300"/>
 <part name="R20" library="rcl" deviceset="R-EU_" device="R0805" value="100"/>
 <part name="P+17" library="supply1" deviceset="VCC" device=""/>
 <part name="R21" library="rcl" deviceset="R-EU_" device="R0805" value="10K"/>
