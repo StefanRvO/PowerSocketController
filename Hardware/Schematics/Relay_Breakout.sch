@@ -9815,10 +9815,10 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="J1" library="adafruit" deviceset="1X2" device="-3.5MM"/>
 <part name="J2" library="adafruit" deviceset="1X2" device="-3.5MM"/>
 <part name="P+1" library="supply2" deviceset="+5V" device=""/>
-<part name="P+2" library="supply2" deviceset="+5V" device=""/>
 <part name="R1" library="rcl" deviceset="R-EU_" device="R0805" value="100K"/>
 <part name="JP1" library="pinhead" deviceset="PINHD-1X2" device=""/>
 <part name="JP2" library="pinhead" deviceset="PINHD-1X2" device=""/>
+<part name="P+2" library="supply2" deviceset="+5V" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -9841,10 +9841,10 @@ In this library the device names are the same as the pin names of the symbols, t
 <instance part="J1" gate="G$1" x="-22.86" y="-55.88" rot="R180"/>
 <instance part="J2" gate="G$1" x="-22.86" y="-35.56" rot="R180"/>
 <instance part="P+1" gate="+5V" x="55.88" y="22.86"/>
-<instance part="P+2" gate="+5V" x="27.94" y="22.86"/>
 <instance part="R1" gate="G$1" x="17.78" y="40.64" rot="R270"/>
 <instance part="JP1" gate="G$1" x="27.94" y="-60.96" rot="R270"/>
 <instance part="JP2" gate="G$1" x="55.88" y="-60.96" rot="R270"/>
+<instance part="P+2" gate="+5V" x="27.94" y="22.86"/>
 </instances>
 <busses>
 </busses>
@@ -9877,6 +9877,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="R1" gate="G$1" pin="2"/>
 <wire x1="17.78" y1="33.02" x2="7.62" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="17.78" y1="35.56" x2="17.78" y2="33.02" width="0.1524" layer="91"/>
+<junction x="17.78" y="33.02"/>
 </segment>
 <segment>
 <pinref part="JP2" gate="G$1" pin="1"/>
@@ -9892,6 +9893,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="R1" gate="G$1" pin="1"/>
 <wire x1="25.4" y1="45.72" x2="25.4" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="17.78" y1="45.72" x2="25.4" y2="45.72" width="0.1524" layer="91"/>
+<junction x="25.4" y="45.72"/>
 </segment>
 <segment>
 <pinref part="JP1" gate="G$1" pin="2"/>
@@ -9937,9 +9939,9 @@ In this library the device names are the same as the pin names of the symbols, t
 <label x="-15.24" y="-35.56" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="U$2" gate="G$1" pin="SWOPEN"/>
-<wire x1="17.78" y1="-2.54" x2="17.78" y2="-17.78" width="0.1524" layer="91"/>
-<label x="15.24" y="-17.78" size="1.778" layer="95" rot="R90"/>
+<pinref part="U$2" gate="G$1" pin="SWCLOSE"/>
+<wire x1="27.94" y1="-2.54" x2="27.94" y2="-27.94" width="0.1524" layer="91"/>
+<label x="30.48" y="-27.94" size="1.778" layer="95" rot="R90"/>
 </segment>
 </net>
 <net name="PHASE" class="0">
@@ -9995,6 +9997,16 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="55.88" y1="-58.42" x2="55.88" y2="-45.72" width="0.1524" layer="91"/>
 <label x="55.88" y="-48.26" size="1.778" layer="95" rot="R90"/>
 </segment>
+<segment>
+<pinref part="U$2" gate="G$1" pin="COIL1"/>
+<wire x1="27.94" y1="17.78" x2="27.94" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="D4" gate="G$1" pin="C"/>
+<wire x1="33.02" y1="20.32" x2="33.02" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="17.78" x2="27.94" y2="17.78" width="0.1524" layer="91"/>
+<pinref part="P+2" gate="+5V" pin="+5V"/>
+<wire x1="27.94" y1="17.78" x2="27.94" y2="20.32" width="0.1524" layer="91"/>
+<junction x="27.94" y="17.78"/>
+</segment>
 </net>
 <net name="N$41" class="0">
 <segment>
@@ -10033,19 +10045,16 @@ In this library the device names are the same as the pin names of the symbols, t
 <junction x="33.02" y="27.94"/>
 </segment>
 </net>
-<net name="N$2" class="0">
-<segment>
-<pinref part="U$2" gate="G$1" pin="COIL1"/>
-<pinref part="D4" gate="G$1" pin="C"/>
-<wire x1="27.94" y1="20.32" x2="27.94" y2="15.24" width="0.1524" layer="91"/>
-<wire x1="33.02" y1="20.32" x2="27.94" y2="20.32" width="0.1524" layer="91"/>
-<junction x="27.94" y="20.32"/>
-<pinref part="P+2" gate="+5V" pin="+5V"/>
-</segment>
-</net>
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="104,1,106.68,17.78,AMP1,VCC,+5V,,,"/>
+<approved hash="113,1,27.94,35.0234,Q1,,,,,"/>
+<approved hash="113,1,33.5068,22.86,D4,,,,,"/>
+<approved hash="113,1,30.6112,-58.6571,JP1,,,,,"/>
+<approved hash="113,1,58.5512,-58.6571,JP2,,,,,"/>
+</errors>
 </schematic>
 </drawing>
 </eagle>
