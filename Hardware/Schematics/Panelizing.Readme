@@ -1,0 +1,5 @@
+We panelise the board using aperture-scripting
+First, export the gerber files using eagle and the CAM file from the fab, e.g. http://dirtypcbs.com/dirt_cheap_dirty_boards.v1.cam
+Then download aperture-scripting, (use patched version from https://github.com/StefanRvO/aperture-scripting if you can't get the standard version to work.
+Install the dependencies (e.g. using vert, for issolated lua enviroment. use lua5.1)
+run PowerSocket.cfg and RELAY_BOARD.cfg to generate the gerbers for the panalised boards.
