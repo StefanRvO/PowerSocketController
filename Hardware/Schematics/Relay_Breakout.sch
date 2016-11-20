@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.6.0">
+<eagle version="7.7.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -9829,6 +9829,60 @@ In this library the device names are the same as the pin names of the symbols, t
 </deviceset>
 </devicesets>
 </library>
+<library name="PowerSocket">
+<packages>
+<package name="SOT23-5">
+<wire x1="-1.45" y1="-0.8" x2="1.45" y2="-0.8" width="0.2032" layer="51"/>
+<wire x1="1.45" y1="-0.8" x2="1.45" y2="0.8" width="0.2032" layer="21"/>
+<wire x1="1.45" y1="0.8" x2="-1.45" y2="0.8" width="0.2032" layer="51"/>
+<wire x1="-1.45" y1="0.8" x2="-1.45" y2="-0.8" width="0.2032" layer="21"/>
+<smd name="2" x="0" y="-1.2" dx="0.5" dy="1" layer="1"/>
+<smd name="1" x="-0.95" y="-1.2" dx="0.5" dy="1" layer="1"/>
+<smd name="3" x="0.95" y="-1.2" dx="0.5" dy="1" layer="1"/>
+<smd name="4" x="0.95" y="1.2" dx="0.5" dy="1" layer="1"/>
+<smd name="5" x="-0.95" y="1.2" dx="0.5" dy="1" layer="1"/>
+<text x="-1.905" y="1.905" size="1.27" layer="25">&gt;NAME</text>
+<text x="-1.905" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="-1.175" y1="-1.6" x2="-0.725" y2="-0.9" layer="51"/>
+<rectangle x1="-0.225" y1="-1.6" x2="0.225" y2="-0.9" layer="51"/>
+<rectangle x1="0.725" y1="-1.6" x2="1.175" y2="-0.9" layer="51"/>
+<rectangle x1="-1.175" y1="0.9" x2="-0.725" y2="1.6" layer="51" rot="R180"/>
+<rectangle x1="0.725" y1="0.9" x2="1.175" y2="1.6" layer="51" rot="R180"/>
+</package>
+</packages>
+<symbols>
+<symbol name="S1112">
+<wire x1="-12.7" y1="7.62" x2="12.7" y2="7.62" width="0.254" layer="94"/>
+<wire x1="12.7" y1="7.62" x2="12.7" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-5.08" x2="-12.7" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-12.7" y1="-5.08" x2="-12.7" y2="7.62" width="0.254" layer="94"/>
+<pin name="VIN" x="-15.24" y="5.08" length="middle" direction="sup"/>
+<pin name="GND" x="-15.24" y="-2.54" length="middle" direction="sup"/>
+<pin name="VOUT" x="15.24" y="5.08" length="middle" direction="out" rot="R180"/>
+<pin name="ON/OFF" x="15.24" y="-2.54" length="middle" direction="in" rot="R180"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="S1112">
+<gates>
+<gate name="G$1" symbol="S1112" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SOT23-5">
+<connects>
+<connect gate="G$1" pin="GND" pad="2"/>
+<connect gate="G$1" pin="ON/OFF" pad="3"/>
+<connect gate="G$1" pin="VIN" pad="1"/>
+<connect gate="G$1" pin="VOUT" pad="5"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -9841,11 +9895,10 @@ In this library the device names are the same as the pin names of the symbols, t
 <parts>
 <part name="AMP1" library="allegro-2" deviceset="ACS712-LC" device=""/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
-<part name="P+9" library="supply2" deviceset="+5V" device=""/>
 <part name="C7" library="rcl" deviceset="C-EU" device="C0805" value="100nF"/>
 <part name="C8" library="rcl" deviceset="C-EU" device="C0805" value="470nF"/>
 <part name="R27" library="rcl" deviceset="R-EU_" device="R0805" value="10K"/>
-<part name="R28" library="rcl" deviceset="R-TRIMM" device="5X" value="10K"/>
+<part name="R28" library="rcl" deviceset="R-TRIMM" device="5X" value="20K"/>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="U$2" library="SRD-05VDC-SL-C" deviceset="RELAY" device="PTH"/>
 <part name="U$3" library="SRD-05VDC-SL-C" deviceset="RELAY" device="PTH"/>
@@ -9862,6 +9915,12 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="JP3" library="pinhead" deviceset="PINHD-1X1" device=""/>
 <part name="COPT1" library="supply2" deviceset="+5V" device=""/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
+<part name="4.5V_REG" library="PowerSocket" deviceset="S1112" device=""/>
+<part name="COPT2" library="supply2" deviceset="+5V" device=""/>
+<part name="COPT3" library="supply2" deviceset="+5V" device=""/>
+<part name="GND2" library="supply1" deviceset="GND" device=""/>
+<part name="C1" library="rcl" deviceset="C-EU" device="C0805" value="470nF"/>
+<part name="GND3" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -9870,7 +9929,6 @@ In this library the device names are the same as the pin names of the symbols, t
 <instances>
 <instance part="AMP1" gate="G$1" x="91.44" y="10.16"/>
 <instance part="GND8" gate="1" x="119.38" y="-2.54"/>
-<instance part="P+9" gate="+5V" x="109.22" y="25.4"/>
 <instance part="C7" gate="G$1" x="111.76" y="17.78" rot="R90"/>
 <instance part="C8" gate="G$1" x="111.76" y="7.62" rot="R90"/>
 <instance part="R27" gate="G$1" x="127" y="12.7" rot="R180"/>
@@ -9891,6 +9949,12 @@ In this library the device names are the same as the pin names of the symbols, t
 <instance part="JP3" gate="G$1" x="66.04" y="-60.96" rot="R270"/>
 <instance part="COPT1" gate="+5V" x="50.8" y="-43.18"/>
 <instance part="GND1" gate="1" x="66.04" y="-43.18" rot="R180"/>
+<instance part="4.5V_REG" gate="G$1" x="104.14" y="60.96" rot="R270"/>
+<instance part="COPT2" gate="+5V" x="109.22" y="81.28"/>
+<instance part="COPT3" gate="+5V" x="101.6" y="40.64" rot="R180"/>
+<instance part="GND2" gate="1" x="101.6" y="81.28" rot="R180"/>
+<instance part="C1" gate="G$1" x="114.3" y="43.18" rot="R270"/>
+<instance part="GND3" gate="1" x="121.92" y="43.18" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -9930,6 +9994,16 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="66.04" y1="-58.42" x2="66.04" y2="-45.72" width="0.1524" layer="91"/>
 <label x="68.58" y="-50.8" size="1.778" layer="95" rot="R90"/>
 <pinref part="GND1" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="4.5V_REG" gate="G$1" pin="GND"/>
+<pinref part="GND2" gate="1" pin="GND"/>
+<wire x1="101.6" y1="76.2" x2="101.6" y2="78.74" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="C1" gate="G$1" pin="1"/>
+<pinref part="GND3" gate="1" pin="GND"/>
+<wire x1="116.84" y1="43.18" x2="119.38" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GATE" class="0">
@@ -10027,14 +10101,6 @@ In this library the device names are the same as the pin names of the symbols, t
 </net>
 <net name="+5V" class="0">
 <segment>
-<pinref part="AMP1" gate="G$1" pin="VCC"/>
-<pinref part="C7" gate="G$1" pin="1"/>
-<wire x1="106.68" y1="17.78" x2="109.22" y2="17.78" width="0.1524" layer="91"/>
-<pinref part="P+9" gate="+5V" pin="+5V"/>
-<wire x1="109.22" y1="22.86" x2="109.22" y2="17.78" width="0.1524" layer="91"/>
-<junction x="109.22" y="17.78"/>
-</segment>
-<segment>
 <pinref part="U$3" gate="G$1" pin="COIL1"/>
 <wire x1="55.88" y1="20.32" x2="55.88" y2="15.24" width="0.1524" layer="91"/>
 <pinref part="COPT" gate="+5V" pin="+5V"/>
@@ -10054,6 +10120,16 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="50.8" y1="-58.42" x2="50.8" y2="-45.72" width="0.1524" layer="91"/>
 <label x="53.34" y="-50.8" size="1.778" layer="95" rot="R90"/>
 <pinref part="COPT1" gate="+5V" pin="+5V"/>
+</segment>
+<segment>
+<pinref part="4.5V_REG" gate="G$1" pin="ON/OFF"/>
+<pinref part="COPT3" gate="+5V" pin="+5V"/>
+<wire x1="101.6" y1="45.72" x2="101.6" y2="43.18" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="4.5V_REG" gate="G$1" pin="VIN"/>
+<pinref part="COPT2" gate="+5V" pin="+5V"/>
+<wire x1="109.22" y1="76.2" x2="109.22" y2="78.74" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$41" class="0">
@@ -10093,15 +10169,30 @@ In this library the device names are the same as the pin names of the symbols, t
 <junction x="33.02" y="27.94"/>
 </segment>
 </net>
+<net name="4.5V" class="0">
+<segment>
+<pinref part="4.5V_REG" gate="G$1" pin="VOUT"/>
+<pinref part="C1" gate="G$1" pin="2"/>
+<wire x1="109.22" y1="45.72" x2="109.22" y2="43.18" width="0.1524" layer="91"/>
+<pinref part="AMP1" gate="G$1" pin="VCC"/>
+<pinref part="C7" gate="G$1" pin="1"/>
+<wire x1="106.68" y1="17.78" x2="109.22" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="109.22" y1="43.18" x2="109.22" y2="17.78" width="0.1524" layer="91"/>
+<junction x="109.22" y="17.78"/>
+<junction x="109.22" y="43.18"/>
+</segment>
+</net>
 </nets>
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,106.68,17.78,AMP1,VCC,+5V,,,"/>
+<approved hash="102,1,109.22,76.2,VIN,+5V,,,,"/>
+<approved hash="104,1,106.68,17.78,AMP1,VCC,4.5V,,,"/>
 <approved hash="113,1,27.94,35.0234,Q1,,,,,"/>
 <approved hash="113,1,33.5068,22.86,D4,,,,,"/>
 <approved hash="113,1,30.6112,-58.6571,JP1,,,,,"/>
-<approved hash="113,1,58.5512,-58.6571,JP2,,,,,"/>
+<approved hash="113,1,52.2012,-58.6571,JP2,,,,,"/>
+<approved hash="113,1,67.4412,-58.6571,JP3,,,,,"/>
 </errors>
 </schematic>
 </drawing>
