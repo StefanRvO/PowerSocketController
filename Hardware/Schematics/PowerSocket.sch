@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
@@ -6821,17 +6821,11 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="C3" library="rcl" deviceset="C-EU" device="025-024X044" value="1µF"/>
 <part name="R7" library="rcl" deviceset="R-EU_" device="R0805" value="100"/>
 <part name="P+8" library="supply1" deviceset="VCC" device=""/>
-<part name="R8" library="rcl" deviceset="R-EU_" device="R0805" value="10K"/>
-<part name="GND15" library="supply1" deviceset="GND" device=""/>
 <part name="GND" library="wirepad" deviceset="2,15/1,0" device="" value="GND"/>
 <part name="R20" library="rcl" deviceset="R-EU_" device="R0805" value="100"/>
 <part name="P+17" library="supply1" deviceset="VCC" device=""/>
-<part name="R21" library="rcl" deviceset="R-EU_" device="R0805" value="10K"/>
-<part name="GND18" library="supply1" deviceset="GND" device=""/>
 <part name="R22" library="rcl" deviceset="R-EU_" device="R0805" value="100"/>
 <part name="P+19" library="supply1" deviceset="VCC" device=""/>
-<part name="R23" library="rcl" deviceset="R-EU_" device="R0805" value="10K"/>
-<part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="JTAG" library="pinhead" deviceset="PINHD-1X4" device="" value="-"/>
 <part name="BUTTON1" library="pinhead" deviceset="PINHD-1X3" device=""/>
 <part name="BUTTON2" library="pinhead" deviceset="PINHD-1X3" device=""/>
@@ -6886,17 +6880,11 @@ In this library the device names are the same as the pin names of the symbols, t
 <instance part="C3" gate="G$1" x="-111" y="-74"/>
 <instance part="R7" gate="G$1" x="3" y="193.26" rot="R180"/>
 <instance part="P+8" gate="VCC" x="8.08" y="205.96"/>
-<instance part="R8" gate="G$1" x="8.08" y="175.48" rot="R270"/>
-<instance part="GND15" gate="1" x="8.08" y="165.32"/>
 <instance part="GND" gate="1" x="-73.5" y="-81" rot="R270"/>
 <instance part="R20" gate="G$1" x="3" y="122.14" rot="R180"/>
 <instance part="P+17" gate="VCC" x="8.08" y="134.84"/>
-<instance part="R21" gate="G$1" x="8.08" y="104.36" rot="R270"/>
-<instance part="GND18" gate="1" x="8.08" y="94.2"/>
 <instance part="R22" gate="G$1" x="3" y="68.8" rot="R180"/>
 <instance part="P+19" gate="VCC" x="8.08" y="84.04"/>
-<instance part="R23" gate="G$1" x="8.08" y="48.48" rot="R270"/>
-<instance part="GND19" gate="1" x="8.08" y="38.32"/>
 <instance part="JTAG" gate="A" x="5.54" y="-50.58" rot="R270"/>
 <instance part="BUTTON1" gate="A" x="20.78" y="193.26"/>
 <instance part="BUTTON2" gate="A" x="20.78" y="122.14"/>
@@ -6955,21 +6943,6 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="-24.94" y1="30.7" x2="-24.94" y2="38.32" width="0.1524" layer="91"/>
 <wire x1="-24.94" y1="38.32" x2="-9.7" y2="38.32" width="0.1524" layer="91"/>
 <junction x="-9.7" y="38.32"/>
-</segment>
-<segment>
-<pinref part="GND15" gate="1" pin="GND"/>
-<pinref part="R8" gate="G$1" pin="2"/>
-<wire x1="8.08" y1="167.86" x2="8.08" y2="170.4" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="R21" gate="G$1" pin="2"/>
-<pinref part="GND18" gate="1" pin="GND"/>
-<wire x1="8.08" y1="99.28" x2="8.08" y2="96.74" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="GND19" gate="1" pin="GND"/>
-<pinref part="R23" gate="G$1" pin="2"/>
-<wire x1="8.08" y1="40.86" x2="8.08" y2="43.4" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="FLASH" gate="1" pin="S1"/>
@@ -7269,10 +7242,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="U1" gate="G$1" pin="IO21"/>
 </segment>
 <segment>
-<pinref part="R8" gate="G$1" pin="1"/>
-<wire x1="8.08" y1="180.56" x2="8.08" y2="183.1" width="0.1524" layer="91"/>
 <wire x1="8.08" y1="183.1" x2="-9.7" y2="183.1" width="0.1524" layer="91"/>
-<junction x="8.08" y="183.1"/>
 <label x="-9.7" y="183.1" size="1.778" layer="95"/>
 <pinref part="BUTTON1" gate="A" pin="3"/>
 <wire x1="18.24" y1="190.72" x2="8.08" y2="190.72" width="0.1524" layer="91"/>
@@ -7299,14 +7269,11 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="U1" gate="G$1" pin="IO18"/>
 </segment>
 <segment>
-<pinref part="R21" gate="G$1" pin="1"/>
 <wire x1="8.08" y1="111.98" x2="-9.7" y2="111.98" width="0.1524" layer="91"/>
 <label x="-9.7" y="111.98" size="1.778" layer="95"/>
-<wire x1="8.08" y1="111.98" x2="8.08" y2="109.44" width="0.1524" layer="91"/>
 <pinref part="BUTTON2" gate="A" pin="3"/>
 <wire x1="18.24" y1="119.6" x2="8.08" y2="119.6" width="0.1524" layer="91"/>
 <wire x1="8.08" y1="111.98" x2="8.08" y2="119.6" width="0.1524" layer="91"/>
-<junction x="8.08" y="111.98"/>
 </segment>
 </net>
 <net name="LED2" class="0">
@@ -7329,14 +7296,11 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="U1" gate="G$1" pin="IO17"/>
 </segment>
 <segment>
-<pinref part="R23" gate="G$1" pin="1"/>
-<wire x1="8.08" y1="58.64" x2="8.08" y2="53.56" width="0.1524" layer="91"/>
 <wire x1="8.08" y1="58.64" x2="-14.78" y2="58.64" width="0.1524" layer="91"/>
 <label x="-14.78" y="58.64" size="1.778" layer="95"/>
 <pinref part="BUTTON3" gate="A" pin="3"/>
 <wire x1="18.24" y1="66.26" x2="8.08" y2="66.26" width="0.1524" layer="91"/>
 <wire x1="8.08" y1="66.26" x2="8.08" y2="58.64" width="0.1524" layer="91"/>
-<junction x="8.08" y="58.64"/>
 </segment>
 </net>
 <net name="LED3" class="0">
