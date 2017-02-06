@@ -1,5 +1,5 @@
-[submodule "software/components/mongoose"]
-	path = software/components/mongoose
+[submodule "software/components/mongoose/mongoose"]
+	path = software/components/mongoose/mongoose
 	url = https://github.com/cesanta/mongoose.git
 [submodule "software/components/spiffs/spiffs"]
 	path = software/components/spiffs/spiffs
