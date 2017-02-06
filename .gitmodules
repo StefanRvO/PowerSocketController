@@ -1,3 +1,7 @@
 [submodule "software/components/mongoose"]
 	path = software/components/mongoose
 	url = https://github.com/cesanta/mongoose.git
+[submodule "software/components/spiffs/spiffs"]
+	path = software/components/spiffs/spiffs
+	url = https://github.com/pellepl/spiffs.git
+	branch = 0.3.6
