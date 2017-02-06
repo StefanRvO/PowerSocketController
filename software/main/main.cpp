@@ -19,9 +19,8 @@ extern "C"
     #include "esp_ota_ops.h"
     #include "esp_partition.h"
     #include "freertos/event_groups.h"
-
-
 }
+#include "HttpServer.h"
 #include "SwitchServer.h"
 
 #define EXAMPLE_WIFI_SSID "Dommedagsdomicilet"
@@ -105,6 +104,8 @@ extern "C"
         printf("Initialising Wifi!\n");
         initialise_wifi();
         SwitchServer::start_server(4500);
+        HttpServer httpd_server(":80");
+        httpd_server.start();
         printf("Startup done. Returning from main!\n");
 
 

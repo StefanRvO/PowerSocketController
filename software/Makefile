@@ -3,7 +3,9 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := PowerSocket
+
+CFLAGS += -g
+CXXFLAGS += -g
+PROJECT_NAME :=PowerSocket
 
 include $(IDF_PATH)/make/project.mk
-

@@ -28,7 +28,9 @@ void SwitchServer::Connection_Handler(void *PvParameters)
     delete[] clientip;
     while(connection->is_connected())
     {
-        vTaskDelay(0);
+        //Prevent Dossing and overload due to too spamming.
+        //(Eventually, we should disconnect clients if they spam os too much, but this should do for now.)
+        vTaskDelay(10 / portTICK_PERIOD_MS);
         Message *msg = Message::receive_message(connection);
         if(msg == nullptr)
         {
