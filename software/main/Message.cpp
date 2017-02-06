@@ -1,6 +1,4 @@
 #include "Message.h"
-#include "Device_id.h"
-#include "global_includes.h"
 
 Message::Message(Message_Type type, uint8_t *_payload, uint16_t _payload_length)
 {
@@ -20,6 +18,7 @@ Message::Message(uint32_t _destination, uint32_t _source, Message_Type _msg_type
     this->payload = _payload;
     this->payload_length = _payload_len;
 }
+
 Message::~Message()
 {
     delete[] this->payload;
@@ -29,7 +28,7 @@ bool Message::send_message(uint32_t destination_id, Connection *connection)
 {
     //first send the header
     uint16_t msg_len = this->payload_length + MSG_HEADER_SIZE;
-    uint32_t src_id = get_local_id();
+    uint32_t src_id = 0; //Just enter 0 for now. Should be changed.
     bool success = true;
     uint16_t msg_len_net = htons(msg_len);
     uint32_t dest_net = htonl(destination_id);

@@ -1,5 +1,4 @@
 #include "Connection.h"
-#include "global_includes.h"
 #include <cstring>
 
 struct sockaddr_in Connection::bind_addr;
@@ -19,7 +18,7 @@ bool Connection::bind_to(uint16_t port)
     Connection::bind_addr.sin_port = htons(port);
     Connection::bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (bind(Connection::bind_socket_fd,(struct sockaddr *)&(Connection::bind_addr), sizeof sizeof(Connection::bind_addr)) == -1) {
+    if (bind(Connection::bind_socket_fd,(struct sockaddr *)&(Connection::bind_addr), sizeof(Connection::bind_addr)) == -1) {
       printf("bind failed");
       close(Connection::bind_socket_fd);
       return false;
@@ -106,13 +105,14 @@ void Connection::get_client_ip(char *buf)
 {
     sockaddr_in client_addr;
     socklen_t sock_len = sizeof(sockaddr_in);
-    int get_client_addr = getpeername(this->socket_fd, (sockaddr *)&client_addr, &sock_len );
+    __attribute__((unused)) int get_client_addr = getpeername(this->socket_fd, (sockaddr *)&client_addr, &sock_len );
     strcpy(buf, inet_ntoa(client_addr.sin_addr));
 }
+
 uint16_t Connection::get_client_port()
 {
     sockaddr_in client_addr;
     socklen_t sock_len = sizeof(sockaddr_in);
-    int get_client_addr = getpeername(this->socket_fd, (sockaddr *)&client_addr, &sock_len);
+    __attribute__((unused))int get_client_addr = getpeername(this->socket_fd, (sockaddr *)&client_addr, &sock_len);
     return ntohs(client_addr.sin_port);
 }

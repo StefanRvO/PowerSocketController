@@ -1,20 +1,25 @@
 #include "SwitchServer.h"
 #include "Connection.h"
-#include "MessageParser.h"
-#include "global_includes.h"
+#include "Message.h"
+
+extern "C"
+{
+    #include "freertos/FreeRTOS.h"
+    #include "freertos/task.h"
+}
 
 uint16_t SwitchServer::port = 0;
 
 void SwitchServer::start_server(uint16_t _port)
 {
     SwitchServer::port = _port;
-    xTaskCreate(SwitchServer::Bind_Task, (signed char *)"Bind Task", 1000, NULL, 10, NULL);
+    xTaskCreate(SwitchServer::Bind_Task, "Bind Task", 4000, NULL, 10, NULL);
 }
 
 void SwitchServer::Connection_Handler(void *PvParameters)
 {
     Connection *connection = (Connection *)PvParameters;
-    MessageParser parser(connection);
+    //MessageParser parser(connection);
     char *clientip = new char[20];
     connection->get_client_ip(clientip);
     uint16_t port = connection->get_client_port();
@@ -23,14 +28,15 @@ void SwitchServer::Connection_Handler(void *PvParameters)
     delete[] clientip;
     while(connection->is_connected())
     {
-        delay_ms(0);
+        vTaskDelay(0);
         Message *msg = Message::receive_message(connection);
         if(msg == nullptr)
         {
             connection->close_connection();
             break;
         }
-        parser.parse_message(msg);
+        printf("Recieved message of type %d\n", msg->get_type());
+        //parser.parse_message(msg);
         delete msg;
     }
     printf("Connection was closed\n");
@@ -44,13 +50,18 @@ void SwitchServer::Bind_Task(void *pvParameters)
         if(!Connection::bind_to(SwitchServer::port))
         {
             printf("Listen on port %u failed!\n", (unsigned int)SwitchServer::port);
+            printf("Bailing out, this should not happen!\n");
+            printf("this should probably be changed so we retry periodically\n");
+            vTaskDelete( NULL );
+            return;
         }
         else printf("Listening on port %u\n", (unsigned int)SwitchServer::port);
         while(true)
         {
-            delay_ms(1);
+            vTaskDelay(10 / portTICK_PERIOD_MS);
             Connection *new_connection = Connection::get_next_incomming();
             if(new_connection == nullptr) continue;
-            xTaskCreate(SwitchServer::Connection_Handler, (signed char *)"Con_handler", 1000, new_connection, 10, NULL);
+            printf("new connection\n");
+            xTaskCreate(SwitchServer::Connection_Handler, "Con_handler", 4000, new_connection, 10, NULL);
         }
 }
