@@ -24,11 +24,11 @@ void HttpServer::http_thread()
     printf("Entered HTTP thread!\n");
 	struct mg_mgr mgr;
     struct mg_connection *nc;
-    mg_mgr_init(&mgr, NULL);
+    mg_mgr_init(&mgr, this);
 
     printf("Starting web server on port %s\n", this->port);
 
-    nc = mg_bind(&mgr, this->port, this->ev_handler);
+    nc = mg_bind(&mgr, this->port, this->ev_handler_wrapper);
     if (nc == NULL)
     {
       printf("Failed to create listener!\n");
@@ -39,6 +39,8 @@ void HttpServer::http_thread()
 
     mg_set_protocol_http_websocket(nc);
     //Create the http thread
+    this->s_http_server_opts.document_root = "/";  // Serve current directory
+    this->s_http_server_opts.enable_directory_listing = "yes";
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
@@ -62,16 +64,31 @@ char *mgStrToStr(struct mg_str mgStr) {
 } // mgStrToStr
 
 
-void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p) {
-  if (ev == MG_EV_HTTP_REQUEST) {
-    struct http_message *hm = (struct http_message *) p;
-    printf("Entered event handler!\n");
-    printf("The following uri was requested: %s\n", mgStrToStr(hm->uri));
-    // We have received an HTTP request. Parsed request is contained in `hm`.
-    // Send HTTP reply to the client which shows full original request.
-    mg_send_head(c, 200, hm->message.len, "Content-Type: text/plain");
-    mg_printf(c, "%.*s", hm->message.len, hm->message.p);
-  }
+void HttpServer::ev_handler_wrapper(struct mg_connection *c, int ev, void *p) {
+    printf("Entered event handler wrapper, dereferencing object pointer now!");
+    vTaskDelay(10 / portTICK_PERIOD_MS);
+    HttpServer *http_server = (HttpServer *)c->user_data;
+    printf("Dereferenced object pointer successfully!, new entereing the real event handler");
+
+    vTaskDelay(10 / portTICK_PERIOD_MS);
+
+    http_server->ev_handler(c, ev, p);
+}
+
+void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
+{
+    if (ev == MG_EV_HTTP_REQUEST) {
+      struct http_message *hm = (struct http_message *) p;
+      printf("Entered event handler!\n");
+      printf("The following uri was requested: %s\n", mgStrToStr(hm->uri));
+      mg_serve_http(c, hm, this->s_http_server_opts);
+
+      // We have received an HTTP request. Parsed request is contained in `hm`.
+      // Send HTTP reply to the client which shows full original request.
+      //mg_send_head(c, 200, hm->message.len, "Content-Type: text/plain");
+      //mg_printf(c, "%.*s", hm->message.len, hm->message.p);
+
+    }
 }
 
 bool HttpServer::start()

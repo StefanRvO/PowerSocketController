@@ -2,9 +2,15 @@
 # This is a project Makefile. It is assumed the directory this Makefile resides in is a
 # project subdirectory.
 #
+ALL_FLAGS += -Wno-unused-function
+ALL_FLAGS += -DMG_ENABLE_FILESYSTEM
+ALL_FLAGS += -g
 
-CFLAGS += -g
-CXXFLAGS += -g
+CFLAGS += ${ALL_FLAGS}
+
+CXXFLAGS += ${ALL_FLAGS}
+
+
 PROJECT_NAME := PowerSocket
 SPIFFS_ADDR := 0x310000
 

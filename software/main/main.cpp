@@ -72,6 +72,8 @@ static void initialise_wifi(void)
         .sta = {
             EXAMPLE_WIFI_SSID,
             EXAMPLE_WIFI_PASS,
+            "",
+            ""
         },
     };
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
@@ -112,7 +114,7 @@ extern "C"
         printf("Startup done. Returning from main!\n");
         FilesystemHandler fs_handler(0x310000 /*Start address on flash*/,
                                      0x80000  /*Size*/,
-                                     "/"      /*Mount point */);
+                                     (char *)"/"      /*Mount point */);
 
     }
 }
