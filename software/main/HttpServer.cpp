@@ -40,7 +40,7 @@ void HttpServer::http_thread()
     mg_set_protocol_http_websocket(nc);
     //Create the http thread
     //struct mg_serve_http_opts s_http_server_opts;
-    s_http_server_opts.document_root = "/spiffs";  // Serve current directory
+    s_http_server_opts.document_root = "/spiffs/";  // Serve current directory
     s_http_server_opts.enable_directory_listing = "yes";
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
@@ -76,7 +76,6 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
         struct http_message *hm = (struct http_message *) p;
         printf("The following uri was requested: %s\n", mgStrToStr(hm->uri));
         //mg_serve_http(c, hm, this->s_http_server_opts);
-        //Always return a directory listing from the rootdir
         mg_send_head(c, 200, hm->message.len, "Content-Type: text/plain");
         mg_printf(c, "%.*s", hm->message.len, hm->message.p);
     }

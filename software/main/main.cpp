@@ -163,7 +163,40 @@ extern "C"
             fclose(file);
             printf("\n");
         }
+        printf("Now trying to list the files in the spiffs partition!\n");
+
+        spiffs_DIR dir;
+    	struct spiffs_dirent dirEnt;
+    	const char rootPath[] = "/";
 
 
+    	if (SPIFFS_opendir(&fs_handler->fs, rootPath, &dir) == NULL) {
+    		printf("Unable to open %s dir", rootPath);
+    		return;
+    	}
+    	while(SPIFFS_readdir(&dir, &dirEnt) != NULL) {
+    		int len = strlen((char *)dirEnt.name);
+    		// Skip files that end with "/."
+    		if (len>=2 && strcmp((char *)(dirEnt.name + len -2), "/.") == 0) {
+    			continue;
+    		}
+            printf("%s\n", dirEnt.name);
+        }
+        SPIFFS_closedir(&dir);
+
+
+
+        /*DIR *midir;
+        struct dirent* info_archivo;
+        struct stat fileStat;
+        char fullpath[256];
+        if ((midir = opendir("/spiffs/")) == NULL)
+        {
+            perror("Error in opendir");
+            exit(-1);
+        }
+        while ((info_archivo = readdir(midir)) != 0)
+            printf ("%s ", info_archivo->d_name);
+        closedir(midir);*/
     }
 }
