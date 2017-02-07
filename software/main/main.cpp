@@ -68,17 +68,32 @@ static void initialise_wifi(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
     ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+
+    //Set up wifi station configuration.
     wifi_config_t wifi_config = {
         .sta = {
             EXAMPLE_WIFI_SSID,
             EXAMPLE_WIFI_PASS,
-            "",
-            ""
+            false,
+
         },
     };
+    //Set up wifi access point configuration
+    wifi_config_t ap_config;
+    uint8_t ap_ssid[32] = "ESP32_AP";
+    uint8_t ap_pass[64] = "";
+    memcpy(ap_config.ap.ssid, ap_ssid, 32);
+    memcpy(ap_config.ap.password, ap_pass, 64);
+    ap_config.ap.ssid_len = 0;  //ONLY USED IF NOT 0 teminated.
+    ap_config.ap.authmode = WIFI_AUTH_OPEN;
+    ap_config.ap.ssid_hidden = 0;
+    ap_config.ap.max_connection = 4;
+    ap_config.ap.beacon_interval = 100;
+
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
-    ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
+    ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_APSTA) ); //Configure as both accesspoint and station
     ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+    ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_AP, &ap_config));
     ESP_ERROR_CHECK( esp_wifi_start() );
 }
 
@@ -106,15 +121,49 @@ extern "C"
         xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
         printf("Initialising Wifi!\n");
         initialise_wifi();
-        printf("Initialised wifi!.\b");
+        printf("Initialised wifi!.\n");
         printf("Now initialising the filesystem.\n");
+        FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x210000 /*Start address on flash*/,
+                                     0x100000  /*Size*/,
+                                     (char *)"/spiffs"      /*Mount point */);
+        fs_handler->init_spiffs();
         SwitchServer::start_server(4500);
-        HttpServer httpd_server(":80");
+        HttpServer httpd_server("80");
         httpd_server.start();
         printf("Startup done. Returning from main!\n");
-        FilesystemHandler fs_handler(0x310000 /*Start address on flash*/,
-                                     0x80000  /*Size*/,
-                                     (char *)"/"      /*Mount point */);
+
+        #define CHUNK 150 /* read 1024 bytes at a time */
+        char buf[CHUNK];
+        int nread;
+
+        //Read using spiffs api
+        printf("Trying to read using SPIFFS API!\n");
+        spiffs_file f = SPIFFS_open(&fs_handler->fs, "/README", SPIFFS_O_RDONLY, 0);
+
+        printf("%d\n", (size_t)f);
+        if (f) {
+            while ((nread = SPIFFS_read(&fs_handler->fs, f, buf, sizeof buf)) > 0)
+            {
+                printf("%.*s", nread, buf);
+            }
+            printf("%d\n", nread);
+            SPIFFS_close(&fs_handler->fs, f);
+            printf("\n");
+        }
+        printf("Now trying to read using VFS API!\n");
+
+        FILE *file;
+        file = fopen("/spiffs/README", "rw");
+        printf("%d\n", (size_t)f);
+        if (file) {
+            while (fgets(buf, 50, file) != nullptr)
+            {
+                printf("%s", buf);
+            }
+            fclose(file);
+            printf("\n");
+        }
+
 
     }
 }
