@@ -3,9 +3,21 @@
 # project subdirectory.
 #
 
-
 CFLAGS += -g
 CXXFLAGS += -g
-PROJECT_NAME :=PowerSocket
+PROJECT_NAME := PowerSocket
+SPIFFS_ADDR := 0x310000
 
 include $(IDF_PATH)/make/project.mk
+
+images:
+	echo "+---------------------+"
+	echo "| Building spiffs.img |"
+	echo "+---------------------+"
+	mkspiffs -c spiffs_files -b 65536 -p 256 -s 524288 build/spiffs.img
+
+flashdata: images
+	echo "Flashing SPIFFS to ESP32"
+	$(ESPTOOLPY_WRITE_FLASH) --compress ${SPIFFS_ADDR} build/spiffs.img
+
+flashall: flash flashdata

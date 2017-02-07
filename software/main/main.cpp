@@ -22,6 +22,7 @@ extern "C"
 }
 #include "HttpServer.h"
 #include "SwitchServer.h"
+#include "FilesystemHandler.h"
 
 #define EXAMPLE_WIFI_SSID "Dommedagsdomicilet"
 #define EXAMPLE_WIFI_PASS ""
@@ -103,11 +104,15 @@ extern "C"
         xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
         printf("Initialising Wifi!\n");
         initialise_wifi();
+        printf("Initialised wifi!.\b");
+        printf("Now initialising the filesystem.\n");
         SwitchServer::start_server(4500);
         HttpServer httpd_server(":80");
         httpd_server.start();
         printf("Startup done. Returning from main!\n");
-
+        FilesystemHandler fs_handler(0x310000 /*Start address on flash*/,
+                                     0x80000  /*Size*/,
+                                     "/"      /*Mount point */);
 
     }
 }

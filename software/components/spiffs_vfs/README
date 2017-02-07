@@ -1,0 +1,2 @@
+Component for registrering the spiffs driver with espressifs vfs system.
+Code is heavily inspired by https://github.com/nkolban/esp32-snippets/blob/master/vfs/spiffs/
