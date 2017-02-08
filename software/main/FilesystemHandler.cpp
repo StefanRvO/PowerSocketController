@@ -4,7 +4,7 @@ FilesystemHandler *FilesystemHandler::instance = nullptr;
 
 extern "C"
 {
-    #include "duktape_spiffs.h"
+    #include "esp32_fs.h"
     #include "esp_spiffs.h"
 }
 

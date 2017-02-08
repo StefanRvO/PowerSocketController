@@ -42,7 +42,7 @@ void HttpServer::http_thread()
     //struct mg_serve_http_opts s_http_server_opts;
     memset(&this->s_http_server_opts, 0, sizeof(s_http_server_opts));
     this->s_http_server_opts.document_root = "/spiffs/";  // Serve current directory
-    this->s_http_server_opts.enable_directory_listing = "no";
+    this->s_http_server_opts.enable_directory_listing = "yes";
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
@@ -66,7 +66,7 @@ char *mgStrToStr(struct mg_str mgStr) {
 
 
 void HttpServer::ev_handler_wrapper(struct mg_connection *c, int ev, void *p) {
-    HttpServer *http_server = (HttpServer *)c->user_data;
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     http_server->ev_handler(c, ev, p);
 }
 
