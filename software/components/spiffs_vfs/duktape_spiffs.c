@@ -14,6 +14,13 @@
 LOG_TAG("spiffs_vfs");
 
 
+struct spiffs_dir {
+  DIR dir;
+  spiffs_DIR sdh;
+  struct spiffs_dirent sde;
+  struct dirent de;
+};
+
 // SPIFFS storage areas.
 static spiffs fs;
 #define LOG_PAGE_SIZE       256
@@ -270,6 +277,71 @@ static int vfs_rename(void *ctx, const char *oldPath, const char *newPath) {
 } // vfs_rename
 
 
+static DIR *spiffs_vfs_opendir(spiffs *fs, const char *name) {
+  struct spiffs_dir *sd = NULL;
+
+  if (name == NULL) {
+    errno = EINVAL;
+    return NULL;
+  }
+
+  if ((sd = (struct spiffs_dir *) calloc(1, sizeof(*sd))) == NULL) {
+    errno = ENOMEM;
+    return NULL;
+  }
+
+  if (SPIFFS_opendir(fs, name, &sd->sdh) == NULL) {
+    free(sd);
+    sd = NULL;
+    errno = EINVAL;
+  }
+
+  return (DIR *) sd;
+}
+
+
+static struct dirent *spiffs_vfs_readdir(spiffs *fs, DIR *dir) {
+  struct spiffs_dir *sd = (struct spiffs_dir *) dir;
+  if (SPIFFS_readdir(&sd->sdh, &sd->sde) == SPIFFS_OK) {
+    errno = EBADF;
+    return NULL;
+  }
+  sd->de.d_ino = sd->sde.obj_id;
+  memcpy(sd->de.d_name, sd->sde.name, SPIFFS_OBJ_NAME_LEN);
+  (void) fs;
+  return &sd->de;
+}
+
+static int spiffs_vfs_closedir(spiffs *fs, DIR *dir) {
+  struct spiffs_dir *sd = (struct spiffs_dir *) dir;
+  if (dir != NULL) {
+    SPIFFS_closedir(&sd->sdh);
+    free(dir);
+  }
+  (void) fs;
+  return 0;
+}
+
+
+static DIR *vfs_opendir_p(void *ctx, const char *name) {
+    spiffs *fs = (spiffs *)ctx;
+    return spiffs_vfs_opendir(fs, name);
+}
+
+static struct dirent *vfs_readdir_p(void *ctx, DIR *dir) {
+    spiffs *fs = (spiffs *)ctx;
+    return spiffs_vfs_readdir(fs, dir);
+}
+
+static int vfs_closedir_p(void *ctx, DIR *dir) {
+    spiffs *fs = (spiffs *)ctx;
+    return spiffs_vfs_closedir(fs, dir);
+}
+
+
+
+
+
 /**
  * Register the VFS at the specified mount point.
  * The callback functions are registered to handle the
@@ -292,6 +364,11 @@ void spiffs_registerVFS(char *mountPoint, spiffs *fs) {
 	vfs.link_p   = vfs_link;
 	vfs.unlink_p = vfs_unlink;
 	vfs.rename_p = vfs_rename;
+    vfs.opendir_p = vfs_opendir_p;
+    vfs.closedir_p = vfs_closedir_p;
+    vfs.readdir_p = vfs_readdir_p;
+
+
 
 	err = esp_vfs_register(mountPoint, &vfs, (void *)fs);
 	if (err != ESP_OK) {

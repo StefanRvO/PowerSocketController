@@ -164,6 +164,7 @@ extern "C"
             printf("\n");
         }
         printf("Now trying to list the files in the spiffs partition!\n");
+        printf("We first try using SPIFFS calls directly.");
 
         spiffs_DIR dir;
     	struct spiffs_dirent dirEnt;
@@ -185,18 +186,18 @@ extern "C"
         SPIFFS_closedir(&dir);
 
 
-
-        /*DIR *midir;
+        printf("We now try through the filesystem.");
+        DIR *midir;
         struct dirent* info_archivo;
         struct stat fileStat;
         char fullpath[256];
         if ((midir = opendir("/spiffs/")) == NULL)
         {
-            perror("Error in opendir");
+            perror("Error in opendir\n");
             exit(-1);
         }
         while ((info_archivo = readdir(midir)) != 0)
-            printf ("%s ", info_archivo->d_name);
-        closedir(midir);*/
+            printf ("%s \n", info_archivo->d_name);
+        closedir(midir);
     }
 }
