@@ -2,7 +2,7 @@ COMPONENT_ADD_INCLUDEDIRS=mongoose/
 COMPONENT_SRCDIRS=mongoose/
 COMPONENT_SRCDIRS+=./
 
-
+ALL_FLAGS+=-Dmbedtls_time_t=time_t
 
 CFLAGS += ${ALL_FLAGS}
 
