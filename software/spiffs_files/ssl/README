@@ -1,0 +1,4 @@
+#This folder contains certificates to make it possible to serve files using HTTPS
+#The files in this directory are selfsigned and only used for testing.
+#It is __essential__ that when moving to production the real private key should not be pushed to any kind of public version control system, etc. If this happens, a lot of nasty stuff could happen.. 
+

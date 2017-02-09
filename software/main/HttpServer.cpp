@@ -1,7 +1,7 @@
 #include "HttpServer.h"
 
-HttpServer::HttpServer(const char *_port) :
-port(_port)
+HttpServer::HttpServer(const char *_port, bool _use_ssl) :
+port(_port), use_ssl(_use_ssl)
 {
     return;
 }
@@ -24,11 +24,22 @@ void HttpServer::http_thread()
     printf("Entered HTTP thread!\n");
 	struct mg_mgr mgr;
     struct mg_connection *nc;
+    struct mg_bind_opts bind_opts;
     mg_mgr_init(&mgr, this);
 
     printf("Starting web server on port %s\n", this->port);
+    if(use_ssl)
+    {
+        memset(&bind_opts, 0, sizeof(bind_opts));
+        bind_opts.ssl_cert = "/spiffs/ssl/cert.pem";
+        bind_opts.ssl_key = "/spiffs/ssl/key.pem";
 
-    nc = mg_bind(&mgr, this->port, this->ev_handler_wrapper);
+        // Use bind_opts to specify SSL certificate & key file
+        nc = mg_bind_opt(&mgr, this->port, this->ev_handler_wrapper, bind_opts);
+    }
+    else
+        nc = mg_bind(&mgr, this->port, this->ev_handler_wrapper);
+
     if (nc == NULL)
     {
       printf("Failed to create listener!\n");
@@ -40,9 +51,10 @@ void HttpServer::http_thread()
     mg_set_protocol_http_websocket(nc);
     //Create the http thread
     //struct mg_serve_http_opts s_http_server_opts;
-    memset(&this->s_http_server_opts, 0, sizeof(s_http_server_opts));
-    this->s_http_server_opts.document_root = "/spiffs/";  // Serve current directory
+    memset(&(this->s_http_server_opts), 0, sizeof((this->s_http_server_opts)));
+    this->s_http_server_opts.document_root = "/spiffs/html/";  // Serve spiffs fs.
     this->s_http_server_opts.enable_directory_listing = "yes";
+
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
@@ -51,6 +63,7 @@ void HttpServer::http_thread()
     {
         mg_mgr_poll(&mgr, 1000);
     }
+    printf("Exitting HTTP SERVER task!, running was: %d\n", this->running);
     mg_mgr_free(&mgr);
     vTaskDelete( NULL );
 }
@@ -83,10 +96,8 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
 }
 
 bool HttpServer::start()
-{ //TODO: Perform errorchecks to make sure we start up correctly
-
-    //Initialise the webserver, bind to the port and set the protocol
-    xTaskCreate(HttpServer::http_thread_wrapper, "http_thread", 30000, (void **)this, 10, NULL);
+{
+    xTaskCreate(HttpServer::http_thread_wrapper, "http_thread", 20000, (void **)this, 10, NULL);
     while(!this->running)
     { //yeah, race condition. This is probably fine
         vTaskDelay(10 / portTICK_PERIOD_MS);

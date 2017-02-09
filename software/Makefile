@@ -2,10 +2,6 @@
 # This is a project Makefile. It is assumed the directory this Makefile resides in is a
 # project subdirectory.
 #
-ALL_FLAGS += -Wno-unused-function
-ALL_FLAGS += -DMG_ENABLE_FILESYSTEM
-ALL_FLAGS += -g
-
 CFLAGS += ${ALL_FLAGS}
 
 CXXFLAGS += ${ALL_FLAGS}

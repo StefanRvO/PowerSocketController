@@ -75,7 +75,7 @@ static void initialise_wifi(void)
             EXAMPLE_WIFI_SSID,
             EXAMPLE_WIFI_PASS,
             false,
-
+            "",
         },
     };
     //Set up wifi access point configuration
@@ -103,7 +103,7 @@ void hello_task(void *pvParameter)
     printf("Hello world!\n");
     while(true)
     {
-        printf("HELLO!!\n");
+        printf("HELLO!!, this is the amount of free heap: %u\n", xPortGetFreeHeapSize());
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     printf("Restarting now.\n");
@@ -112,97 +112,104 @@ void hello_task(void *pvParameter)
 }
 
 
+void cpp_main()
+{
+    printf("Booted, now initialising tasks and subsystems!\n");
+    nvs_flash_init();
+    xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
+    printf("Initialising Wifi!\n");
+    initialise_wifi();
+    printf("Initialised wifi!.\n");
+    printf("Now initialising the filesystem.\n");
+    FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x210000 /*Start address on flash*/,
+                                 0x100000  /*Size*/,
+                                 (char *)"/spiffs"      /*Mount point */);
+    fs_handler->init_spiffs();
+    SwitchServer::start_server(4500);
+    HttpServer httpd_server("80");
+    httpd_server.start();
+    HttpServer httpsd_server("443", true);
+    httpsd_server.start();
+
+    #define CHUNK 150 /* read 1024 bytes at a time */
+    char buf[CHUNK];
+    int nread;
+
+    //Read using spiffs api
+    printf("Trying to read using SPIFFS API!\n");
+    spiffs_file f = SPIFFS_open(&fs_handler->fs, "/README", SPIFFS_O_RDONLY, 0);
+
+    printf("%d\n", (size_t)f);
+    if (f) {
+        while ((nread = SPIFFS_read(&fs_handler->fs, f, buf, sizeof buf)) > 0)
+        {
+            printf("%.*s", nread, buf);
+        }
+        printf("%d\n", nread);
+        SPIFFS_close(&fs_handler->fs, f);
+        printf("\n");
+    }
+    printf("Now trying to read using VFS API!\n");
+
+    FILE *file;
+    file = fopen("/spiffs/README", "rw");
+    printf("%d\n", (size_t)f);
+    if (file) {
+        while (fgets(buf, 50, file) != nullptr)
+        {
+            printf("%s", buf);
+        }
+        fclose(file);
+        printf("\n");
+    }
+    printf("Now trying to list the files in the spiffs partition!\n");
+    printf("We first try using SPIFFS calls directly.\n");
+
+    spiffs_DIR dir;
+	struct spiffs_dirent dirEnt;
+	const char rootPath[] = "/";
+
+
+	if (SPIFFS_opendir(&fs_handler->fs, rootPath, &dir) == NULL) {
+		printf("Unable to open %s dir", rootPath);
+		return;
+	}
+	while(SPIFFS_readdir(&dir, &dirEnt) != NULL) {
+		int len = strlen((char *)dirEnt.name);
+		// Skip files that end with "/."
+		if (len>=2 && strcmp((char *)(dirEnt.name + len -2), "/.") == 0) {
+			continue;
+		}
+        printf("%s\n", dirEnt.name);
+    }
+    SPIFFS_closedir(&dir);
+
+
+    printf("We now try through the filesystem.\n");
+    DIR *midir;
+    struct dirent* info_archivo;
+    if ((midir = opendir("/spiffs/")) == NULL)
+    {
+        perror("Error in opendir\n");
+    }
+    else
+    {
+        while ((info_archivo = readdir(midir)) != 0)
+            printf ("%s \n", info_archivo->d_name);
+    }
+    closedir(midir);
+
+    printf("We see if stat is working by accessing a file which we know is there.\n");
+    struct stat stat_buf;
+    printf("Stat result:%d\n",stat("/spiffs/README", &stat_buf));
+    printf("Startup done. Suspending main task\n");
+    vTaskSuspend( NULL );
+}
+
 extern "C"
 {
     void app_main()
     {
-        printf("Booted, now initialising tasks and subsystems!\n");
-        nvs_flash_init();
-        xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
-        printf("Initialising Wifi!\n");
-        initialise_wifi();
-        printf("Initialised wifi!.\n");
-        printf("Now initialising the filesystem.\n");
-        FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x210000 /*Start address on flash*/,
-                                     0x100000  /*Size*/,
-                                     (char *)"/spiffs"      /*Mount point */);
-        fs_handler->init_spiffs();
-        SwitchServer::start_server(4500);
-        HttpServer httpd_server("80");
-        httpd_server.start();
-        printf("Startup done. Returning from main!\n");
-
-        #define CHUNK 150 /* read 1024 bytes at a time */
-        char buf[CHUNK];
-        int nread;
-
-        //Read using spiffs api
-        printf("Trying to read using SPIFFS API!\n");
-        spiffs_file f = SPIFFS_open(&fs_handler->fs, "/README", SPIFFS_O_RDONLY, 0);
-
-        printf("%d\n", (size_t)f);
-        if (f) {
-            while ((nread = SPIFFS_read(&fs_handler->fs, f, buf, sizeof buf)) > 0)
-            {
-                printf("%.*s", nread, buf);
-            }
-            printf("%d\n", nread);
-            SPIFFS_close(&fs_handler->fs, f);
-            printf("\n");
-        }
-        printf("Now trying to read using VFS API!\n");
-
-        FILE *file;
-        file = fopen("/spiffs/README", "rw");
-        printf("%d\n", (size_t)f);
-        if (file) {
-            while (fgets(buf, 50, file) != nullptr)
-            {
-                printf("%s", buf);
-            }
-            fclose(file);
-            printf("\n");
-        }
-        printf("Now trying to list the files in the spiffs partition!\n");
-        printf("We first try using SPIFFS calls directly.\n");
-
-        spiffs_DIR dir;
-    	struct spiffs_dirent dirEnt;
-    	const char rootPath[] = "/";
-
-
-    	if (SPIFFS_opendir(&fs_handler->fs, rootPath, &dir) == NULL) {
-    		printf("Unable to open %s dir", rootPath);
-    		return;
-    	}
-    	while(SPIFFS_readdir(&dir, &dirEnt) != NULL) {
-    		int len = strlen((char *)dirEnt.name);
-    		// Skip files that end with "/."
-    		if (len>=2 && strcmp((char *)(dirEnt.name + len -2), "/.") == 0) {
-    			continue;
-    		}
-            printf("%s\n", dirEnt.name);
-        }
-        SPIFFS_closedir(&dir);
-
-
-        printf("We now try through the filesystem.\n");
-        DIR *midir;
-        struct dirent* info_archivo;
-        char fullpath[256];
-        if ((midir = opendir("/spiffs/")) == NULL)
-        {
-            perror("Error in opendir\n");
-        }
-        else
-        {
-            while ((info_archivo = readdir(midir)) != 0)
-                printf ("%s \n", info_archivo->d_name);
-        }
-        closedir(midir);
-
-        printf("We see if stat is working by accessing a file which we know is there.\n");
-        struct stat stat_buf;
-        printf("Stat result:%d\n",stat("/spiffs/README", &stat_buf));
+        cpp_main();
     }
 }

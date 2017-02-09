@@ -5,7 +5,7 @@
 class HttpServer
 {
     public:
-        HttpServer(const char *_port);
+        HttpServer(const char *_port, bool use_ssl = false);
         ~HttpServer();
         bool start();
         bool stop();
@@ -17,5 +17,6 @@ class HttpServer
     private:
         volatile bool running;
         struct mg_serve_http_opts s_http_server_opts;
+        bool use_ssl;
 
 };
