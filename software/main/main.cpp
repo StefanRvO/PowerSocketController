@@ -24,7 +24,7 @@ extern "C"
 #include "SwitchServer.h"
 #include "FilesystemHandler.h"
 
-#define EXAMPLE_WIFI_SSID "Dommedagsdomicilet"
+#define EXAMPLE_WIFI_SSID "SDU-GUEST"
 #define EXAMPLE_WIFI_PASS ""
 
 static const char *TAG = "PowerSocket";
@@ -80,8 +80,8 @@ static void initialise_wifi(void)
     };
     //Set up wifi access point configuration
     wifi_config_t ap_config;
-    uint8_t ap_ssid[32] = "ESP32_AP";
-    uint8_t ap_pass[64] = "";
+    uint8_t ap_ssid[32] = "ESP32_AP\0";
+    uint8_t ap_pass[64] = "\0";
     memcpy(ap_config.ap.ssid, ap_ssid, 32);
     memcpy(ap_config.ap.password, ap_pass, 64);
     ap_config.ap.ssid_len = 0;  //ONLY USED IF NOT 0 teminated.
@@ -92,8 +92,8 @@ static void initialise_wifi(void)
 
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
     ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_APSTA) ); //Configure as both accesspoint and station
-    ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_AP, &ap_config));
+    ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK( esp_wifi_start() );
 }
 
@@ -103,7 +103,7 @@ void hello_task(void *pvParameter)
     printf("Hello world!\n");
     while(true)
     {
-        printf("HELLO!!, this is the amount of free heap: %u\n", xPortGetFreeHeapSize());
+        printf("HELLO!!, this is the amount of free heap: %u\t This is the minimum free heap ever: %u\n", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize());
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     printf("Restarting now.\n");
@@ -184,7 +184,6 @@ void cpp_main()
     }
     SPIFFS_closedir(&dir);
 
-
     printf("We now try through the filesystem.\n");
     DIR *midir;
     struct dirent* info_archivo;
@@ -201,7 +200,7 @@ void cpp_main()
 
     printf("We see if stat is working by accessing a file which we know is there.\n");
     struct stat stat_buf;
-    printf("Stat result:%d\n",stat("/spiffs/README", &stat_buf));
+    printf("Stat result:%d\n",stat("/spiffs/html/README", &stat_buf));
     printf("Startup done. Suspending main task\n");
     vTaskSuspend( NULL );
 }

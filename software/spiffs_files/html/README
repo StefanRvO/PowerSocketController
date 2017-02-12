@@ -1,4 +1,0 @@
-This directory contains files which will be packed into an spiffs image.
-It will mostly contain files used by the http server to serve content.
-The random file is added to prevent to high compression rate, as this results in a crash when the esp tries to 
-unpack the upload.

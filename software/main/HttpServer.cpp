@@ -54,7 +54,8 @@ void HttpServer::http_thread()
     memset(&(this->s_http_server_opts), 0, sizeof((this->s_http_server_opts)));
     this->s_http_server_opts.document_root = "/spiffs/html/";  // Serve spiffs fs.
     this->s_http_server_opts.enable_directory_listing = "yes";
-
+    this->s_http_server_opts.index_files = "index.html";
+    this->s_http_server_opts.url_rewrites = "/=/index.html";
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
@@ -90,14 +91,14 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
         struct http_message *hm = (struct http_message *) p;
         printf("The following uri was requested: %s\n", mgStrToStr(hm->uri));
         mg_serve_http(c, hm, this->s_http_server_opts);
-        mg_send_head(c, 200, hm->message.len, "Content-Type: text/plain");
-        mg_printf(c, "%.*s", hm->message.len, hm->message.p);
+        //mg_send_head(c, 200, hm->message.len, "Content-Type: text/plain");
+        //mg_printf(c, "%.*s", hm->message.len, hm->message.p);
     }
 }
 
 bool HttpServer::start()
 {
-    xTaskCreate(HttpServer::http_thread_wrapper, "http_thread", 20000, (void **)this, 10, NULL);
+    xTaskCreatePinnedToCore(HttpServer::http_thread_wrapper, "http_thread", 20000, (void **)this, 10, NULL, 0);
     while(!this->running)
     { //yeah, race condition. This is probably fine
         vTaskDelay(10 / portTICK_PERIOD_MS);
