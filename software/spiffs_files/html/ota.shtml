@@ -1,0 +1,22 @@
+
+<!--#include file="ssi/header" -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>OTA Upgrade</h1>
+                        <p>This page makes it possible to flash a OTA upgrade</p>
+                        <form method="POST" action="/post/ota_upload" enctype="multipart/form-data">
+                          <input type="file" name="file"> </br>
+                          <input type="submit" value="Upload">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!--#include file="ssi/footer" -->

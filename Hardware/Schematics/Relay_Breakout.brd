@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.7.0">
+<eagle version="8.0.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -1594,7 +1594,7 @@ Source: http://www.kingtronics.com/SMD_M7/M7_SMD_4007.pdf</description>
 </designrules>
 <autorouter>
 <pass name="Default">
-<param name="RoutingGrid" value="0.25mm"/>
+<param name="RoutingGrid" value="50mil"/>
 <param name="AutoGrid" value="1"/>
 <param name="Efforts" value="0"/>
 <param name="TopRouterVariant" value="1"/>
@@ -1906,7 +1906,6 @@ Source: http://www.kingtronics.com/SMD_M7/M7_SMD_4007.pdf</description>
 <contactref element="JP2" pad="1"/>
 <wire x1="28" y1="1.5" x2="20.77" y2="1.5" width="0.6096" layer="1"/>
 <wire x1="20.77" y1="1.5" x2="20.77" y2="1.62" width="0.6096" layer="1"/>
-<wire x1="17.4" y1="1.72" x2="20.77" y2="1.62" width="0.6096" layer="1"/>
 <contactref element="4.5V_REG" pad="3"/>
 <contactref element="4.5V_REG" pad="1"/>
 <wire x1="14.6" y1="5.75" x2="13.75" y2="5.75" width="0.4064" layer="16"/>
@@ -1922,6 +1921,8 @@ Source: http://www.kingtronics.com/SMD_M7/M7_SMD_4007.pdf</description>
 <wire x1="13" y1="2.1" x2="13" y2="4.6" width="0.6096" layer="16"/>
 <wire x1="17.4" y1="1.72" x2="17.4" y2="14.73" width="0.6096" layer="1"/>
 <wire x1="17.4" y1="14.73" x2="20.77" y2="16.8" width="0.6096" layer="1"/>
+<wire x1="20.77" y1="1.62" x2="17.4" y2="1.62" width="0.6096" layer="1"/>
+<wire x1="17.4" y1="1.62" x2="17.4" y2="1.72" width="0.6096" layer="1"/>
 </signal>
 <signal name="N$41">
 <contactref element="AMP1" pad="7"/>

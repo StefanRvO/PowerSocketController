@@ -1,0 +1,21 @@
+
+<!--#include file="ssi/header" -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>Reboot</h1>
+                        <p>Here you can reboot your device!</p>
+                        <form method="POST" action="/post/reboot">
+                          <input type="submit" value="Reboot">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!--#include file="ssi/footer" -->
