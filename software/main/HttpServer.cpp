@@ -101,8 +101,8 @@ void HttpServer::http_thread()
     //struct mg_serve_http_opts s_http_server_opts;
     memset(&(this->s_http_server_opts), 0, sizeof((this->s_http_server_opts)));
     this->s_http_server_opts.document_root = "/spiffs/html/";  // Serve spiffs fs.
-    this->s_http_server_opts.enable_directory_listing = "yes";
-    this->s_http_server_opts.index_files = "index.shtml";
+    this->s_http_server_opts.enable_directory_listing = "no";
+    this->s_http_server_opts.index_files = "/index.shtml";
 
     mg_register_http_endpoint(nc, "/post/ota_upload", HttpServer::OTA_endpoint);
     mg_register_http_endpoint(nc, "/post/reboot", HttpServer::reboot);
@@ -120,15 +120,6 @@ void HttpServer::http_thread()
 }
 
 
-// Convert a Mongoose string type to a string.
-//(borrowed from https://github.com/nkolban/esp32-snippets/)
-char *mgStrToStr(struct mg_str mgStr) {
-	char *retStr = (char *) malloc(mgStr.len + 1);
-	memcpy(retStr, mgStr.p, mgStr.len);
-	retStr[mgStr.len] = 0;
-	return retStr;
-} // mgStrToStr
-
 
 void HttpServer::ev_handler_wrapper(struct mg_connection *c, int ev, void *p) {
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;
@@ -137,7 +128,6 @@ void HttpServer::ev_handler_wrapper(struct mg_connection *c, int ev, void *p) {
 
 void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
-    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     printf("reboot endpoint: %d\n", ev);
     switch(ev)
     {
@@ -149,6 +139,19 @@ void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
     }
 
 }
+void HttpServer::index(struct mg_connection *c, int ev, void *p)
+{   //Endpoint for requesting /.
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    mg_str redirect;
+    redirect.p = http_server->s_http_server_opts.index_files;
+    redirect.len = strlen(redirect.p) + 1;
+    mg_str empty;
+    empty.p = nullptr;
+    empty.len = 0;
+    mg_http_send_redirect(c, 301, redirect, empty);
+}
+
+
 void HttpServer::OTA_endpoint(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for handling OTA uploads
     //We really should do some verification of the data before setting it as boot partition.
@@ -191,7 +194,8 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
         case MG_EV_HTTP_REQUEST:
         {
             struct http_message *hm = (struct http_message *) p;
-            printf("The following uri was requested: %s\n", mgStrToStr(hm->uri));
+            if(strncmp(hm->uri.p, "/", hm->uri.len) == 0)
+                this->index(c, ev, p);
             mg_serve_http(c, hm, this->s_http_server_opts);
             break;
         }

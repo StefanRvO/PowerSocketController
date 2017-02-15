@@ -18,7 +18,7 @@ bool do_startup_test()
 
     //Read using spiffs api
     printf("Trying to read using SPIFFS API!\n");
-    spiffs_file f = SPIFFS_open(&fs_handler->fs, "/html/README", SPIFFS_O_RDONLY, 0);
+    spiffs_file f = SPIFFS_open(&fs_handler->fs, "/html/README.md", SPIFFS_O_RDONLY, 0);
 
     printf("%d\n", (size_t)f);
     if (f) {
@@ -33,7 +33,7 @@ bool do_startup_test()
     printf("Now trying to read using VFS API!\n");
 
     FILE *file;
-    file = fopen("/spiffs/html/README", "rw");
+    file = fopen("/spiffs/html/README.md", "rw");
     printf("%d\n", (size_t)f);
     if (file) {
         while (fgets(buf, 50, file) != nullptr)
@@ -49,7 +49,7 @@ bool do_startup_test()
 
     spiffs_DIR dir;
 	struct spiffs_dirent dirEnt;
-	const char rootPath[] = "/";
+	const char rootPath[] = "/html/";
 
 
 	if (SPIFFS_opendir(&fs_handler->fs, rootPath, &dir) == NULL) {
@@ -69,7 +69,7 @@ bool do_startup_test()
     printf("We now try through the filesystem.\n");
     DIR *midir;
     struct dirent* info_archivo;
-    if ((midir = opendir("/spiffs/")) == NULL)
+    if ((midir = opendir("/spiffs/html/")) == NULL)
     {
         perror("Error in opendir\n");
     }
@@ -83,5 +83,11 @@ bool do_startup_test()
     printf("We see if stat is working by accessing a file which we know is there.\n");
     struct stat stat_buf;
     printf("Stat result:%d\n",stat("/spiffs/html/README.md", &stat_buf));
+
+    printf("Stat result:%d\n",stat("/spiffs/html/.", &stat_buf));
+    printf("Stat result:%d\n",stat("/spiffs/ht/.", &stat_buf));
+    printf("Stat result:%d\n",stat("/spiffs/html", &stat_buf));
+    printf("Stat result:%d\n",stat("/spiffs/html/", &stat_buf));
+
     return true;
 }

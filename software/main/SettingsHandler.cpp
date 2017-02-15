@@ -24,7 +24,7 @@ SettingsHandler::SettingsHandler()
 {
     nvs_flash_init();
     //Open nvs for read and write
-    ESP_ERROR_CHECK(nvs_open("PWRSCK_SETTINGS", NVS_READWRITE, &this->handle) );
+    ESP_ERROR_CHECK( nvs_open("PWRSCK_SETTINGS", NVS_READWRITE, &this->handle) );
     this->set_default_values();
 
 }
@@ -33,8 +33,8 @@ void SettingsHandler::set_default_values()
 {
     //We set up all the default values into the NVS store if they
     //Do not exist already. If they do exists, we won't overwrite them
-    set_default_value("STA_SSID","Dommedagsdomicilet");
-    set_default_value("STA_PASSWORD","");
+    ESP_ERROR_CHECK( set_default_value("STA_SSID","TEST") );
+    ESP_ERROR_CHECK( set_default_value("STA_PASSWORD","") );
     ESP_ERROR_CHECK ( nvs_commit(this->handle)); //Save whatever initialisation we did.
 }
 

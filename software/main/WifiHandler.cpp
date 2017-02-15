@@ -63,7 +63,7 @@ void WifiHandler::update_station_config()
 
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
     ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-    ESP_ERROR_CHECK( esp_wifi_set_auto_connect(true) );
+    //ESP_ERROR_CHECK( esp_wifi_set_auto_connect(true) );
     ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
 }
 
@@ -107,7 +107,7 @@ esp_err_t WifiHandler::event_handler(void *ctx, system_event_t *event)
     case SYSTEM_EVENT_STA_DISCONNECTED:
         /* This is a workaround as ESP32 WiFi libs don't currently
            auto-reassociate. */
-        //esp_wifi_connect();
+        esp_wifi_connect();
         xEventGroupClearBits(WifiHandler::wifi_event_group, CONNECTED_BIT);
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:

@@ -57,8 +57,8 @@ class SettingsHandler
 
         esp_err_t set_default_value(const char *key, const char * buff)
         {
-            size_t len;
-            esp_err_t err = nvs_get(key, buff, &len);
+            size_t len = 0;
+            esp_err_t err = nvs_get(key, (char *)nullptr, &len);
             if(err == ESP_OK)
                 return err;
             return this->nvs_set(key, buff);
@@ -68,8 +68,8 @@ class SettingsHandler
         {
             size_t len_tmp = len;
             esp_err_t err = nvs_get(key, (T) nullptr, &len_tmp);
-            if(err == ESP_OK && err == ESP_ERR_NVS_INVALID_LENGTH)
-                return err;
+            if(err == ESP_OK || err == ESP_ERR_NVS_INVALID_LENGTH)
+                return ESP_OK;
             return this->nvs_set(key, val, len);
         }
 

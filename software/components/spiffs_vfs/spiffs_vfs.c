@@ -120,6 +120,30 @@ int spiffs_vfs_stat(spiffs *fs, const char *path, struct stat *st) {
   if (res == SPIFFS_OK) {
     spiffs_vfs_xlate_stat(&ss, st);
   }
+ /* else
+  {
+      //Fix to check if this is a directory
+      int len = strlen(path) + 1;
+      //alloc temporary string for dir checking
+      if(len > 2 && !(path[len - 3] == '/' && path[len - 2] == '.'))
+      {
+          char *dir = malloc(len + 2);
+          strcpy(dir, path);
+          if(path[len - 2] == '/')
+          {
+              dir[len - 1] = '.';
+              dir[len] = '\0';
+          }
+          else
+          {
+              dir[len - 1] = '/';
+              dir[len] = '.';
+              dir[len + 1] = '\0';
+          }
+          res = spiffs_vfs_stat(fs, dir, st);
+          free(dir);
+      }
+  }*/
   return set_spiffs_errno(fs, path, res);
 }
 
