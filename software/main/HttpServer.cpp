@@ -49,7 +49,7 @@ bool HttpServer::ota_init()
 
 
 HttpServer::HttpServer(const char *_port, bool _use_ssl) :
-port(_port), use_ssl(_use_ssl)
+port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance())
 {
     return;
 }
@@ -199,10 +199,28 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
             mg_serve_http(c, hm, this->s_http_server_opts);
             break;
         }
+        case MG_EV_SSI_CALL:
+            this->handle_ssi(c, p);
         default:
             break;
     }
 
+}
+
+
+void HttpServer::handle_ssi(struct mg_connection *c, void *p)
+{   //Handle all SSI calls
+    const char *param = (const char *) p;
+    printf("entered ssid handler with param %s\n", param);
+    if(strcmp(param, "get_ap_ssid") == 0)
+    {
+        size_t ssid_len = 0;
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_SSID", (char *)nullptr, &ssid_len) );
+        char *ap_ssid = (char *)malloc(ssid_len);
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_SSID", ap_ssid, &ssid_len) );
+        mg_printf(c, ap_ssid);
+        free(ap_ssid);
+    }
 }
 
 bool HttpServer::start()

@@ -1,0 +1,27 @@
+<!--#include file="ssi/header" -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>Settings</h1>
+                        <p>This page makes it possible to set different settings on the device</p></br>
+                        <p>It may later be split into several pages</p>
+                        <form method="POST" action="/post/AP_SSID">
+                            <div class="form-group">
+                             <label for="ap_ssid">Access Point SSID:</label>
+                             <input type="text" class="form-control" id="ap_ssid" value = "<!--#call get_ap_ssid -->" ></br>
+                             <label for="ap_passwd">Access Point Password:</label>
+                             <input type="password" class="form-control" id="ap_passwd" >
+                             <button type="submit">Submit</button><br>
+                           </div>
+                       </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!--#include file="ssi/footer" -->

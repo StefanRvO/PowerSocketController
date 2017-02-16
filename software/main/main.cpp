@@ -21,6 +21,7 @@ extern "C"
 #include "StartupTest.h"
 #include "WifiHandler.h"
 #include "SettingsHandler.h"
+#include "CurrentMeasurer.h"
 
 __attribute__((unused)) static const char *TAG = "PowerSocket";
 
@@ -51,7 +52,7 @@ void cpp_main()
     __attribute__((unused)) WifiHandler *wifi_h = WifiHandler::get_instance();
     printf("Initialised wifi!.\n");
     printf("Now initialising the filesystem.\n");
-    FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x210000 /*Start address on flash*/,
+    FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x220000 /*Start address on flash*/,
                                  0x100000  /*Size*/,
                                  (char *)"/spiffs"      /*Mount point */);
     fs_handler->init_spiffs();
@@ -60,6 +61,18 @@ void cpp_main()
     HttpServer httpsd_server("443", true);
     httpsd_server.start();
     do_startup_test();
+
+    const adc1_channel_t adc_channles[] = {
+        ADC1_CHANNEL_0,
+        ADC1_CHANNEL_1,
+        ADC1_CHANNEL_2,
+        ADC1_CHANNEL_3,
+        ADC1_CHANNEL_4,
+        ADC1_CHANNEL_5,
+        ADC1_CHANNEL_6,
+        ADC1_CHANNEL_7,
+    };
+    __attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
     printf("Startup done. Suspending main task\n");
     vTaskSuspend( NULL );
 }

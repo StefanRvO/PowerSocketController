@@ -3,6 +3,8 @@ extern "C"
     #include "esp_partition.h"
     #include "nvs_flash.h"
     #include <stdio.h>
+    #include "esp_wifi.h" //For wifi default values
+
 }
 
 #include "SettingsHandler.h"
@@ -35,7 +37,10 @@ void SettingsHandler::set_default_values()
     //Do not exist already. If they do exists, we won't overwrite them
     ESP_ERROR_CHECK( set_default_value("STA_SSID","TEST") );
     ESP_ERROR_CHECK( set_default_value("STA_PASSWORD","") );
-    ESP_ERROR_CHECK ( nvs_commit(this->handle)); //Save whatever initialisation we did.
+    ESP_ERROR_CHECK( set_default_value("AP_SSID", "ESP_AP_32"));
+    ESP_ERROR_CHECK( set_default_value("AP_PASS", "PASSWORD"));
+    ESP_ERROR_CHECK( set_default_value("AP_AUTH", (uint32_t)WIFI_AUTH_OPEN));
+
 }
 
 void SettingsHandler::reset_settings()

@@ -4,6 +4,7 @@
 #include "esp_ota_ops.h"
 #include "esp_partition.h"
 
+#include "WifiHandler.h"
 
 struct OTA_status
 {
@@ -29,6 +30,8 @@ class HttpServer
         bool ota_init();
         OTA_status ota_status;
         struct mg_serve_http_opts s_http_server_opts;
+        void handle_ssi(struct mg_connection *c, void *p);
+        SettingsHandler *s_handler = nullptr;
     private:
         volatile bool running;
         bool use_ssl;

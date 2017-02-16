@@ -9,9 +9,7 @@ extern "C"
 
 bool do_startup_test()
 {
-    FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x210000 /*Start address on flash*/,
-                                 0x100000  /*Size*/,
-                                 (char *)"/spiffs"      /*Mount point */);
+    FilesystemHandler *fs_handler = FilesystemHandler::get_instance();
     #define CHUNK 150
     char buf[CHUNK];
     int nread;

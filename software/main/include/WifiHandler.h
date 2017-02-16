@@ -23,6 +23,10 @@ class WifiHandler
         static EventGroupHandle_t wifi_event_group;
         void update_station_config();
         SettingsHandler *s_handler = nullptr;
+        static void reconnect_thread(void *PvParameters);
+        void print_ap_settings();
+        void update_wifi_mode();
+        void update_ap_config();
     private:
         static WifiHandler *instance;
         WifiHandler();

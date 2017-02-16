@@ -8,7 +8,7 @@ CXXFLAGS += ${ALL_FLAGS}
 
 
 PROJECT_NAME := PowerSocket
-SPIFFS_ADDR := 0x210000
+SPIFFS_ADDR := 0x220000
 
 include $(IDF_PATH)/make/project.mk
 
