@@ -9,7 +9,7 @@
                         <h1>OTA Upgrade</h1>
                         <p>This page makes it possible to flash a OTA upgrade</p>
                         <form method="POST" action="/post/ota_upload" enctype="multipart/form-data">
-                          <input type="file" name="file"> </br>
+                          <input type="file" name="file"> <br>
                           <input type="submit" value="Upload">
                         </form>
                     </div>

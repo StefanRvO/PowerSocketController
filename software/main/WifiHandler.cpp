@@ -79,16 +79,31 @@ void WifiHandler::update_ap_config()
 
     ap_config.ap.ssid_len = 0;  //ONLY USED IF NOT 0 teminated.
     ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_AUTH", (uint32_t *)(&ap_config.ap.authmode)));
-
     ap_config.ap.ssid_hidden = 0;
     ap_config.ap.max_connection = 20;
     ap_config.ap.beacon_interval = 100;
-    ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_AP, &ap_config));
+
+    //set ip, gateway and subnet
+    tcpip_adapter_ip_info_t ip_info;
+    ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_NETMASK", (uint32_t *)(&ip_info.netmask)));
+    ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_IP", (uint32_t *)(&ip_info.ip)));
+    ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_GATEWAY", (uint32_t *)(&ip_info.gw)));
+    tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+    ESP_ERROR_CHECK (tcpip_adapter_set_ip_info (TCPIP_ADAPTER_IF_AP , &ip_info));
+    tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
+
+    //only apply if in a valid mode
+    wifi_mode_t mode;
+    ESP_ERROR_CHECK(  esp_wifi_get_mode(&mode) );
+    if(mode == WIFI_MODE_APSTA || mode == WIFI_MODE_AP)
+        ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_AP, &ap_config));
 }
 
 void WifiHandler::update_wifi_mode()
 {
-    ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_APSTA) ); //Configure as both accesspoint and station
+    wifi_mode_t mode;
+    ESP_ERROR_CHECK( this->s_handler->nvs_get("WIFI_MODE", (uint32_t *)(&mode)));
+    ESP_ERROR_CHECK( esp_wifi_set_mode(mode) ); //Configure as both accesspoint and station
 }
 
 void WifiHandler::print_ap_settings()
@@ -149,13 +164,6 @@ esp_err_t WifiHandler::event_handler(void *ctx, system_event_t *event)
         xEventGroupSetBits(WifiHandler::wifi_event_group, CONNECTED_BIT);
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
-    case SYSTEM_EVENT_AP_PROBEREQRECVED:
-    case SYSTEM_EVENT_AP_START:
-    case SYSTEM_EVENT_AP_STOP:
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-    case SYSTEM_EVENT_AP_STA_GOT_IP6:
-
-
         printf("station connected to access point. Now listing connected stations!\n");
         wifi_sta_list_t sta_list;
         ESP_ERROR_CHECK( esp_wifi_ap_get_sta_list(&sta_list));

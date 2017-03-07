@@ -9,11 +9,17 @@
                         <h1>Status</h1>
                         <p>Here Here you can see different status stuff for your device!</p>
                         <h4>IPV4 Access Point</h4>
-                        <!--#call get_AP_IPV4 --></br>
+                        <p> ip: <!--#call get_AP_IP --></p><br>
+                        <p> gateway: <!--#call get_AP_GW --></p><br>
+                        <p> netmask: <!--#call get_AP_NM --></p><br>
+
                         <h4>IPV4 Station</h4>
-                        <!--#call get_STA_IPV4 --></br>
+                        <p> ip: <!--#call get_STA_IP --></p><br>
+                        <p> gateway: <!--#call get_STA_GW --></p><br>
+                        <p> netmask: <!--#call get_STA_NM --></p><br>
+
                         <h4>Uptime</h4>
-                        <!--#call get_uptime --></br>
+                        <p><!--#call get_uptime --> </p><br>
 
                     </div>
                 </div>

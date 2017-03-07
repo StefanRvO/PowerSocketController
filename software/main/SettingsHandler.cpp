@@ -4,7 +4,7 @@ extern "C"
     #include "nvs_flash.h"
     #include <stdio.h>
     #include "esp_wifi.h" //For wifi default values
-
+    #include <arpa/inet.h>
 }
 
 #include "SettingsHandler.h"
@@ -41,9 +41,15 @@ void SettingsHandler::set_default_values()
     ESP_ERROR_CHECK( set_default_value("AP_SSID", "ESP_AP_32"));
     ESP_ERROR_CHECK( set_default_value("AP_PASS", "PASSWORD"));
     ESP_ERROR_CHECK( set_default_value("AP_AUTH", (uint32_t)WIFI_AUTH_OPEN));
-    ESP_ERROR_CHECK( set_default_value("AP_netmask", (255 << 24) + (255 << 16) + (255 << 8) + 0));
-    ESP_ERROR_CHECK( set_default_value("AP_ip", (192 << 24) + (168 << 16) + (1 << 8) + 1));
-    ESP_ERROR_CHECK( set_default_value("AP_gateway", (192 << 24) + (168 << 16) + (1 << 8) + 1));
+    uint32_t tmp;
+    inet_aton("255.255.255.0", &tmp);
+    ESP_ERROR_CHECK( set_default_value("AP_NETMASK", (uint32_t)tmp));
+    inet_aton("192.168.0.1", &tmp);
+    ESP_ERROR_CHECK( set_default_value("AP_IP", (uint32_t)tmp));
+    inet_aton("192.168.0.1", &tmp);
+    ESP_ERROR_CHECK( set_default_value("AP_GATEWAY", (uint32_t)tmp)); //192.168.1.1
+
+    ESP_ERROR_CHECK( set_default_value("WIFI_MODE", (uint32_t)WIFI_MODE_APSTA) );
 
 
 }

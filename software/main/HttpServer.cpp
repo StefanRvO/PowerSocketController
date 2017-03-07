@@ -21,6 +21,19 @@ bool post_parser(mg_str *key, mg_str *value, void *extra)
     {
         ESP_ERROR_CHECK( server->s_handler->nvs_set("AP_SSID", decoded_value.p));
     }
+    else if(strncmp(key->p, "ap_enable", key->len) == 0)
+    {
+        if(strncmp(value->p, "0", value->len) == 0)
+        {
+            printf("disable\n");
+            ESP_ERROR_CHECK( server->s_handler->nvs_set("WIFI_MODE", (uint32_t)WIFI_MODE_STA));
+        }
+        else if(strncmp(value->p, "1", value->len) == 0)
+        {
+            printf("enable\n");
+            ESP_ERROR_CHECK( server->s_handler->nvs_set("WIFI_MODE", (uint32_t)WIFI_MODE_APSTA));
+        }
+    }
     else if(strncmp(key->p, "sta_ssid", key->len) == 0)
     {
         ESP_ERROR_CHECK( server->s_handler->nvs_set("STA_SSID", decoded_value.p));
@@ -195,6 +208,8 @@ void HttpServer::http_thread()
 
     while(this->running)
     {
+        if(this->do_reboot != 0 && this->do_reboot++ >= 3)
+            esp_restart();
         mg_mgr_poll(&mgr, 1000);
     }
     printf("Exitting HTTP SERVER task!, running was: %d\n", this->running);
@@ -234,12 +249,12 @@ void HttpServer::SETTING(struct mg_connection *c, int ev, void *p)
 void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
     printf("reboot endpoint: %d\n", ev);
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     switch(ev)
     {
         case MG_EV_HTTP_REQUEST:
-            mg_printf(c, "Device is rebooting now!\n");
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            esp_restart();
+            mg_http_send_error(c, 204, NULL);
+            http_server->do_reboot = 1; //Start reboot countdown
             break;
     }
 
@@ -289,6 +304,8 @@ void HttpServer::OTA_endpoint(struct mg_connection *c, int ev, void *p)
             if (err != ESP_OK) {
                 ESP_LOGE(TAG, "esp_ota_set_boot_partition failed! err=0x%x", err);
             }
+            mg_http_send_error(c, 204, NULL);
+
         break;
     }
 }
@@ -312,6 +329,17 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
 
 }
 
+void mg_print_ip(struct mg_connection *c, ip4_addr_t ip)
+{
+    for(uint8_t i = 0; i < sizeof(ip4_addr_t); i++)
+    {
+        if(i < 3)
+            mg_printf(c, "%hu.", *(((uint8_t *)&ip) + i) );
+        else
+            mg_printf(c, "%hu", *(((uint8_t *)&ip) + i) );
+    }
+    return;
+}
 
 void HttpServer::handle_ssi(struct mg_connection *c, void *p)
 {   //Handle all SSI calls
@@ -336,54 +364,60 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
         mg_printf(c, sta_ssid);
         free(sta_ssid);
     }
-    else if(strcmp(param , "get_AP_IPV4") == 0)
+    else if(strcmp(param , "get_AP_IP") == 0)
     {
         tcpip_adapter_ip_info_t ip_info;
         ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_AP , &ip_info));
-        mg_printf(c, "IP: ");
-        for(uint8_t i = 0; i < sizeof(ip4_addr_t); i++)
-        {
-            mg_printf(c, "%hu.", *(((uint8_t *)&ip_info.ip) + i) );
-        }
-        mg_printf(c, "\nnetmask: ");
-        for(uint8_t i = 0; i < sizeof(ip4_addr_t); i++)
-        {
-            printf("%hu.", *(((uint8_t *)&ip_info.netmask) + i));
-        }
-        mg_printf(c,"\ngateway: ");
-        for(uint8_t i = 0; i < sizeof(ip4_addr_t); i++)
-        {
-            mg_printf(c,"%hu.", *(((uint8_t *)&ip_info.gw) + i));
-        }
-        mg_printf(c,"\n");
+        mg_print_ip(c, ip_info.ip);
     }
-    else if(strcmp(param , "get_STA_IPV4") == 0)
+    else if(strcmp(param , "get_AP_GW") == 0)
+    {
+        tcpip_adapter_ip_info_t ip_info;
+        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_AP , &ip_info));
+        mg_print_ip(c, ip_info.gw);
+    }
+    else if(strcmp(param , "get_AP_NM") == 0)
+    {
+        tcpip_adapter_ip_info_t ip_info;
+        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_AP , &ip_info));
+        mg_print_ip(c, ip_info.netmask);
+    }
+    else if(strcmp(param , "get_STA_IP") == 0)
     {
         tcpip_adapter_ip_info_t ip_info;
         ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_STA , &ip_info));
-        mg_printf(c, "IP: ");
-        for(uint8_t i = 0; i < sizeof(ip4_addr_t); i++)
-        {
-            mg_printf(c, "%hu.", *(((uint8_t *)&ip_info.ip) + i) );
-        }
-        mg_printf(c, "\nnetmask: ");
-        for(uint8_t i = 0; i < sizeof(ip4_addr_t); i++)
-        {
-            printf("%hu.", *(((uint8_t *)&ip_info.netmask) + i));
-        }
-        mg_printf(c,"\ngateway: ");
-        for(uint8_t i = 0; i < sizeof(ip4_addr_t); i++)
-        {
-            mg_printf(c,"%hu.", *(((uint8_t *)&ip_info.gw) + i));
-        }
-        mg_printf(c,"\n");
+        mg_print_ip(c, ip_info.ip);
     }
-    else if(strcmp(param, "get_uptime"))
+    else if(strcmp(param , "get_STA_GW") == 0)
+    {
+        tcpip_adapter_ip_info_t ip_info;
+        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_STA , &ip_info));
+        mg_print_ip(c, ip_info.gw);
+    }
+    else if(strcmp(param , "get_STA_NM") == 0)
+    {
+        tcpip_adapter_ip_info_t ip_info;
+        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_STA , &ip_info));
+        mg_print_ip(c, ip_info.netmask);
+    }
+
+    else if(strcmp(param, "get_uptime") == 0)
     {
         struct timeval tv;
         gettimeofday(&tv, NULL);
-        mg_printf(c, "Uptime: %d.%d secs\n", (int)tv.tv_sec, (int)tv.tv_usec);
+        mg_printf(c, "Uptime: %d.%d secs\n</br>", (int)tv.tv_sec, (int)tv.tv_usec);
     }
+
+    else if(strcmp(param, "get_ap_enabled") == 0)
+    {
+        wifi_mode_t mode;
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("WIFI_MODE", (uint32_t *)(&mode)));
+        printf("WIFI_MODE: %d\n", mode);
+
+        if(mode == WIFI_MODE_APSTA)
+            mg_printf(c, "checked");
+    }
+
 
 }
 

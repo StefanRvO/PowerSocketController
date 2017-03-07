@@ -15,6 +15,7 @@ extern "C"
     #include "esp_log.h"
     #include "esp_ota_ops.h"
 }
+
 #include "HttpServer.h"
 #include "SwitchServer.h"
 #include "FilesystemHandler.h"
@@ -51,6 +52,7 @@ void cpp_main()
     printf("Initialising Wifi!\n");
     __attribute__((unused)) WifiHandler *wifi_h = WifiHandler::get_instance();
     printf("Initialised wifi!.\n");
+    wifi_h->print_ap_settings();
     printf("Now initialising the filesystem.\n");
     FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x220000 /*Start address on flash*/,
                                  0x100000  /*Size*/,

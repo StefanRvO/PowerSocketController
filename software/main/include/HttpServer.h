@@ -36,5 +36,6 @@ class HttpServer
     private:
         volatile bool running;
         bool use_ssl;
+        int do_reboot = 0;
 
 };

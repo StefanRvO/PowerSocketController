@@ -1,44 +1,172 @@
 <!--#include file="ssi/header" -->
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1>Settings</h1>
-                        <p>This page makes it possible to set different settings on the device</p></br>
-                        <p>It may later be split into several pages</p>
+<!-- Page Content -->
+<div id="page-content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Settings</h1>
+                <p>This page makes it possible to set different settings on the device</p>
+                <br>
+                <p>It may later be split into several pages</p>
 
-                        <!-- AP settings -->
-                        <form method="POST" action="/post/AP_SSID">
-                            <div class="form-group">
-                             <label for="ap_ssid">Access Point SSID:</label>
-                             <input type="text" name="ap_ssid" id="ap_ssid" value = "<!--#call get_AP_SSID -->" ></br>
-                             <label for="ap_passwd">Access Point Password:</label>
-                             <input type="password" name="ap_passwd" id="ap_passwd" ></br>
-                             <button type="submit">Submit</button><br>
-                           </div>
-                       </form>
+                <!-- AP settings -->
+                <legend>Change Access Point Settings</legend>
 
-                       <!-- STA settings -->
-                       <form method="POST" action="/post/STA_SSID">
-                           <div class="form-group">
-                            <label for="sta_ssid">Station SSID:</label>
-                            <input type="text" name="sta_ssid" id="sta_ssid" value = "<!--#call get_STA_SSID -->" ></br>
-                            <label for="sta_passwd">Station Password:</label>
-                            <input type="password" name="sta_passwd" id="sta_passwd" ></br>
+                <form method="POST" action="/post/AP_SSID" class="form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="ap_ssid" class="col-md-4 control-label">Access Point SSID:</label>
+                            <div class="col-md-4">
 
-                            <button type="submit">Submit</button><br>
-                          </div>
-                      </form>
+                                <input type="text" name="ap_ssid" id="ap_ssid" value="<!--#call get_AP_SSID -->" class="form-control input-md">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <!--
+                            <label for="ap_passwd" class="col-md-4 control-label">Access Point Password:</label>
+                            <div class="col-md-4">
 
+                                <input type="password" name="ap_passwd" id="ap_passwd" class="form-control input-md">
+                            </div>
+                        </div>
+                        <div class="form-group"> -->
 
+                            <label for="ap_ip_title" class="col-md-4 control-label">Access Point IP:</label>
+                            <div class="col-md-4">
 
+                                <input type="text" name="ap_ip" id="ap_ip" value="<!--#call get_AP_IP -->" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" title="Access Point IP" class="form-control input-md">
+                            </div>
+                        </div>
+                        <div class="form-group">
+
+                            <label for="ap_gw_title" class="col-md-4 control-label">Access Point Gateway:</label>
+                            <div class="col-md-4">
+
+                                <input type="text" name="ap_gw" id="ap_gw" value="<!--#call get_AP_GW -->" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" title="Access Point GW" class="form-control input-md">
+                            </div>
+                        </div>
+                        <div class="form-group">
+
+                            <label for="ap_netmask_title" class="col-md-4 control-label">Access Point Netmask:</label>
+                            <div class="col-md-4">
+
+                                <input type="text" name="ap_netmask" id="ap_netmask" value="<!--#call get_AP_NM -->" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" title="Access Point netmask" class="form-control input-md">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ap_enable" class="col-md-4 control-label">Enable</label>
+                            <div class="col-md-4">
+                                <input type='hidden' value='0' name='ap_enable'>
+                                <input type='checkbox' value='1' name='ap_enable' <!--#call get_ap_enabled --> >
+                            </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <!-- /#page-content-wrapper -->
 
+
+
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="submit"></label>
+                            <div class="col-md-8">
+                                <button id="submit" name="submit" class="btn btn-success">Accept</button>
+                            </div>
+                        </div>
+
+                    </fieldset>
+
+                </form>
+
+                <legend>Change Station Settings</legend>
+
+                <!-- STA settings -->
+                <form method="POST" action="/post/STA_SSID" class="form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="sta_ssid">Station SSID:</label>
+                            <div class="col-md-4">
+                                <input type="text" name="sta_ssid" id="sta_ssid" value="<!--#call get_STA_SSID -->" class="form-control input-md">
+                            </div>
+                        </div>
+                        <div class="form-group">
+
+                            <label class="col-md-4 control-label" for="sta_passwd">Station Password</label>
+                            <div class="col-md-4">
+
+                                <input type="password" name="sta_passwd" id="sta_passwd" class="form-control input-md">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="submit"></label>
+                            <div class="col-md-8">
+                                <button id="submit" name="submit" class="btn btn-success">Accept</button>
+                            </div>
+                        </div>
+            </fieldset>
+
+            </form>
+
+            <!-- Login settings -->
+            <form method="POST" action="/post/htpasswd" class="form-horizontal">
+                <fieldset>
+
+                    <!-- Form Name -->
+                    <legend>Change Password and Username (Not working atm)</legend>
+
+                    <!-- user input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="piCurrUser">Current Username</label>
+                        <div class="col-md-4">
+                            <input id="curr_user=" name="curr_user" type="text" placeholder="" class="form-control input-md" required="">
+                        </div>
+                    </div>
+                    <!-- Password input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="piCurrPass">Current Password</label>
+                        <div class="col-md-4">
+                            <input id="curr_password" name="curr_password" type="password" placeholder="" class="form-control input-md" required="">
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="piNewUser">New Username</label>
+                        <div class="col-md-4">
+                            <input id="new_user" name="new_user" type="text" placeholder="" class="form-control input-md" required="">
+
+                        </div>
+                    </div>
+                    <!-- Password input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="piNewPass">New Password</label>
+                        <div class="col-md-4">
+                            <input id="new_password" name="new_password" type="password" placeholder="" class="form-control input-md" required="">
+
+                        </div>
+                    </div>
+
+                    <!-- Password input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="piNewPassRepeat">Repeat New Password</label>
+                        <div class="col-md-4">
+                            <input id="password_repeat" name="password_repeat" type="password" placeholder="" class="form-control input-md" required="">
+
+                        </div>
+                    </div>
+
+                    <!-- Button -->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="bCancel"></label>
+                        <div class="col-md-8">
+                            <button id="bAccept" name="bAccept" class="btn btn-success">Accept</button>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </form>
+        </div>
     </div>
-    <!--#include file="ssi/footer" -->
+</div>
+<!-- /#page-content-wrapper -->
+
+</div>
+<!--#include file="ssi/footer" -->
