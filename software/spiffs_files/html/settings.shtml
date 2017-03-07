@@ -8,15 +8,32 @@
                         <h1>Settings</h1>
                         <p>This page makes it possible to set different settings on the device</p></br>
                         <p>It may later be split into several pages</p>
+
+                        <!-- AP settings -->
                         <form method="POST" action="/post/AP_SSID">
                             <div class="form-group">
                              <label for="ap_ssid">Access Point SSID:</label>
-                             <input type="text" class="form-control" id="ap_ssid" value = "<!--#call get_ap_ssid -->" ></br>
+                             <input type="text" name="ap_ssid" id="ap_ssid" value = "<!--#call get_AP_SSID -->" ></br>
                              <label for="ap_passwd">Access Point Password:</label>
-                             <input type="password" class="form-control" id="ap_passwd" >
+                             <input type="password" name="ap_passwd" id="ap_passwd" ></br>
                              <button type="submit">Submit</button><br>
                            </div>
                        </form>
+
+                       <!-- STA settings -->
+                       <form method="POST" action="/post/STA_SSID">
+                           <div class="form-group">
+                            <label for="sta_ssid">Station SSID:</label>
+                            <input type="text" name="sta_ssid" id="sta_ssid" value = "<!--#call get_STA_SSID -->" ></br>
+                            <label for="sta_passwd">Station Password:</label>
+                            <input type="password" name="sta_passwd" id="sta_passwd" ></br>
+
+                            <button type="submit">Submit</button><br>
+                          </div>
+                      </form>
+
+
+
                     </div>
                 </div>
             </div>

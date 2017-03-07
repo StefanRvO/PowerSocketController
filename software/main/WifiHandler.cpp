@@ -61,10 +61,9 @@ void WifiHandler::update_station_config()
     ESP_ERROR_CHECK( this->s_handler->nvs_get("STA_SSID", (char *)wifi_config.sta.ssid, &len_ssid));
     ESP_ERROR_CHECK( this->s_handler->nvs_get("STA_PASSWORD", (char *)wifi_config.sta.password, &len_passwd) );
 
-    ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
+    ESP_LOGI(TAG, "Setting WiFi configuration SSID %s... Password %s", wifi_config.sta.ssid, wifi_config.sta.password);
     ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     //ESP_ERROR_CHECK( esp_wifi_set_auto_connect(true) );
-    ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
 }
 
 void WifiHandler::update_ap_config()
@@ -135,6 +134,7 @@ void WifiHandler::initialise_wifi(void)
 
 esp_err_t WifiHandler::event_handler(void *ctx, system_event_t *event)
 {
+    printf("wifi_handler\n");
     switch (event->event_id) {
     case SYSTEM_EVENT_STA_START:
         esp_wifi_connect();
@@ -149,6 +149,13 @@ esp_err_t WifiHandler::event_handler(void *ctx, system_event_t *event)
         xEventGroupSetBits(WifiHandler::wifi_event_group, CONNECTED_BIT);
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
+    case SYSTEM_EVENT_AP_PROBEREQRECVED:
+    case SYSTEM_EVENT_AP_START:
+    case SYSTEM_EVENT_AP_STOP:
+    case SYSTEM_EVENT_AP_STADISCONNECTED:
+    case SYSTEM_EVENT_AP_STA_GOT_IP6:
+
+
         printf("station connected to access point. Now listing connected stations!\n");
         wifi_sta_list_t sta_list;
         ESP_ERROR_CHECK( esp_wifi_ap_get_sta_list(&sta_list));

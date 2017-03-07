@@ -39,7 +39,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">Dashboard</a>
+                    <a href="index.shtml">Dashboard</a>
                 </li>
                 <li>
                     <a href="ota.shtml">OTA Upgrade</a>
@@ -51,13 +51,7 @@
                     <a href="settings.shtml">Settings</a>
                 </li>
                 <li>
-                    <a href="#">About</a>
-                </li>
-                <li>
-                    <a href="#">Services</a>
-                </li>
-                <li>
-                    <a href="#">Contact</a>
+                    <a href="status.shtml">Status</a>
                 </li>
             </ul>
         </div>

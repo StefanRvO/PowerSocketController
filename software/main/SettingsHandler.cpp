@@ -35,11 +35,16 @@ void SettingsHandler::set_default_values()
 {
     //We set up all the default values into the NVS store if they
     //Do not exist already. If they do exists, we won't overwrite them
-    ESP_ERROR_CHECK( set_default_value("STA_SSID","TEST") );
+    ESP_ERROR_CHECK( set_default_value("STA_SSID","SDU-GUEST") );
     ESP_ERROR_CHECK( set_default_value("STA_PASSWORD","") );
+
     ESP_ERROR_CHECK( set_default_value("AP_SSID", "ESP_AP_32"));
     ESP_ERROR_CHECK( set_default_value("AP_PASS", "PASSWORD"));
     ESP_ERROR_CHECK( set_default_value("AP_AUTH", (uint32_t)WIFI_AUTH_OPEN));
+    ESP_ERROR_CHECK( set_default_value("AP_netmask", (255 << 24) + (255 << 16) + (255 << 8) + 0));
+    ESP_ERROR_CHECK( set_default_value("AP_ip", (192 << 24) + (168 << 16) + (1 << 8) + 1));
+    ESP_ERROR_CHECK( set_default_value("AP_gateway", (192 << 24) + (168 << 16) + (1 << 8) + 1));
+
 
 }
 
