@@ -200,6 +200,8 @@ void HttpServer::http_thread()
 
     mg_register_http_endpoint(nc, "/post/ota_upload", HttpServer::OTA_endpoint);
     mg_register_http_endpoint(nc, "/post/reboot", HttpServer::reboot);
+    mg_register_http_endpoint(nc, "/post/reset", HttpServer::reset);
+
     mg_register_http_endpoint(nc, "/post/AP_SSID", HttpServer::SETTING);
     mg_register_http_endpoint(nc, "/post/STA_SSID", HttpServer::SETTING);
 
@@ -259,6 +261,24 @@ void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
     }
 
 }
+
+void HttpServer::reset(struct mg_connection *c, int ev, void *p)
+{   //Endpoint for requesting a reboot.
+    printf("reset endpoint: %d\n", ev);
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    switch(ev)
+    {
+        case MG_EV_HTTP_REQUEST:
+            mg_http_send_error(c, 204, NULL);
+            http_server->do_reboot = 1; //Start reboot countdown
+            //Perform nvs reset
+            http_server->s_handler->reset_settings();
+
+            break;
+    }
+
+}
+
 void HttpServer::index(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting /.
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;

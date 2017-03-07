@@ -26,6 +26,8 @@ class HttpServer
         void http_thread();
         static void OTA_endpoint(struct mg_connection *c, int ev, void *p);
         static void reboot(struct mg_connection *c, int ev, void *p);
+        static void reset(struct mg_connection *c, int ev, void *p);
+
         static void index(struct mg_connection *c, int ev, void *p);
         static void SETTING(struct mg_connection *c, int ev, void *p);
         bool ota_init();

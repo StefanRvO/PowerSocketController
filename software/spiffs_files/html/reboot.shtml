@@ -11,6 +11,12 @@
                         <form method="POST" action="/post/reboot">
                           <input type="submit" value="Reboot">
                         </form>
+                        <p>This will reset settings to default AND reboot the device!</p>
+
+                        <form method="POST" action="/post/reset">
+                          <input type="submit" value="Reset">
+                        </form>
+
                     </div>
                 </div>
             </div>
