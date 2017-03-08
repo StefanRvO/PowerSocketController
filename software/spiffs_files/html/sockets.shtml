@@ -6,7 +6,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
-                        <p> EMPTY ATM </p>
+                        <!--#call INSERT_TOGGLE -->
                     </div>
                 </div>
             </div>
@@ -14,4 +14,11 @@
         <!-- /#page-content-wrapper -->
 
     </div>
+    <!--#include file="ssi/com_js" -->
+
+    <!-- Extra javascript for this page -->
+    <script src="js/bootstrap-toggle.min.js"></script>
+    <!-- Extra css for this page -->
+    <link href="css/bootstrap-toggle.min.css" rel="stylesheet">
+
     <!--#include file="ssi/footer" -->

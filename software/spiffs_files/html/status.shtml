@@ -28,4 +28,6 @@
         <!-- /#page-content-wrapper -->
 
     </div>
+    <!--#include file="ssi/com_js" -->
+
     <!--#include file="ssi/footer" -->

@@ -8,6 +8,21 @@ static const char *TAG = "HTTP_SERVER";
 
 #define MAX_VALUE_LEN 64
 
+bool switch_post_parser(mg_str *key, mg_str *value, void *extra)
+{
+    __attribute__((unused)) HttpServer *server = (HttpServer *)extra;
+    //Decode the form outputs
+    mg_str decoded_value;
+    decoded_value.p = (char *)malloc(MAX_VALUE_LEN);
+    decoded_value.len = mg_url_decode(value->p, value->len, (char *)decoded_value.p, MAX_VALUE_LEN, true);
+    printf("Key: %d : %.*s Value: %d : %.*s\n", key->len, key->len, key->p, decoded_value.len, decoded_value.len, decoded_value.p);
+
+    free((void *)decoded_value.p);
+
+    return true;
+}
+
+
 bool post_parser(mg_str *key, mg_str *value, void *extra)
 {
     HttpServer *server = (HttpServer *)extra;
@@ -204,6 +219,7 @@ void HttpServer::http_thread()
 
     mg_register_http_endpoint(nc, "/post/AP_SSID", HttpServer::SETTING);
     mg_register_http_endpoint(nc, "/post/STA_SSID", HttpServer::SETTING);
+    mg_register_http_endpoint(nc, "/post/toggle_switch", HttpServer::SWITCH_ENDPOINT);
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
@@ -238,7 +254,9 @@ void HttpServer::SETTING(struct mg_connection *c, int ev, void *p)
                 printf("Got AP SSID %.*s\n", hm->method.len, hm->method.p);
                 printf("Got DATA:\n %.*s\n", hm->body.len, hm->body.p);
                 //Return no content code!
-                parse_post(&hm->body, post_parser, c->mgr->user_data);
+                if(strncmp(hm->method.p, "POST", hm->method.len) == 0)
+                    parse_post(&hm->body, post_parser, c->mgr->user_data);
+
                 mg_http_send_error(c, 204, NULL);
                 break;
             }
@@ -261,6 +279,26 @@ void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
     }
 
 }
+
+void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
+{   //Endpoint for requesting a reboot.
+    printf("Switch endpoint: %d\n", ev);
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    struct http_message *hm = (struct http_message *) p;
+
+    switch(ev)
+    {
+        case MG_EV_HTTP_REQUEST:
+
+            if(strncmp(hm->method.p, "POST", hm->method.len) == 0)
+                parse_post(&hm->body, switch_post_parser, c->mgr->user_data);
+            mg_http_send_error(c, 204, NULL);
+            http_server->do_reboot = 1; //Start reboot countdown
+            break;
+    }
+
+}
+
 
 void HttpServer::reset(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
@@ -365,6 +403,23 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
 {   //Handle all SSI calls
     const char *param = (const char *) p;
     printf("entered ssid handler with param %s\n", param);
+
+    if(strcmp(param, "INSERT_TOGGLE") == 0)
+    {
+        int switch_count = 5;
+        for(uint i = 0; i < switch_count; i++)
+        {
+            mg_printf(c, "<form method=\"POST\" action=\"/post/toggle_switch\" \n");
+            mg_printf(c, "<label class=\"checkbox-inline\">\n<input data-toggle=\"toggle\" data-onstyle=\"success\" data-offstyle=\"danger\" type=\"checkbox\" ");
+            mg_printf(c, " data-on=\"Switch %d On\" data-off=\"Switch %d Off\" name=\"switch%d\" id=\"switch%d\" ", i, i, i, i);
+            if(i % 2 == 0) //Here we should test the current state
+            {
+                mg_printf(c, "checked ");
+            }
+            mg_printf(c, ">\n</label>\n</form>\n");
+        }
+    }
+
     if(strcmp(param, "get_AP_SSID") == 0)
     {
         size_t ssid_len = 0;
