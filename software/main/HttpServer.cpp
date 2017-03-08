@@ -283,8 +283,10 @@ void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
 void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
     printf("Switch endpoint: %d\n", ev);
+
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     struct http_message *hm = (struct http_message *) p;
+    printf("Got DATA:\n %.*s\n", hm->body.len, hm->body.p);
 
     switch(ev)
     {
@@ -293,7 +295,6 @@ void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
             if(strncmp(hm->method.p, "POST", hm->method.len) == 0)
                 parse_post(&hm->body, switch_post_parser, c->mgr->user_data);
             mg_http_send_error(c, 204, NULL);
-            http_server->do_reboot = 1; //Start reboot countdown
             break;
     }
 
@@ -409,14 +410,17 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
         int switch_count = 5;
         for(uint i = 0; i < switch_count; i++)
         {
-            mg_printf(c, "<form method=\"POST\" action=\"/post/toggle_switch\" \n");
-            mg_printf(c, "<label class=\"checkbox-inline\">\n<input data-toggle=\"toggle\" data-onstyle=\"success\" data-offstyle=\"danger\" type=\"checkbox\" ");
-            mg_printf(c, " data-on=\"Switch %d On\" data-off=\"Switch %d Off\" name=\"switch%d\" id=\"switch%d\" ", i, i, i, i);
+            mg_printf(c, "<form  id=\"form_switch%d\" method=\"POST\" action=\"/post/toggle_switch\" >\n", i);
+            mg_printf(c, "<label class=\"checkbox\">\n");
+            mg_printf(c, "<input type='hidden' value='0' name=\"switch%d\" id=\"switch%d_hidden\">", i, i);
+            mg_printf(c, "<input data-toggle=\"toggle\" data-onstyle=\"success\" data-offstyle=\"danger\" type=\"checkbox\" ");
+            mg_printf(c, " data-on=\"Switch %d On\" value = '1' data-off=\"Switch %d Off\" id=\"switch%d\" name=\"switch%d\" onchange=\" if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;} else {document.getElementById('switch%d_hidden').disabled = false;} document.getElementById('form_switch%d').submit()\" ", i, i, i, i, i, i, i, i);
             if(i % 2 == 0) //Here we should test the current state
             {
                 mg_printf(c, "checked ");
             }
             mg_printf(c, ">\n</label>\n</form>\n");
+            //mg_printf(c, "\n<script>\n if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;}</script>\n", i, i);
         }
     }
 
