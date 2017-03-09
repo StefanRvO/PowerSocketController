@@ -5,7 +5,7 @@
 #include "esp_partition.h"
 
 #include "WifiHandler.h"
-
+#include "SwitchHandler.h"
 struct OTA_status
 {
     esp_ota_handle_t out_handle;
@@ -36,6 +36,8 @@ class HttpServer
         struct mg_serve_http_opts s_http_server_opts;
         void handle_ssi(struct mg_connection *c, void *p);
         SettingsHandler *s_handler = nullptr;
+        SwitchHandler *switch_handler = nullptr;
+
     private:
         volatile bool running;
         bool use_ssl;

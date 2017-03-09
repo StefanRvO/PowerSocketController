@@ -21,6 +21,7 @@ extern "C"
 #include "StartupTest.h"
 #include "WifiHandler.h"
 #include "SettingsHandler.h"
+#include "SwitchHandler.h"
 #include "CurrentMeasurer.h"
 
 __attribute__((unused)) static const char *TAG = "PowerSocket";
@@ -42,12 +43,26 @@ void hello_task(void *pvParameter)
 
 void cpp_main()
 {
+    const gpio_num_t relay_pins[] = {
+        GPIO_NUM_27,
+    };
+    const gpio_num_t button_leds[] = {
+        GPIO_NUM_26,
+    };
+    const gpio_num_t button_pins[] = {
+        GPIO_NUM_25,
+    };
     printf("Booted, now initialising tasks and subsystems!\n");
     printf("Compile info: GCC %u.%u.%u\t", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
     printf("Compile date: %s -- %s\n", __DATE__, __TIME__);
-    xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
+
+    //The initialisations of these systems ARE important!
     printf("Intialising settings handler and NVS system!\n");
     __attribute__((unused)) SettingsHandler *s_handler = SettingsHandler::get_instance();
+    printf("Intialising switch handler!\n");
+    __attribute__((unused)) SwitchHandler *switch_handler = SwitchHandler::get_instance(relay_pins, button_pins, button_leds, 1);
+
+
     printf("Initialising Wifi!\n");
     __attribute__((unused)) WifiHandler *wifi_h = WifiHandler::get_instance();
     printf("Initialised wifi!.\n");
@@ -57,6 +72,7 @@ void cpp_main()
                                  0x100000  /*Size*/,
                                  (char *)"/spiffs"      /*Mount point */);
     fs_handler->init_spiffs();
+    xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
     HttpServer httpd_server("80");
     httpd_server.start();
     HttpServer httpsd_server("443", true);

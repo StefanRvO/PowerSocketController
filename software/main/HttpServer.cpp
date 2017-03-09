@@ -155,7 +155,7 @@ bool HttpServer::ota_init()
 
 
 HttpServer::HttpServer(const char *_port, bool _use_ssl) :
-port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance())
+port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance()), switch_handler(SwitchHandler::get_instance())
 {
     return;
 }
@@ -407,15 +407,14 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
 
     if(strcmp(param, "INSERT_TOGGLE") == 0)
     {
-        int switch_count = 5;
-        for(uint i = 0; i < switch_count; i++)
+        for(uint i = 0; i < this->switch_handler->get_switch_count(); i++)
         {
             mg_printf(c, "<form  id=\"form_switch%d\" method=\"POST\" action=\"/post/toggle_switch\" >\n", i);
             mg_printf(c, "<label class=\"checkbox\">\n");
             mg_printf(c, "<input type='hidden' value='0' name=\"switch%d\" id=\"switch%d_hidden\">", i, i);
             mg_printf(c, "<input data-toggle=\"toggle\" data-onstyle=\"success\" data-offstyle=\"danger\" type=\"checkbox\" ");
             mg_printf(c, " data-on=\"Switch %d On\" value = '1' data-off=\"Switch %d Off\" id=\"switch%d\" name=\"switch%d\" onchange=\" if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;} else {document.getElementById('switch%d_hidden').disabled = false;} document.getElementById('form_switch%d').submit()\" ", i, i, i, i, i, i, i, i);
-            if(i % 2 == 0) //Here we should test the current state
+            if(this->switch_handler->get_switch_state(i) == on)
             {
                 mg_printf(c, "checked ");
             }
