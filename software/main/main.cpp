@@ -17,7 +17,6 @@ extern "C"
 }
 
 #include "HttpServer.h"
-#include "SwitchServer.h"
 #include "FilesystemHandler.h"
 #include "StartupTest.h"
 #include "WifiHandler.h"
