@@ -520,7 +520,7 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
     {
         struct timeval tv;
         gettimeofday(&tv, NULL);
-        mg_printf(c, "Uptime: %d.%d secs\n</br>", (int)tv.tv_sec, (int)tv.tv_usec);
+        mg_printf(c, "Uptime: %d.%d secs\n<br>", (int)tv.tv_sec, (int)tv.tv_usec);
     }
 
     else if(strcmp(param, "get_ap_enabled") == 0)

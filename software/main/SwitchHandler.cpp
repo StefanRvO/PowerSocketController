@@ -42,10 +42,30 @@ void SwitchHandler::setup_relay_pins()
     //Set the pins as output, and read the settings from the settingshandler
     //If no value is set, set default as off.
 
-    char *switch_str = (char *)malloc(10);
+    gpio_config_t io_conf;
+    //disable interrupt
+    io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
+    //set as output mode
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    //bit mask of the pins that you want to set
+    io_conf.pin_bit_mask = 0;
+    //disable pull-down mode
+    io_conf.pull_down_en = (gpio_pulldown_t)0;
+    //disable pull-up mode
+    io_conf.pull_up_en = (gpio_pullup_t)0;
+    //configure GPIO with the given settings
     for(uint8_t i = 0; i < this->pin_num; i++)
     {
-        ESP_ERROR_CHECK(gpio_set_direction(this->relay_pins[i], GPIO_MODE_OUTPUT));
+        io_conf.pin_bit_mask += 1<< (uint64_t)(this->relay_pins[i]);
+        //ESP_ERROR_CHECK(gpio_set_direction(this->button_leds[i], GPIO_MODE_OUTPUT));
+    }
+
+    ESP_ERROR_CHECK( gpio_config(&io_conf) );
+
+    char *switch_str = (char *)malloc(10);
+
+    for(uint8_t i = 0; i < this->pin_num; i++)
+    {
         //Set default value if not already set
         snprintf(switch_str, 10,  "SWITCH%d", i);
         switch_state state = off;
@@ -62,6 +82,24 @@ void SwitchHandler::setup_relay_pins()
 
 void SwitchHandler::setup_button_pins()
 { //Setup all the button pins. They needs to be set as input with pull-down
+
+    gpio_config_t io_conf;
+    //disable interrupt
+    io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
+    //set as output mode
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    //bit mask of the pins that you want to set
+    io_conf.pin_bit_mask = 0;
+    //disable pull-down mode
+    io_conf.pull_down_en = (gpio_pulldown_t)0;
+    //disable pull-up mode
+    io_conf.pull_up_en = (gpio_pullup_t)0;
+    //configure GPIO with the given settings
+    for(uint8_t i = 0; i < this->pin_num; i++)
+    {
+        io_conf.pin_bit_mask += 1<< (uint64_t)(this->relay_pins[i]);
+        //ESP_ERROR_CHECK(gpio_set_direction(this->button_leds[i], GPIO_MODE_OUTPUT));
+    }
 
     for(uint8_t i = 0; i < this->pin_num; i++)
     {

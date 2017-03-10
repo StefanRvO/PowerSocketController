@@ -23,15 +23,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <!--
-                            <label for="ap_passwd" class="col-md-4 control-label">Access Point Password:</label>
-                            <div class="col-md-4">
-
-                                <input type="password" name="ap_passwd" id="ap_passwd" class="form-control input-md">
-                            </div>
-                        </div>
-                        <div class="form-group"> -->
-
                             <label for="ap_ip_title" class="col-md-4 control-label">Access Point IP:</label>
                             <div class="col-md-4">
 
@@ -58,9 +49,9 @@
                             <label for="ap_enable" class="col-md-4 control-label">Enable</label>
                             <div class="col-md-4">
                                 <input type='hidden' value='0' name='ap_enable'>
-                                <input type='checkbox' value='1' name='ap_enable' <!--#call get_ap_enabled --> >
+                                <input data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="AP On" data-off="Ap Off" type='checkbox' value='1' name='ap_enable' <!--#call get_ap_enabled --> >
                             </div>
-                    </div>
+                        </div>
 
 
 
@@ -101,72 +92,78 @@
                                 <button id="submit" name="submit" class="btn btn-success">Accept</button>
                             </div>
                         </div>
-            </fieldset>
+                    </fieldset>
 
-            </form>
+                </form>
 
-            <!-- Login settings -->
-            <form method="POST" action="/post/htpasswd" class="form-horizontal">
-                <fieldset>
+                <!-- Login settings -->
+                <form method="POST" action="/post/htpasswd" class="form-horizontal">
+                    <fieldset>
 
-                    <!-- Form Name -->
-                    <legend>Change Password and Username (Not working atm)</legend>
+                        <!-- Form Name -->
+                        <legend>Change Password and Username (Not working atm)</legend>
 
-                    <!-- user input-->
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="piCurrUser">Current Username</label>
-                        <div class="col-md-4">
-                            <input id="curr_user=" name="curr_user" type="text" placeholder="" class="form-control input-md" required="">
+                        <!-- user input-->
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="piCurrUser">Current Username</label>
+                            <div class="col-md-4">
+                                <input id="curr_user=" name="curr_user" type="text" placeholder="" class="form-control input-md" required="">
+                            </div>
                         </div>
-                    </div>
-                    <!-- Password input-->
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="piCurrPass">Current Password</label>
-                        <div class="col-md-4">
-                            <input id="curr_password" name="curr_password" type="password" placeholder="" class="form-control input-md" required="">
+                        <!-- Password input-->
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="piCurrPass">Current Password</label>
+                            <div class="col-md-4">
+                                <input id="curr_password" name="curr_password" type="password" placeholder="" class="form-control input-md" required="">
 
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="piNewUser">New Username</label>
-                        <div class="col-md-4">
-                            <input id="new_user" name="new_user" type="text" placeholder="" class="form-control input-md" required="">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="piNewUser">New Username</label>
+                            <div class="col-md-4">
+                                <input id="new_user" name="new_user" type="text" placeholder="" class="form-control input-md" required="">
 
+                            </div>
                         </div>
-                    </div>
-                    <!-- Password input-->
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="piNewPass">New Password</label>
-                        <div class="col-md-4">
-                            <input id="new_password" name="new_password" type="password" placeholder="" class="form-control input-md" required="">
+                        <!-- Password input-->
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="piNewPass">New Password</label>
+                            <div class="col-md-4">
+                                <input id="new_password" name="new_password" type="password" placeholder="" class="form-control input-md" required="">
 
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Password input-->
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="piNewPassRepeat">Repeat New Password</label>
-                        <div class="col-md-4">
-                            <input id="password_repeat" name="password_repeat" type="password" placeholder="" class="form-control input-md" required="">
+                        <!-- Password input-->
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="piNewPassRepeat">Repeat New Password</label>
+                            <div class="col-md-4">
+                                <input id="password_repeat" name="password_repeat" type="password" placeholder="" class="form-control input-md" required="">
 
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Button -->
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="bCancel"></label>
-                        <div class="col-md-8">
-                            <button id="bAccept" name="bAccept" class="btn btn-success">Accept</button>
+                        <!-- Button -->
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="bCancel"></label>
+                            <div class="col-md-8">
+                                <button id="bAccept" name="bAccept" class="btn btn-success">Accept</button>
+                            </div>
                         </div>
-                    </div>
 
-                </fieldset>
-            </form>
+                    </fieldset>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 <!-- /#page-content-wrapper -->
+
+<!-- Extra javascript for this page -->
+<script src="js/bootstrap-toggle.min.js"></script>
+<!-- Extra css for this page -->
+<link href="css/bootstrap-toggle.min.css" rel="stylesheet">
 
 <!--#include file="ssi/com_js" -->
 
