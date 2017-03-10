@@ -46,7 +46,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ap_enable" class="col-md-4 control-label">Enable</label>
+                            <label for="ap_enable" class=" checkbox col-md-4 control-label">Enable</label>
                             <div class="col-md-4">
                                 <input type='hidden' value='0' name='ap_enable'>
                                 <input data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="AP On" data-off="Ap Off" type='checkbox' value='1' name='ap_enable' <!--#call get_ap_enabled --> >

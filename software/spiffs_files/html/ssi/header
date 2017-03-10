@@ -4,58 +4,47 @@
 <head>
 
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="blip blop">
     <title>PowerSocket Webapplication</title>
 
-    <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Pure CSS -->
+    <link href="css/pure-min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="css/custom.css" rel="stylesheet">
-    <style>
-    .container-fluid {
-    padding-left: 16px;
-    padding-right: 16px;
-    }
-    </style>
-
+    <link href="css/side-menu.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container col-md-3 col-md-offset-1">
-    <nav class="navbar navbar-inverse">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle pull-left" data-toggle="collapse" data-target="#myNavbar">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">PowerSocket webstuff...</a>
-            </div>
-                <div class="collapse navbar-collapse" id="myNavbar">
-                    <ul class="nav navbar-nav">
-                        <li>
-                            <a href="index.shtml">Dashboard</a>
+    <div id="layout">
+        <!-- Menu toggle -->
+        <a href="#menu" id="menuLink" class="menu-link">
+            <span></span>
+        </a>
+
+        <div id="menu">
+            <div class="pure-menu">
+                <a class="pure-menu-heading" href="#">Stuff..</a>
+
+                <ul class="pure-menu-list">
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="index.shtml">Dashboard</a>
                         </li>
-                        <li>
-                            <a href="ota.shtml">OTA Upgrade</a>
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="ota.shtml">OTA Upgrade</a>
                         </li>
-                        <li>
-                            <a href="reboot.shtml">Reboot</a>
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="reboot.shtml">Reboot</a>
                         </li>
-                        <li>
-                            <a href="settings.shtml">Settings</a>
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="settings.shtml">Settings</a>
                         </li>
-                        <li>
-                            <a href="status.shtml">Status</a>
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="status.shtml">Status</a>
                         </li>
-                        <li>
-                            <a href="sockets.shtml">Sockets</a>
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="sockets.shtml">Sockets</a>
                         </li>
                     </ul>
                 </div>
-    </nav>
+            </div>
