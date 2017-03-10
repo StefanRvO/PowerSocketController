@@ -33,4 +33,5 @@ class SwitchHandler
         void setup_relay_pins();
         void setup_button_pins();
         void setup_button_leds();
+        switch_state *state_buff;
 };

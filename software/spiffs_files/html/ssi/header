@@ -20,34 +20,36 @@
 </head>
 
 <body>
-
-    <div id="wrapper">
-
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand">
-                    <a href="#">
-                        Start Bootstrap
-                    </a>
-                </li>
-                <li>
-                    <a href="index.shtml">Dashboard</a>
-                </li>
-                <li>
-                    <a href="ota.shtml">OTA Upgrade</a>
-                </li>
-                <li>
-                    <a href="reboot.shtml">Reboot</a>
-                </li>
-                <li>
-                    <a href="settings.shtml">Settings</a>
-                </li>
-                <li>
-                    <a href="status.shtml">Status</a>
-                </li>
-                <li>
-                    <a href="sockets.shtml">Sockets</a>
-                </li>
-            </ul>
-        </div>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">PowerSocket webstuff...</a>
+                <div class="collapse navbar-collapse" id="myNavbar">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="index.shtml">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="ota.shtml">OTA Upgrade</a>
+                        </li>
+                        <li>
+                            <a href="reboot.shtml">Reboot</a>
+                        </li>
+                        <li>
+                            <a href="settings.shtml">Settings</a>
+                        </li>
+                        <li>
+                            <a href="status.shtml">Status</a>
+                        </li>
+                        <li>
+                            <a href="sockets.shtml">Sockets</a>
+                        </li>
+                    </ul>
+                </div>
+    </nav>
+    <div class="container">

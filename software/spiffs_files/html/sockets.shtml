@@ -6,6 +6,8 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
+                        <h3>Sockets</h3>
+                        <p>Here you can turn the sockets on and off..</p>
                         <!--#call INSERT_TOGGLE -->
                     </div>
                 </div>
@@ -13,7 +15,6 @@
         </div>
         <!-- /#page-content-wrapper -->
 
-    </div>
     <!--#include file="ssi/com_js" -->
 
     <!-- Extra javascript for this page -->

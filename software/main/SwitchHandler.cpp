@@ -27,9 +27,15 @@ SwitchHandler::SwitchHandler(const  gpio_num_t *_relay_pins, const gpio_num_t *_
   //We should primarily use this for ADC input.
   //See https://esp-idf.readthedocs.io/en/latest/api/peripherals/gpio.html for GPIO info
   //There needs to be at least pin_num number of pins in each of the given pin pointers
+  this->state_buff = (switch_state *)malloc(this->pin_num);
   this->setup_button_pins();
   this->setup_button_leds();
   this->setup_relay_pins();
+}
+
+SwitchHandler::~SwitchHandler()
+{
+    free(this->state_buff);
 }
 void SwitchHandler::setup_relay_pins()
 {
@@ -68,10 +74,26 @@ void SwitchHandler::setup_button_pins()
 void SwitchHandler::setup_button_leds()
 {   //Setup pins as output. Their actual state will be set while calling setup_relay_pins()
     //This also means that this function must be called before setup_relay_pins().
+    gpio_config_t io_conf;
+    //disable interrupt
+    io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
+    //set as output mode
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    //bit mask of the pins that you want to set
+    io_conf.pin_bit_mask = 0;
+    //disable pull-down mode
+    io_conf.pull_down_en = (gpio_pulldown_t)0;
+    //disable pull-up mode
+    io_conf.pull_up_en = (gpio_pullup_t)0;
+    //configure GPIO with the given settings
     for(uint8_t i = 0; i < this->pin_num; i++)
     {
-        ESP_ERROR_CHECK(gpio_set_direction(this->relay_pins[i], GPIO_MODE_OUTPUT));
+        io_conf.pin_bit_mask += 1<< (uint64_t)(this->button_leds[i]);
+        //ESP_ERROR_CHECK(gpio_set_direction(this->button_leds[i], GPIO_MODE_OUTPUT));
     }
+
+    ESP_ERROR_CHECK( gpio_config(&io_conf) );
+
 }
 
 void SwitchHandler::set_switch_state(uint8_t switch_num, switch_state state, bool write_to_nvs)
@@ -83,6 +105,10 @@ void SwitchHandler::set_switch_state(uint8_t switch_num, switch_state state, boo
     ESP_ERROR_CHECK(gpio_set_level(this->relay_pins[switch_num], state));
     //Set the led state
     ESP_ERROR_CHECK(gpio_set_level(this->button_leds[switch_num], state));
+    //printf("%d", this->button_leds[switch_num]);
+    //Set the state in the buffer
+    this->state_buff[switch_num] = state;
+
     //Write to nvs if requested
     if(write_to_nvs)
     {
@@ -93,12 +119,13 @@ void SwitchHandler::set_switch_state(uint8_t switch_num, switch_state state, boo
     }
 }
 switch_state SwitchHandler::get_switch_state(uint8_t switch_num)
-{   //Read directly on the pin to obtain the state.
-    //TODO: Confirm that this is actually valid when the pin is configured as an output.
+{   //Return the value stored in the buffer. this also means that we need to make absolutely sure that all changes of the pin
+    //Is reflected in the buffer.
+
     if(switch_num >= pin_num)
         return invalid; //Simply ignore if not within range.
 
-    return (switch_state)gpio_get_level(this->relay_pins[switch_num]);
+    return this->state_buff[switch_num];
 }
 
 uint8_t SwitchHandler::get_switch_count()

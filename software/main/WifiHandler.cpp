@@ -191,7 +191,7 @@ void WifiHandler::reconnect_thread(void *PvParameters)
 
         if ((bits | BIT0))
         {   //Try to reconnect in 10 seconds after disconnect
-            vTaskDelay(10000 / portTICK_PERIOD_MS);
+            vTaskDelay(15000 / portTICK_PERIOD_MS);
             esp_wifi_connect();
         }
 

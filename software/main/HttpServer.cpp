@@ -6,7 +6,7 @@
 
 static const char *TAG = "HTTP_SERVER";
 
-#define MAX_VALUE_LEN 64
+#define MAX_VALUE_LEN 16
 
 bool switch_post_parser(mg_str *key, mg_str *value, void *extra)
 {
@@ -14,8 +14,43 @@ bool switch_post_parser(mg_str *key, mg_str *value, void *extra)
     //Decode the form outputs
     mg_str decoded_value;
     decoded_value.p = (char *)malloc(MAX_VALUE_LEN);
-    decoded_value.len = mg_url_decode(value->p, value->len, (char *)decoded_value.p, MAX_VALUE_LEN, true);
+    decoded_value.len = mg_url_decode(value->p, value->len, (char *)decoded_value.p, MAX_VALUE_LEN - 1, true);
     printf("Key: %d : %.*s Value: %d : %.*s\n", key->len, key->len, key->p, decoded_value.len, decoded_value.len, decoded_value.p);
+    //Check if a switch post was recieved, if so, find out which switch it was.
+    if( key->len >= 6 &&  strncmp(key->p, "switch", 6) == 0)
+    {
+        //The key starts with "switch", now grab the switch id.
+        //We need to transform the string to a zero-terminated one, so alloc some memory for that.
+        char *switch_num_str = (char *)malloc(10);
+        uint8_t num_len = 9;
+        if(key->len - 6 < num_len) num_len = key->len - 6;
+        memcpy(switch_num_str, key->p + 6, num_len);
+        //add \0 to the end
+        switch_num_str[num_len] = '\0';
+        unsigned int switch_num;
+        if(sscanf(switch_num_str,"%u", &switch_num) != 1)
+        {   //Switch number grab failed
+            printf("failed switch str parse %s\n", switch_num_str);
+            free((void *)decoded_value.p);
+            free(switch_num_str);
+            return false;
+        }
+        free(switch_num_str);
+        //We successfully grabbed the switch number, now try to grab switch state
+        //Again, zero-terminate it
+        ((char *)decoded_value.p)[decoded_value.len] = '\0';
+        unsigned int switch_value;
+        if(sscanf(decoded_value.p,"%u", &switch_value) != 1)
+        {   //Switch value grab failed
+            free((void *)decoded_value.p);
+            return false;
+        }
+        //print them
+        switch_state s_state = (switch_state)switch_value;
+        printf("PARSED POST, got switch num %d, switch_state %d\n", switch_num, s_state);
+        //Now, set the switch state!
+        server->switch_handler->set_switch_state(switch_num, s_state);
+    }
 
     free((void *)decoded_value.p);
 
@@ -284,7 +319,7 @@ void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
     printf("Switch endpoint: %d\n", ev);
 
-    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    __attribute__((unused))HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     struct http_message *hm = (struct http_message *) p;
     printf("Got DATA:\n %.*s\n", hm->body.len, hm->body.p);
 
@@ -293,7 +328,9 @@ void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
         case MG_EV_HTTP_REQUEST:
 
             if(strncmp(hm->method.p, "POST", hm->method.len) == 0)
+            {
                 parse_post(&hm->body, switch_post_parser, c->mgr->user_data);
+            }
             mg_http_send_error(c, 204, NULL);
             break;
     }
