@@ -1,170 +1,124 @@
 <!--#include file="ssi/header" -->
 
 <!-- Page Content -->
-<div id="page-content-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <h1>Settings</h1>
-                <p>This page makes it possible to set different settings on the device</p>
-                <br>
-                <p>It may later be split into several pages</p>
 
-                <!-- AP settings -->
-                <legend>Change Access Point Settings</legend>
-
-                <form method="POST" action="/post/AP_SSID" class="form-horizontal">
+<div id="main">
+    <div class="header">
+        <h1>Settings</h1>
+        <h2>Change various settings on the device</h2>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead">Access Point Settings</h2>
+        <p>
+            Change settings for the access point hosted by the device.
+        </p>
+                <form method="POST" action="/post/AP_SSID" class="pure-form pure-form-aligned">
                     <fieldset>
-                        <div class="form-group">
-                            <label for="ap_ssid" class="col-md-4 control-label">Access Point SSID:</label>
-                            <div class="col-md-4">
-
-                                <input type="text" name="ap_ssid" id="ap_ssid" value="<!--#call get_AP_SSID -->" class="form-control input-md">
-                            </div>
+                        <div class="pure-control-group">
+                            <label for="ap_ssid">Access Point SSID:</label>
+                            <input type="text" name="ap_ssid" id="ap_ssid" value="<!--#call get_AP_SSID -->">
                         </div>
-                        <div class="form-group">
-                            <label for="ap_ip_title" class="col-md-4 control-label">Access Point IP:</label>
-                            <div class="col-md-4">
 
-                                <input type="text" name="ap_ip" id="ap_ip" value="<!--#call get_AP_IP -->" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" title="Access Point IP" class="form-control input-md">
-                            </div>
+                        <div class="pure-control-group">
+                            <label for="ap_ip_title">Access Point IP:</label>
+                                <input type="text" name="ap_ip" id="ap_ip" value="<!--#call get_AP_IP -->" title="Access Point IP">
                         </div>
-                        <div class="form-group">
-
-                            <label for="ap_gw_title" class="col-md-4 control-label">Access Point Gateway:</label>
-                            <div class="col-md-4">
-
-                                <input type="text" name="ap_gw" id="ap_gw" value="<!--#call get_AP_GW -->" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" title="Access Point GW" class="form-control input-md">
-                            </div>
+                        <div class="pure-control-group">
+                            <label for="ap_gw_title">Access Point Gateway:</label>
+                                <input type="text" name="ap_gw" id="ap_gw" value="<!--#call get_AP_GW -->" title="Access Point GW">
                         </div>
-                        <div class="form-group">
 
-                            <label for="ap_netmask_title" class="col-md-4 control-label">Access Point Netmask:</label>
-                            <div class="col-md-4">
-
-                                <input type="text" name="ap_netmask" id="ap_netmask" value="<!--#call get_AP_NM -->" pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" title="Access Point netmask" class="form-control input-md">
+                        <div class="pure-control-group">
+                            <label for="ap_netmask_title">Access Point Netmask:</label>
+                                <input type="text" name="ap_netmask" id="ap_netmask" value="<!--#call get_AP_NM -->" title="Access Point netmask">
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="ap_enable" class=" checkbox col-md-4 control-label">Enable</label>
-                            <div class="col-md-4">
+                        <div class="pure-control-group">
                                 <input type='hidden' value='0' name='ap_enable'>
-                                <input data-toggle="toggle" data-onstyle="success" data-offstyle="danger" data-on="AP On" data-off="Ap Off" type='checkbox' value='1' name='ap_enable' <!--#call get_ap_enabled --> >
-                            </div>
+                                <input type="checkbox" value='0' id="ap_enable" name='ap_enable'  <!--#call get_ap_enabled -->>
+                                <label for="ap_enable" class="slider-v1"></label>
+
                         </div>
-
-
-
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="submit"></label>
-                            <div class="col-md-8">
-                                <button id="submit" name="submit" class="btn btn-success">Accept</button>
-                            </div>
+                        <div class="pure-controls">
+                            <button id="submit" name="submit" class="pure-button">Accept</button>
                         </div>
 
                     </fieldset>
 
                 </form>
 
-                <legend>Change Station Settings</legend>
+                <h2 class="content-subhead">Station settings</h2>
+                <p>
+                    Change settings for which access point the device connects to.
+                </p>
 
                 <!-- STA settings -->
-                <form method="POST" action="/post/STA_SSID" class="form-horizontal">
+                <form method="POST" action="/post/STA_SSID" class="pure-form pure-form-aligned">
                     <fieldset>
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="sta_ssid">Station SSID:</label>
-                            <div class="col-md-4">
-                                <input type="text" name="sta_ssid" id="sta_ssid" value="<!--#call get_STA_SSID -->" class="form-control input-md">
+                        <div class="pure-control-group">
+                            <label  for="sta_ssid">Station SSID:</label>
+                                <input type="text" name="sta_ssid" id="sta_ssid" value="<!--#call get_STA_SSID -->" >
                             </div>
-                        </div>
-                        <div class="form-group">
+                        <div class="pure-control-group">
 
-                            <label class="col-md-4 control-label" for="sta_passwd">Station Password</label>
-                            <div class="col-md-4">
-
-                                <input type="password" name="sta_passwd" id="sta_passwd" class="form-control input-md">
+                            <label  for="sta_passwd">Station Password</label>
+                                <input type="password" name="sta_passwd" id="sta_passwd" >
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="submit"></label>
-                            <div class="col-md-8">
-                                <button id="submit" name="submit" class="btn btn-success">Accept</button>
+                        <div class="pure-controls">
+                            <label  for="submit"></label>
+                                <button id="submit" name="submit" class="pure-button">Accept</button>
                             </div>
-                        </div>
                     </fieldset>
 
                 </form>
 
                 <!-- Login settings -->
-                <form method="POST" action="/post/htpasswd" class="form-horizontal">
+                <h2 class="content-subhead">Login Settings</h2>
+                <p>
+                    Change the username and password used to authenticate with the device.<br>
+                    Not implemented at the moment.
+                </p>
+
+                <form method="POST" action="/post/htpasswd" class="pure-form pure-form-aligned">
                     <fieldset>
 
-                        <!-- Form Name -->
-                        <legend>Change Password and Username (Not working atm)</legend>
-
                         <!-- user input-->
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="piCurrUser">Current Username</label>
-                            <div class="col-md-4">
-                                <input id="curr_user=" name="curr_user" type="text" placeholder="" class="form-control input-md" required="">
-                            </div>
+                        <div class="pure-control-group">
+                            <label  for="piCurrUser">Current Username</label>
+                                <input id="curr_user=" name="curr_user" type="text" placeholder=""  required="">
                         </div>
                         <!-- Password input-->
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="piCurrPass">Current Password</label>
-                            <div class="col-md-4">
-                                <input id="curr_password" name="curr_password" type="password" placeholder="" class="form-control input-md" required="">
-
-                            </div>
+                        <div class="pure-control-group">
+                            <label  for="piCurrPass">Current Password</label>
+                                <input id="curr_password" name="curr_password" type="password" placeholder=""  required="">
                         </div>
 
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="piNewUser">New Username</label>
-                            <div class="col-md-4">
-                                <input id="new_user" name="new_user" type="text" placeholder="" class="form-control input-md" required="">
-
-                            </div>
+                        <div class="pure-control-group">
+                            <label  for="piNewUser">New Username</label>
+                                <input id="new_user" name="new_user" type="text" placeholder=""  required="">
                         </div>
                         <!-- Password input-->
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="piNewPass">New Password</label>
-                            <div class="col-md-4">
-                                <input id="new_password" name="new_password" type="password" placeholder="" class="form-control input-md" required="">
-
-                            </div>
+                        <div class="pure-control-group">
+                            <label  for="piNewPass">New Password</label>
+                                <input id="new_password" name="new_password" type="password" placeholder=""  required="">
                         </div>
 
                         <!-- Password input-->
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="piNewPassRepeat">Repeat New Password</label>
-                            <div class="col-md-4">
-                                <input id="password_repeat" name="password_repeat" type="password" placeholder="" class="form-control input-md" required="">
-
-                            </div>
+                        <div class="pure-control-group">
+                            <label  for="piNewPassRepeat">Repeat New Password</label>
+                                <input id="password_repeat" name="password_repeat" type="password" placeholder=""  required="">
                         </div>
 
                         <!-- Button -->
-                        <div class="form-group">
-                            <label class="col-md-4 control-label" for="bCancel"></label>
-                            <div class="col-md-8">
-                                <button id="bAccept" name="bAccept" class="btn btn-success">Accept</button>
-                            </div>
+                        <div class="pure-control-group">
+                            <label  for="bCancel"></label>
+                                <button id="bAccept" name="bAccept" class="pure-button">Accept</button>
                         </div>
 
                     </fieldset>
                 </form>
             </div>
         </div>
-    </div>
-</div>
-<!-- /#page-content-wrapper -->
-
-<!-- Extra javascript for this page -->
-<script src="js/bootstrap-toggle.min.js"></script>
-<!-- Extra css for this page -->
-<link href="css/bootstrap-toggle.min.css" rel="stylesheet">
-
 <!--#include file="ssi/com_js" -->
 
 <!--#include file="ssi/footer" -->

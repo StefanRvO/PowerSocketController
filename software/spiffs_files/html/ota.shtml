@@ -1,23 +1,52 @@
-
 <!--#include file="ssi/header" -->
+<style>
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+        margin: 10px;
+    }
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1>OTA Upgrade</h1>
-                        <p>This page makes it possible to flash a OTA upgrade</p>
-                        <form method="POST" action="/post/ota_upload" enctype="multipart/form-data">
-                          <input type="file" name="file"> <br>
-                          <input type="submit" value="Upload">
-                        </form>
-                    </div>
-                </div>
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        filter: alpha(opacity=0);
+    }
+</style>
+<div id="main">
+    <div class="header">
+        <h1>OTA Upgrade!</h1>
+        <h2>Upload new firmware to the device and perform an upgrade Over The Air!</h2>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead">Upload firmware</h2>
+        <p>
+            Select a firmware file you want flashed to the device.
+            Currently, we only supports flashing a new firmware. <br>Flashing the filesystem may be supported at a later time.
+        </p>
+
+        <form method="POST" action="/post/ota_upload" enctype="multipart/form-data">
+            <input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
+            <div class="fileUpload pure-button pure-button-primary">
+                <span>Select File</span>
+                <input id="ota_upload" type="file" class="upload" />
             </div>
-        </div>
-        <!-- /#page-content-wrapper -->
+            <br>
+            <br>
+            <input type="submit" value="Upload" class="pure-button button-warning">
+        </form>
+    </div>
+</div>
 
-    <!--#include file="ssi/com_js" -->
-
-    <!--#include file="ssi/footer" -->
+<!--#include file="ssi/com_js" -->
+<script>
+    document.getElementById("ota_upload").onchange = function() {
+        document.getElementById("ota_upload_file").value = this.value;
+    };
+</script>
+<!--#include file="ssi/footer" -->

@@ -13,6 +13,8 @@
 
     <!-- Custom CSS -->
     <link href="css/side-menu.css" rel="stylesheet">
+    <link href="css/switch.css" rel="stylesheet">
+
 </head>
 
 <body>

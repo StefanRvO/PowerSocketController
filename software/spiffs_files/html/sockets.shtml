@@ -1,25 +1,14 @@
 
 <!--#include file="ssi/header" -->
-
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h3>Sockets</h3>
-                        <p>Here you can turn the sockets on and off..</p>
+<div id="main">
+    <div class="header">
+        <h1>Sockets</h1>
+        <h2>Here you can turn the sockets on and off</h2>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead">Switch the sockets</h2>
                         <!--#call INSERT_TOGGLE -->
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- /#page-content-wrapper -->
-
     <!--#include file="ssi/com_js" -->
-
-    <!-- Extra javascript for this page -->
-    <script src="js/bootstrap-toggle.min.js"></script>
-    <!-- Extra css for this page -->
-    <link href="css/bootstrap-toggle.min.css" rel="stylesheet">
-
     <!--#include file="ssi/footer" -->

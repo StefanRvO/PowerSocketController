@@ -1,25 +1,24 @@
 
 <!--#include file="ssi/header" -->
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1>Status</h1>
-                        <p>Here Here you can see different status stuff for your device!</p>
-                        <h4>IPV4 Access Point</h4>
-                        <p> ip: <!--#call get_AP_IP --></p><br>
-                        <p> gateway: <!--#call get_AP_GW --></p><br>
-                        <p> netmask: <!--#call get_AP_NM --></p><br>
+<div id="main">
+    <div class="header">
+        <h1>Status!</h1>
+        <h2>Different status information and stats about the device!</h2>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead">IPV4 Access Point</h2>
+                        <p> ip: <!--#call get_AP_IP --></p>
+                        <p> gateway: <!--#call get_AP_GW --></p>
+                        <p> netmask: <!--#call get_AP_NM --></p>
 
-                        <h4>IPV4 Station</h4>
-                        <p> ip: <!--#call get_STA_IP --></p><br>
-                        <p> gateway: <!--#call get_STA_GW --></p><br>
-                        <p> netmask: <!--#call get_STA_NM --></p><br>
+                        <h2 class="content-subhead">IPV4 Station</h2>
+                        <p> ip: <!--#call get_STA_IP --></p>
+                        <p> gateway: <!--#call get_STA_GW --></p>
+                        <p> netmask: <!--#call get_STA_NM --></p>
 
-                        <h4>Uptime</h4>
-                        <p><!--#call get_uptime --> </p><br>
+                        <h2 class="content-subhead">Uptime</h2>
+                        <p><!--#call get_uptime --> </p>
 
                     </div>
                 </div>
