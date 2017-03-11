@@ -1,6 +1,5 @@
-<!--#include file="ssi/header" -->
-
-<!-- Page Content -->
+    <!--#include file="ssi/header" -->
+<link href="css/switch.css" rel="stylesheet">
 
 <div id="main">
     <div class="header">
@@ -12,7 +11,7 @@
         <p>
             Change settings for the access point hosted by the device.
         </p>
-                <form method="POST" action="/post/AP_SSID" class="pure-form pure-form-aligned">
+                <form method="POST" action="/post/AP_SSID" class="pure-form pure-form-stacked">
                     <fieldset>
                         <div class="pure-control-group">
                             <label for="ap_ssid">Access Point SSID:</label>
@@ -32,11 +31,14 @@
                             <label for="ap_netmask_title">Access Point Netmask:</label>
                                 <input type="text" name="ap_netmask" id="ap_netmask" value="<!--#call get_AP_NM -->" title="Access Point netmask">
                             </div>
-                        <div class="pure-control-group">
-                                <input type='hidden' value='0' name='ap_enable'>
-                                <input type="checkbox" value='0' id="ap_enable" name='ap_enable'  <!--#call get_ap_enabled -->>
-                                <label for="ap_enable" class="slider-v1"></label>
+                            <input type='hidden' value='0' name='ap_enable'>
 
+                        <div class="pure-control-group checkbox-switch">
+                                    <input type="checkbox" value='1' class="input-checkbox" id="ap_enable" name='ap_enable' <!--#call get_ap_enabled --> >
+                        			<div class="checkbox-animate">
+                        				<span class="checkbox-off">OFF</span>
+                        				<span class="checkbox-on">ON</span>
+                        			</div>
                         </div>
                         <div class="pure-controls">
                             <button id="submit" name="submit" class="pure-button">Accept</button>
@@ -52,7 +54,7 @@
                 </p>
 
                 <!-- STA settings -->
-                <form method="POST" action="/post/STA_SSID" class="pure-form pure-form-aligned">
+                <form method="POST" action="/post/STA_SSID" class="pure-form pure-form-stacked">
                     <fieldset>
                         <div class="pure-control-group">
                             <label  for="sta_ssid">Station SSID:</label>
@@ -79,7 +81,7 @@
                     Not implemented at the moment.
                 </p>
 
-                <form method="POST" action="/post/htpasswd" class="pure-form pure-form-aligned">
+                <form method="POST" action="/post/htpasswd" class="pure-form pure-form-stacked">
                     <fieldset>
 
                         <!-- user input-->

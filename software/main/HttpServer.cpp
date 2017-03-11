@@ -447,15 +447,15 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
         for(uint i = 0; i < this->switch_handler->get_switch_count(); i++)
         {
             mg_printf(c, "<form  id=\"form_switch%d\" method=\"POST\" action=\"/post/toggle_switch\" >\n", i);
-            mg_printf(c, "<label class=\"checkbox\">\n");
+            mg_printf(c, "<div class='checkbox-switch'>\n<label class=\"checkbox\">\n");
             mg_printf(c, "<input type='hidden' value='0' name=\"switch%d\" id=\"switch%d_hidden\">", i, i);
-            mg_printf(c, "<input data-toggle=\"toggle\" data-onstyle=\"success\" data-offstyle=\"danger\" type=\"checkbox\" ");
-            mg_printf(c, " data-on=\"Switch %d On\" value = '1' data-off=\"Switch %d Off\" id=\"switch%d\" name=\"switch%d\" onchange=\" if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;} else {document.getElementById('switch%d_hidden').disabled = false;} document.getElementById('form_switch%d').submit()\" ", i, i, i, i, i, i, i, i);
+            mg_printf(c, "<input type=\"checkbox\"   class='input-checkbox' ");
+            mg_printf(c, " value='1' id='switch%d' name='switch%d' onchange=\"if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;} else {document.getElementById('switch%d_hidden').disabled = false;} document.getElementById('form_switch%d').submit()\" ", i, i, i, i, i,i);
             if(this->switch_handler->get_switch_state(i) == on)
             {
                 mg_printf(c, "checked ");
             }
-            mg_printf(c, ">\n</label>\n</form>\n");
+            mg_printf(c, ">\n</label>\n<div class='checkbox-animate'>\n<span class='checkbox-off'>OFF</span>\n<span class='checkbox-on'>ON</span></div></div>\n</form>");
             //mg_printf(c, "\n<script>\n if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;}</script>\n", i, i);
         }
     }
