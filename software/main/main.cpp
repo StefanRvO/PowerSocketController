@@ -80,14 +80,7 @@ void cpp_main()
     do_startup_test();
 
     const adc1_channel_t adc_channles[] = {
-        ADC1_CHANNEL_0,
-        ADC1_CHANNEL_1,
-        ADC1_CHANNEL_2,
-        ADC1_CHANNEL_3,
-        ADC1_CHANNEL_4,
-        ADC1_CHANNEL_5,
         ADC1_CHANNEL_6,
-        ADC1_CHANNEL_7,
     };
     __attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
     printf("Startup done. Suspending main task\n");

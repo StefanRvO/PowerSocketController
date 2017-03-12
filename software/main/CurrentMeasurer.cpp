@@ -40,11 +40,13 @@ void CurrentMeasurer::sample_thread()
     while(1)
     {
         vTaskDelay(10 / portTICK_PERIOD_MS);
-        printf("test\n");
-        for(uint j = 0; j < 1000; j++ )
-        for(uint32_t i = 0; i < this->pin_num; i++)
-        {
-            adc1_get_voltage(this->pins[i]);
-        }
+        double average = 0;
+        for(uint j = 0; j < 20000; j++ )
+            for(uint32_t i = 0; i < this->pin_num; i++)
+            {
+                average += adc1_get_voltage(this->pins[i]);
+            }
+            printf("ADC1,6: %f\n", average / 20000.);
+
     }
 }

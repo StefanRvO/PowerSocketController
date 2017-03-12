@@ -446,8 +446,8 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
     {
         for(uint i = 0; i < this->switch_handler->get_switch_count(); i++)
         {
-            mg_printf(c, "<form  id=\"form_switch%d\" method=\"POST\" action=\"/post/toggle_switch\" >\n", i);
-            mg_printf(c, "<div class='checkbox-switch'>\n<label class=\"checkbox\">\n");
+            mg_printf(c, "<form  id=\"form_switch%d\" method=\"POST\" action=\"/post/toggle_switch\" class='pure-form pure-form-stacked' >\n", i);
+            mg_printf(c, "<div class='pure-control-group checkbox-switch'>\n");
             mg_printf(c, "<input type='hidden' value='0' name=\"switch%d\" id=\"switch%d_hidden\">", i, i);
             mg_printf(c, "<input type=\"checkbox\"   class='input-checkbox' ");
             mg_printf(c, " value='1' id='switch%d' name='switch%d' onchange=\"if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;} else {document.getElementById('switch%d_hidden').disabled = false;} document.getElementById('form_switch%d').submit()\" ", i, i, i, i, i,i);
@@ -455,7 +455,7 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
             {
                 mg_printf(c, "checked ");
             }
-            mg_printf(c, ">\n</label>\n<div class='checkbox-animate'>\n<span class='checkbox-off'>OFF</span>\n<span class='checkbox-on'>ON</span></div></div>\n</form>");
+            mg_printf(c, ">\n<div class='checkbox-animate'>\n<span class='checkbox-off'>OFF</span>\n<span class='checkbox-on'>ON</span></div></div>\n</form>");
             //mg_printf(c, "\n<script>\n if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;}</script>\n", i, i);
         }
     }
@@ -538,7 +538,7 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
 
 bool HttpServer::start()
 {
-    xTaskCreatePinnedToCore(HttpServer::http_thread_wrapper, "http_thread", 20000, (void **)this, 10, NULL, 0);
+    xTaskCreatePinnedToCore(HttpServer::http_thread_wrapper, "http_thread", 10000, (void **)this, 10, NULL, 0);
     while(!this->running)
     { //yeah, race condition. This is probably fine
         vTaskDelay(10 / portTICK_PERIOD_MS);
