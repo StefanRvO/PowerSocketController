@@ -1,4 +1,4 @@
-<!--#include file="ssi/header" -->
+<!--#include file="ssi/header.html"-->
 <style>
     .fileUpload {
         position: relative;
@@ -43,10 +43,11 @@
     </div>
 </div>
 
-<!--#include file="ssi/com_js" -->
+<!--#include file="ssi/com_js.html"-->
 <script>
     document.getElementById("ota_upload").onchange = function() {
         document.getElementById("ota_upload_file").value = this.value;
     };
 </script>
-<!--#include file="ssi/footer" -->
+
+<!--#include file="ssi/footer.html"-->

@@ -1,5 +1,5 @@
 
-<!--#include file="ssi/header" -->
+<!--#include file="ssi/header.html"-->
 
 <div id="main">
     <div class="header">
@@ -8,6 +8,6 @@
             </div>
         </div>
 
-    <!--#include file="ssi/com_js" -->
+    <!--#include file="ssi/com_js.html"-->
 
-    <!--#include file="ssi/footer" -->
+    <!--#include file="ssi/footer.html"-->

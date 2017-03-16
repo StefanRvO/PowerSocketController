@@ -1,5 +1,5 @@
 
-<!--#include file="ssi/header" -->
+<!--#include file="ssi/header.html"-->
 <link href="css/switch.css" rel="stylesheet">
 
 <div id="main">
@@ -11,5 +11,5 @@
         <h2 class="content-subhead">Switch the sockets</h2>
                         <!--#call INSERT_TOGGLE -->
 </div>
-    <!--#include file="ssi/com_js" -->
-    <!--#include file="ssi/footer" -->
+<!--#include file="ssi/com_js.html"-->
+    <!--#include file="ssi/footer.html"-->

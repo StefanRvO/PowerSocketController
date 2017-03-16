@@ -1,4 +1,4 @@
-<!--#include file="ssi/header" -->
+<!--#include file="ssi/header.html"-->
 <div id="main">
     <div class="header">
         <h1>Reboot</h1>
@@ -23,6 +23,6 @@
         </form>
     </div>
 </div>
-<!--#include file="ssi/com_js" -->
+<!--#include file="ssi/com_js.html"-->
 
-<!--#include file="ssi/footer" -->
+<!--#include file="ssi/footer.html"-->

@@ -14,6 +14,8 @@ extern "C"
     #include "esp_system.h"
     #include "esp_log.h"
     #include "esp_ota_ops.h"
+    #include "apps/sntp/sntp.h"
+
 }
 
 #include "HttpServer.h"
@@ -25,6 +27,15 @@ extern "C"
 #include "CurrentMeasurer.h"
 
 __attribute__((unused)) static const char *TAG = "PowerSocket";
+
+
+static void initialize_sntp(void)
+{
+    ESP_LOGI(TAG, "Initializing SNTP");
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_setservername(0, "pool.ntp.org");
+    sntp_init();
+}
 
 
 void hello_task(void *pvParameter)
@@ -83,8 +94,11 @@ void cpp_main()
         ADC1_CHANNEL_6,
     };
     //__attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
+    initialize_sntp();
+
     printf("Startup done. Suspending main task\n");
     vTaskSuspend( NULL );
+
 }
 
 extern "C"

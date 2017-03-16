@@ -404,6 +404,42 @@ void HttpServer::OTA_endpoint(struct mg_connection *c, int ev, void *p)
         break;
     }
 }
+
+void HttpServer::handle_get_ip_info(struct mg_connection *c, struct http_message *hm, tcpip_adapter_if_t adapter)
+{
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    /* Send headers */
+    mg_printf(c,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: keep-alive:\r\nTransfer-Encoding: chunked\r\n\r\n");
+    //Send result as json. We send ip, gateway and netmask
+    tcpip_adapter_ip_info_t ip_info;
+    ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (adapter , &ip_info));
+    char *ip_str, *gw_str, *nm_str;
+    ip_str = (char *)malloc(16);
+    gw_str = (char *)malloc(16);
+    nm_str = (char *)malloc(16);
+    strcpy(ip_str,inet_ntoa(ip_info.ip));
+    strcpy(gw_str,inet_ntoa(ip_info.gw));
+    strcpy(nm_str,inet_ntoa(ip_info.netmask));
+    mg_printf_http_chunk(c, "{ \"ip\": \"%s\",\n\"gw\": \"%s\",\n \"nm\": \"%s\" }", ip_str, gw_str, nm_str);
+    mg_send_http_chunk(c, "", 0); /* Send empty chunk, the end of response */
+
+    free(ip_str);
+    free(gw_str);
+    free(nm_str);
+}
+
+void HttpServer::handle_get_uptime(struct mg_connection *c, struct http_message *hm)
+{
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    /* Send headers */
+    mg_printf(c,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: keep-alive:\r\nTransfer-Encoding: chunked\r\n\r\n");
+    //Send result as json. We send ip, gateway and netmask
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    mg_printf_http_chunk(c, "{ \"uptime\": \"%d.%d\"}", (int)tv.tv_sec, (int)tv.tv_usec);
+    mg_send_http_chunk(c, "", 0); /* Send empty chunk, the end of response */
+}
+
 void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
 {
     switch(ev)
@@ -414,14 +450,34 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
             printf("%.*s requested\n",  hm->uri.len,  hm->uri.p);
             if(strncmp(hm->uri.p, "/", hm->uri.len) == 0)
                 this->index(c, ev, p);
-            mg_serve_http(c, hm, this->s_http_server_opts);
+            else if (mg_vcmp(&hm->uri, "/api/v1/get_ap_info") == 0)
+            {
+                this->handle_get_ip_info(c, hm,  TCPIP_ADAPTER_IF_AP);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/get_sta_info") == 0)
+            {
+                this->handle_get_ip_info(c, hm,  TCPIP_ADAPTER_IF_STA);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/get_uptime") == 0)
+            {
+                this->handle_get_uptime(c, hm);
+            }
+
+            else
+                mg_serve_http(c, hm, this->s_http_server_opts);
             break;
         }
         case MG_EV_SSI_CALL:
             this->handle_ssi(c, p);
             break;
+        case MG_EV_ACCEPT:
+            printf("New Connection\n");
+            break;
+        case MG_EV_CLOSE:
+            printf("Connection closed\n");
         default:
             break;
+
     }
 
 }

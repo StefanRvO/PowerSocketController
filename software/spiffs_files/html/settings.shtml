@@ -1,4 +1,4 @@
-    <!--#include file="ssi/header" -->
+    <!--#include file="ssi/header.html"-->
 <link href="css/switch.css" rel="stylesheet">
 
 <div id="main">
@@ -121,6 +121,6 @@
                 </form>
             </div>
         </div>
-<!--#include file="ssi/com_js" -->
+<!--#include file="ssi/com_js.html"-->
 
-<!--#include file="ssi/footer" -->
+<!--#include file="ssi/footer.html"-->
