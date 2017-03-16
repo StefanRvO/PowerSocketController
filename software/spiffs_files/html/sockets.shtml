@@ -9,7 +9,47 @@
     </div>
     <div class="content">
         <h2 class="content-subhead">Switch the sockets</h2>
-                        <!--#call INSERT_TOGGLE -->
+        <div id="switch_forms">
+        </div>
+</div>
 </div>
 <!--#include file="ssi/com_js.html"-->
-    <!--#include file="ssi/footer.html"-->
+
+<!-- When the document has finished loading, create the html for the switches.-->
+
+<script language="javascript" type="text/javascript">
+    $( document ).ready(function() {
+      $.ajax({
+        url: '/api/v1/get_switch_state',
+        method: 'POST',
+        dataType: 'json',
+        data: {},
+        success: function(json) {
+            var form_str = "";
+            for(i = 0; i < parseInt(json.count); i++ )
+            {
+                var switch_name = "switch" + i;
+                form_str += "<form  id='form_switch" + i +"' method='POST' action='/post/toggle_switch' class='pure-form pure-form-stacked' >";
+                form_str += "<form  id='form_switch" + i + "' method='POST' action='/post/toggle_switch' class='pure-form pure-form-stacked' >";
+                form_str += "<div class='pure-control-group checkbox-switch'>";
+                form_str += "<input type='hidden' value='0' name='switch" + i + "' id='switch" + i + "_hidden'>";
+                form_str += "<input type='checkbox' class='input-checkbox' value='1' id='switch" + i + "' name='switch" + i + "' onchange=\"if(document.getElementById('switch" + i  + "').checked) {document.getElementById('switch" + i + "_hidden').disabled = true;} else {document.getElementById('switch" + i + "_hidden').disabled = false;} document.getElementById('form_switch" + i + "').submit()\"";
+                if(parseInt(json[switch_name].state) == 1)
+                {
+                    form_str += "checked";
+                }
+                form_str += " >";
+                form_str += "<div class='checkbox-animate'><span class='checkbox-off'>OFF</span><span class='checkbox-on'>ON</span></div></div></form>"
+            }
+            $('#switch_forms').html(form_str);
+            //Set the checkbox state
+            //for(i = 0; i < parseInt(json.count); i++ )
+            //{
+            //
+            //    $(switch_name).prop('checked', parseInt(json[i].state));
+            //}
+        }
+      });
+  });
+</script>
+<!--#include file="ssi/footer.html"-->

@@ -428,6 +428,30 @@ void HttpServer::handle_get_ip_info(struct mg_connection *c, struct http_message
     free(nm_str);
 }
 
+
+void HttpServer::handle_get_switch_state(struct mg_connection *c, struct http_message *hm)
+{
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    /* Send headers */
+    mg_printf(c,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: keep-alive:\r\nTransfer-Encoding: chunked\r\n\r\n");
+    //Send the current state of the switches as json.
+    uint8_t switch_count = http_server->switch_handler->get_switch_count();
+    mg_printf_http_chunk(c, "{ \"count\":%hhu,\n ", switch_count);
+    for(uint8_t i = 0; i < switch_count; i++)
+    { //Send data for each switch
+        switch_state state = http_server->switch_handler->get_switch_state(i);
+        printf("state: %hhu", state);
+        if(i + 1 == (switch_count - 1))
+            mg_printf_http_chunk(c, "\"switch%d\": { \"id\":%hhu,\n \"state\":%hhu\n }, ", i, i, state);
+        else
+            mg_printf_http_chunk(c, "\"switch%d\": { \"id\":%hhu,\n \"state\":%hhu\n }", i, i, state);
+    }
+    mg_printf_http_chunk(c, "}");
+
+    mg_send_http_chunk(c, "", 0); /* Send empty chunk, the end of response */
+
+}
+
 void HttpServer::handle_get_uptime(struct mg_connection *c, struct http_message *hm)
 {
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;
@@ -462,6 +486,12 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
             {
                 this->handle_get_uptime(c, hm);
             }
+            else if (mg_vcmp(&hm->uri, "/api/v1/get_switch_state") == 0)
+            {
+                this->handle_get_switch_state(c, hm);
+            }
+
+
 
             else
                 mg_serve_http(c, hm, this->s_http_server_opts);

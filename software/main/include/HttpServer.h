@@ -33,6 +33,7 @@ class HttpServer
         static void SETTING(struct mg_connection *c, int ev, void *p);
         static void handle_get_ip_info(struct mg_connection *c, struct http_message *hm, tcpip_adapter_if_t adapter);
         static void handle_get_uptime(struct mg_connection *c, struct http_message *hm);
+        static void handle_get_switch_state(struct mg_connection *c, struct http_message *hm);
         bool ota_init();
         OTA_status ota_status;
         struct mg_serve_http_opts s_http_server_opts;
