@@ -2,6 +2,3 @@
 [submodule "software/components/spiffs/spiffs"]
 	path = software/components/spiffs/spiffs
 	url = https://github.com/pellepl/spiffs.git
-[submodule "software/components/mongoose/mongoose"]
-	path = software/components/mongoose/mongoose
-	url = https://github.com/StefanRvO/mongoose.git
