@@ -20,9 +20,9 @@ class FilesystemHandler
         spiffs fs;
     private:
         static FilesystemHandler *instance;
-        uint8_t spiffs_work_buf[LOG_PAGE_SIZE*2];
-        uint8_t spiffs_fds[32*4];
-        uint8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*4];
+        uint8_t spiffs_work_buf[LOG_PAGE_SIZE*4];
+        uint8_t spiffs_fds[32*32];
+        uint8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*8];
         FilesystemHandler(size_t _addr, size_t _size, char * _mountpt);
 
 

@@ -3,10 +3,10 @@
 #include "esp_system.h"
 #include "esp_err.h"
 
-
 static const char *TAG = "HTTP_SERVER";
 
-#define MAX_VALUE_LEN 16
+#define MAX_VALUE_LEN 32
+
 
 bool switch_post_parser(mg_str *key, mg_str *value, void *extra)
 {
@@ -211,7 +211,7 @@ void HttpServer::http_thread_wrapper(void *PvParameters)
 void HttpServer::http_thread()
 {
     printf("Entered HTTP thread!\n");
-	struct mg_mgr mgr;
+    struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_bind_opts bind_opts;
     mg_mgr_init(&mgr, this);
@@ -234,7 +234,6 @@ void HttpServer::http_thread()
       printf("Failed to create listener!\n");
       return;
     }
-
     printf("Webserver bound to port %s\n", this->port);
 
     mg_set_protocol_http_websocket(nc);
@@ -412,6 +411,7 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
         case MG_EV_HTTP_REQUEST:
         {
             struct http_message *hm = (struct http_message *) p;
+            printf("%.*s requested\n",  hm->uri.len,  hm->uri.p);
             if(strncmp(hm->uri.p, "/", hm->uri.len) == 0)
                 this->index(c, ev, p);
             mg_serve_http(c, hm, this->s_http_server_opts);
@@ -419,6 +419,7 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
         }
         case MG_EV_SSI_CALL:
             this->handle_ssi(c, p);
+            break;
         default:
             break;
     }

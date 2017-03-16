@@ -72,7 +72,7 @@ void cpp_main()
                                  0x100000  /*Size*/,
                                  (char *)"/spiffs"      /*Mount point */);
     fs_handler->init_spiffs();
-    xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
+    //xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
     HttpServer httpd_server("80");
     httpd_server.start();
     HttpServer httpsd_server("443", true);
@@ -82,7 +82,7 @@ void cpp_main()
     const adc1_channel_t adc_channles[] = {
         ADC1_CHANNEL_6,
     };
-    __attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
+    //__attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
     printf("Startup done. Suspending main task\n");
     vTaskSuspend( NULL );
 }

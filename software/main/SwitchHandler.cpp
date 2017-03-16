@@ -90,22 +90,16 @@ void SwitchHandler::setup_button_pins()
     io_conf.mode = GPIO_MODE_OUTPUT;
     //bit mask of the pins that you want to set
     io_conf.pin_bit_mask = 0;
-    //disable pull-down mode
-    io_conf.pull_down_en = (gpio_pulldown_t)0;
+    //enable pull-down mode
+    io_conf.pull_down_en = (gpio_pulldown_t)1;
     //disable pull-up mode
     io_conf.pull_up_en = (gpio_pullup_t)0;
     //configure GPIO with the given settings
     for(uint8_t i = 0; i < this->pin_num; i++)
     {
-        io_conf.pin_bit_mask += 1<< (uint64_t)(this->relay_pins[i]);
-        //ESP_ERROR_CHECK(gpio_set_direction(this->button_leds[i], GPIO_MODE_OUTPUT));
+        io_conf.pin_bit_mask += 1<< (uint64_t)(this->button_pins[i]);
     }
-
-    for(uint8_t i = 0; i < this->pin_num; i++)
-    {
-        ESP_ERROR_CHECK(gpio_set_direction(this->relay_pins[i], GPIO_MODE_INPUT));
-        ESP_ERROR_CHECK(gpio_set_pull_mode(this->button_pins[i], GPIO_PULLDOWN_ONLY));
-    }
+    ESP_ERROR_CHECK( gpio_config(&io_conf) );
 
 }
 
@@ -127,7 +121,6 @@ void SwitchHandler::setup_button_leds()
     for(uint8_t i = 0; i < this->pin_num; i++)
     {
         io_conf.pin_bit_mask += 1<< (uint64_t)(this->button_leds[i]);
-        //ESP_ERROR_CHECK(gpio_set_direction(this->button_leds[i], GPIO_MODE_OUTPUT));
     }
 
     ESP_ERROR_CHECK( gpio_config(&io_conf) );
