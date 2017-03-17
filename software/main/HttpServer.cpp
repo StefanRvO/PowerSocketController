@@ -407,22 +407,56 @@ void HttpServer::OTA_endpoint(struct mg_connection *c, int ev, void *p)
 
 void HttpServer::handle_get_ip_info(struct mg_connection *c, struct http_message *hm, tcpip_adapter_if_t adapter)
 {
+    if(adapter != TCPIP_ADAPTER_IF_AP and adapter != TCPIP_ADAPTER_IF_STA)
+        return;
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     /* Send headers */
     mg_printf(c,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: keep-alive:\r\nTransfer-Encoding: chunked\r\n\r\n");
-    //Send result as json. We send ip, gateway and netmask
+    //Send result as json. We send ip, gateway, netmask enabled and ssid_name
     tcpip_adapter_ip_info_t ip_info;
     ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (adapter , &ip_info));
-    char *ip_str, *gw_str, *nm_str;
+    char *ip_str, *gw_str, *nm_str, *ssid_name = nullptr;
+    uint8_t enabled = 0;
     ip_str = (char *)malloc(16);
     gw_str = (char *)malloc(16);
     nm_str = (char *)malloc(16);
     strcpy(ip_str,inet_ntoa(ip_info.ip));
     strcpy(gw_str,inet_ntoa(ip_info.gw));
     strcpy(nm_str,inet_ntoa(ip_info.netmask));
-    mg_printf_http_chunk(c, "{ \"ip\": \"%s\",\n\"gw\": \"%s\",\n \"nm\": \"%s\" }", ip_str, gw_str, nm_str);
+
+    //Retrieve ssid settings
+    if(adapter == TCPIP_ADAPTER_IF_AP)
+    {
+        size_t ssid_len = 0;
+        ESP_ERROR_CHECK( http_server->s_handler->nvs_get("AP_SSID", (char *)nullptr, &ssid_len) );
+        ssid_name = (char *)malloc(ssid_len);
+        ESP_ERROR_CHECK( http_server->s_handler->nvs_get("AP_SSID", ssid_name, &ssid_len) );
+        //Se if the AP is enabled
+        wifi_mode_t mode;
+        ESP_ERROR_CHECK( http_server->s_handler->nvs_get("WIFI_MODE", (uint32_t *)(&mode)));
+        printf("WIFI_MODE: %d\n", mode);
+        if(mode == WIFI_MODE_APSTA)
+            enabled = 1;
+    }
+    if(adapter == TCPIP_ADAPTER_IF_STA)
+    {
+        size_t ssid_len = 0;
+        ESP_ERROR_CHECK( http_server->s_handler->nvs_get("STA_SSID", (char *)nullptr, &ssid_len) );
+        ssid_name = (char *)malloc(ssid_len);
+        ESP_ERROR_CHECK( http_server->s_handler->nvs_get("STA_SSID", ssid_name, &ssid_len) );
+        //For now, station mode is always enabled
+        enabled = 1;
+    }
+
+    mg_printf_http_chunk(c, "{ \"enabled\":%hhu, \"ssid\":\"%s\", \n\"ip\": \"%s\",\n\"gw\": \"%s\",\n \"nm\": \"%s\" }",
+        enabled, ssid_name, ip_str, gw_str, nm_str);
+
     mg_send_http_chunk(c, "", 0); /* Send empty chunk, the end of response */
 
+    free(ssid_name); //This is allocated in the above if - else blocks (adapter == something).
+                     //This also means that the adapter NEEDS to be one of the types we are checking or,
+                     //We will free an unallocated piece of memory (very bad!).
+                     //Check at function entry if the adapter is one of the supported ones..
     free(ip_str);
     free(gw_str);
     free(nm_str);
@@ -454,7 +488,7 @@ void HttpServer::handle_get_switch_state(struct mg_connection *c, struct http_me
 
 void HttpServer::handle_get_uptime(struct mg_connection *c, struct http_message *hm)
 {
-    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    __attribute__((unused)) HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     /* Send headers */
     mg_printf(c,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: keep-alive:\r\nTransfer-Encoding: chunked\r\n\r\n");
     //Send result as json. We send ip, gateway and netmask
@@ -529,24 +563,6 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
     const char *param = (const char *) p;
     printf("entered ssid handler with param %s\n", param);
 
-    if(strcmp(param, "INSERT_TOGGLE") == 0)
-    {
-        for(uint i = 0; i < this->switch_handler->get_switch_count(); i++)
-        {
-            mg_printf(c, "<form  id=\"form_switch%d\" method=\"POST\" action=\"/post/toggle_switch\" class='pure-form pure-form-stacked' >\n", i);
-            mg_printf(c, "<div class='pure-control-group checkbox-switch'>\n");
-            mg_printf(c, "<input type='hidden' value='0' name=\"switch%d\" id=\"switch%d_hidden\">", i, i);
-            mg_printf(c, "<input type=\"checkbox\"   class='input-checkbox' ");
-            mg_printf(c, " value='1' id='switch%d' name='switch%d' onchange=\"if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;} else {document.getElementById('switch%d_hidden').disabled = false;} document.getElementById('form_switch%d').submit()\" ", i, i, i, i, i,i);
-            if(this->switch_handler->get_switch_state(i) == on)
-            {
-                mg_printf(c, "checked ");
-            }
-            mg_printf(c, ">\n<div class='checkbox-animate'>\n<span class='checkbox-off'>OFF</span>\n<span class='checkbox-on'>ON</span></div></div>\n</form>");
-            //mg_printf(c, "\n<script>\n if(document.getElementById('switch%d').checked) {document.getElementById('switch%d_hidden').disabled = true;}</script>\n", i, i);
-        }
-    }
-
     if(strcmp(param, "get_AP_SSID") == 0)
     {
         size_t ssid_len = 0;
@@ -565,49 +581,6 @@ void HttpServer::handle_ssi(struct mg_connection *c, void *p)
         ESP_ERROR_CHECK( this->s_handler->nvs_get("STA_SSID", sta_ssid, &ssid_len) );
         mg_printf(c, sta_ssid);
         free(sta_ssid);
-    }
-    else if(strcmp(param , "get_AP_IP") == 0)
-    {
-        tcpip_adapter_ip_info_t ip_info;
-        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_AP , &ip_info));
-        mg_print_ip(c, ip_info.ip);
-    }
-    else if(strcmp(param , "get_AP_GW") == 0)
-    {
-        tcpip_adapter_ip_info_t ip_info;
-        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_AP , &ip_info));
-        mg_print_ip(c, ip_info.gw);
-    }
-    else if(strcmp(param , "get_AP_NM") == 0)
-    {
-        tcpip_adapter_ip_info_t ip_info;
-        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_AP , &ip_info));
-        mg_print_ip(c, ip_info.netmask);
-    }
-    else if(strcmp(param , "get_STA_IP") == 0)
-    {
-        tcpip_adapter_ip_info_t ip_info;
-        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_STA , &ip_info));
-        mg_print_ip(c, ip_info.ip);
-    }
-    else if(strcmp(param , "get_STA_GW") == 0)
-    {
-        tcpip_adapter_ip_info_t ip_info;
-        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_STA , &ip_info));
-        mg_print_ip(c, ip_info.gw);
-    }
-    else if(strcmp(param , "get_STA_NM") == 0)
-    {
-        tcpip_adapter_ip_info_t ip_info;
-        ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (TCPIP_ADAPTER_IF_STA , &ip_info));
-        mg_print_ip(c, ip_info.netmask);
-    }
-
-    else if(strcmp(param, "get_uptime") == 0)
-    {
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        mg_printf(c, "Uptime: %d.%d secs\n<br>", (int)tv.tv_sec, (int)tv.tv_usec);
     }
 
     else if(strcmp(param, "get_ap_enabled") == 0)

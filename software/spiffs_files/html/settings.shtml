@@ -15,26 +15,26 @@
                     <fieldset>
                         <div class="pure-control-group">
                             <label for="ap_ssid">Access Point SSID:</label>
-                            <input type="text" name="ap_ssid" id="ap_ssid" value="<!--#call get_AP_SSID -->">
+                            <input type="text" name="ap_ssid" id="ap_ssid" value="">
                         </div>
 
                         <div class="pure-control-group">
                             <label for="ap_ip_title">Access Point IP:</label>
-                                <input type="text" name="ap_ip" id="ap_ip" value="<!--#call get_AP_IP -->" title="Access Point IP">
+                                <input type="text" name="ap_ip" id="ap_ip" value="" title="Access Point IP">
                         </div>
                         <div class="pure-control-group">
                             <label for="ap_gw_title">Access Point Gateway:</label>
-                                <input type="text" name="ap_gw" id="ap_gw" value="<!--#call get_AP_GW -->" title="Access Point GW">
+                                <input type="text" name="ap_gw" id="ap_gw" value="" title="Access Point GW">
                         </div>
 
                         <div class="pure-control-group">
                             <label for="ap_netmask_title">Access Point Netmask:</label>
-                                <input type="text" name="ap_netmask" id="ap_netmask" value="<!--#call get_AP_NM -->" title="Access Point netmask">
+                                <input type="text" name="ap_netmask" id="ap_netmask" value="" title="Access Point netmask">
                             </div>
                             <input type='hidden' value='0' name='ap_enable'>
 
                         <div class="pure-control-group checkbox-switch">
-                                    <input type="checkbox" value='1' class="input-checkbox" id="ap_enable" name='ap_enable' <!--#call get_ap_enabled --> >
+                                    <input type="checkbox" value='1' class="input-checkbox" id="ap_enable" name='ap_enable' >
                         			<div class="checkbox-animate">
                         				<span class="checkbox-off">OFF</span>
                         				<span class="checkbox-on">ON</span>
@@ -58,7 +58,7 @@
                     <fieldset>
                         <div class="pure-control-group">
                             <label  for="sta_ssid">Station SSID:</label>
-                                <input type="text" name="sta_ssid" id="sta_ssid" value="<!--#call get_STA_SSID -->" >
+                                <input type="text" name="sta_ssid" id="sta_ssid" value="" >
                             </div>
                         <div class="pure-control-group">
 
@@ -122,5 +122,37 @@
             </div>
         </div>
 <!--#include file="ssi/com_js.html"-->
+
+<!-- Fetch values from the server -->
+<script language="javascript" type="text/javascript">
+    $( document ).ready(function() {
+      $.ajax({
+        url: '/api/v1/get_sta_info',
+        method: 'POST',
+        dataType: 'json',
+        data: {},
+        success: function(json) {
+          $('#sta_ssid').val(json.ssid);
+        }
+      });
+  });
+
+  $( document ).ready(function() {
+    $.ajax({
+      url: '/api/v1/get_ap_info',
+      method: 'POST',
+      dataType: 'json',
+      data: {},
+      success: function(json) {
+        $('#ap_ip').val(json.ip);
+        $('#ap_gw').val(json.gw);
+        $('#ap_netmask').val(json.nm);
+        $('#ap_ssid').val(json.ssid);
+        $("#ap_enable").prop( "checked", parseInt(json.enabled));
+      }
+    });
+});
+
+</script>
 
 <!--#include file="ssi/footer.html"-->

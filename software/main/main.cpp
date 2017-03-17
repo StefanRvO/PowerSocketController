@@ -33,7 +33,7 @@ static void initialize_sntp(void)
 {
     ESP_LOGI(TAG, "Initializing SNTP");
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, "pool.ntp.org");
+    sntp_setservername(0, (char *)"pool.ntp.org");
     sntp_init();
 }
 
@@ -56,11 +56,15 @@ void cpp_main()
 {
     const gpio_num_t relay_pins[] = {
         GPIO_NUM_27,
+        GPIO_NUM_27
     };
     const gpio_num_t button_leds[] = {
         GPIO_NUM_26,
+        GPIO_NUM_26,
+
     };
     const gpio_num_t button_pins[] = {
+        GPIO_NUM_25,
         GPIO_NUM_25,
     };
     printf("Booted, now initialising tasks and subsystems!\n");
@@ -71,7 +75,7 @@ void cpp_main()
     printf("Intialising settings handler and NVS system!\n");
     __attribute__((unused)) SettingsHandler *s_handler = SettingsHandler::get_instance();
     printf("Intialising switch handler!\n");
-    __attribute__((unused)) SwitchHandler *switch_handler = SwitchHandler::get_instance(relay_pins, button_pins, button_leds, 1);
+    __attribute__((unused)) SwitchHandler *switch_handler = SwitchHandler::get_instance(relay_pins, button_pins, button_leds, 2);
 
 
     printf("Initialising Wifi!\n");
@@ -90,7 +94,7 @@ void cpp_main()
     httpsd_server.start();
     do_startup_test();
 
-    const adc1_channel_t adc_channles[] = {
+    __attribute__((unused)) const adc1_channel_t adc_channles[] = {
         ADC1_CHANNEL_6,
     };
     //__attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
