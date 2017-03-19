@@ -7,6 +7,28 @@ static const char *TAG = "HTTP_SERVER";
 
 #define MAX_VALUE_LEN 32
 
+void create_digest_string(mg_str *username, mg_str *password, mg_str *realm, char *result)
+{
+    unsigned char hash[16];
+    MD5_CTX ctx;
+
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, (const unsigned char *)username->p, username->len);
+    //Add a :
+    MD5_Update(&ctx, (const unsigned char *)":", 1);
+    //Add realm
+    MD5_Update(&ctx, (const unsigned char *)realm->p, realm->len);
+    //Add a :
+    MD5_Update(&ctx, (const unsigned char *)":", 1);
+    //Add password
+    MD5_Update(&ctx, (const unsigned char *)password->p, password->len);
+    MD5_Final(hash, &ctx);
+    //First hash username username
+
+    cs_to_hex(result, hash, sizeof(hash));
+
+    return;
+}
 
 bool switch_post_parser(mg_str *key, mg_str *value, void *extra)
 {
@@ -92,7 +114,6 @@ bool post_parser(mg_str *key, mg_str *value, void *extra)
     {
         ESP_ERROR_CHECK( server->s_handler->nvs_set("STA_PASSWORD", decoded_value.p));
     }
-
     free((void *)decoded_value.p);
 
     return true;
@@ -190,7 +211,8 @@ bool HttpServer::ota_init()
 
 
 HttpServer::HttpServer(const char *_port, bool _use_ssl) :
-port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance()), switch_handler(SwitchHandler::get_instance())
+port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance()),
+switch_handler(SwitchHandler::get_instance()), t_keeper(TimeKeeper::get_instance())
 {
     return;
 }
@@ -283,7 +305,6 @@ void HttpServer::SETTING(struct mg_connection *c, int ev, void *p)
         case MG_EV_HTTP_REQUEST:
         {
             struct http_message *hm = (struct http_message *) p;
-            //if(strncmp(hm->method.p, "POST", hm->method.len))
             {
                 printf("Got AP SSID %.*s\n", hm->method.len, hm->method.p);
                 printf("Got DATA:\n %.*s\n", hm->body.len, hm->body.p);
@@ -494,7 +515,7 @@ void HttpServer::handle_get_uptime(struct mg_connection *c, struct http_message 
     //Send result as json. We send ip, gateway and netmask
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    mg_printf_http_chunk(c, "{ \"uptime\": \"%d.%d\"}", (int)tv.tv_sec, (int)tv.tv_usec);
+    mg_printf_http_chunk(c, "{ \"uptime\": \"%f\"}", http_server->t_keeper->get_uptime());
     mg_send_http_chunk(c, "", 0); /* Send empty chunk, the end of response */
 }
 
@@ -531,9 +552,6 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
                 mg_serve_http(c, hm, this->s_http_server_opts);
             break;
         }
-        case MG_EV_SSI_CALL:
-            this->handle_ssi(c, p);
-            break;
         case MG_EV_ACCEPT:
             printf("New Connection\n");
             break;
@@ -558,47 +576,9 @@ void mg_print_ip(struct mg_connection *c, ip4_addr_t ip)
     return;
 }
 
-void HttpServer::handle_ssi(struct mg_connection *c, void *p)
-{   //Handle all SSI calls
-    const char *param = (const char *) p;
-    printf("entered ssid handler with param %s\n", param);
-
-    if(strcmp(param, "get_AP_SSID") == 0)
-    {
-        size_t ssid_len = 0;
-        ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_SSID", (char *)nullptr, &ssid_len) );
-        char *ap_ssid = (char *)malloc(ssid_len);
-        ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_SSID", ap_ssid, &ssid_len) );
-        mg_printf(c, ap_ssid);
-        free(ap_ssid);
-    }
-    else if(strcmp(param , "get_STA_SSID") == 0)
-    {
-        printf("%d %d \n", strlen(param + 4), strlen("get_STA_SSID"));
-        size_t ssid_len = 0;
-        ESP_ERROR_CHECK( this->s_handler->nvs_get("STA_SSID", (char *)nullptr, &ssid_len) );
-        char *sta_ssid = (char *)malloc(ssid_len);
-        ESP_ERROR_CHECK( this->s_handler->nvs_get("STA_SSID", sta_ssid, &ssid_len) );
-        mg_printf(c, sta_ssid);
-        free(sta_ssid);
-    }
-
-    else if(strcmp(param, "get_ap_enabled") == 0)
-    {
-        wifi_mode_t mode;
-        ESP_ERROR_CHECK( this->s_handler->nvs_get("WIFI_MODE", (uint32_t *)(&mode)));
-        printf("WIFI_MODE: %d\n", mode);
-
-        if(mode == WIFI_MODE_APSTA)
-            mg_printf(c, "checked");
-    }
-
-
-}
-
 bool HttpServer::start()
 {
-    xTaskCreatePinnedToCore(HttpServer::http_thread_wrapper, "http_thread", 10000, (void **)this, 10, NULL, 0);
+    xTaskCreatePinnedToCore(HttpServer::http_thread_wrapper, "http_thread", 15000, (void **)this, 10, NULL, 0);
     while(!this->running)
     { //yeah, race condition. This is probably fine
         vTaskDelay(10 / portTICK_PERIOD_MS);

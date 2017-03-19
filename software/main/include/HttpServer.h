@@ -6,6 +6,7 @@
 
 #include "WifiHandler.h"
 #include "SwitchHandler.h"
+#include "TimeKeeper.h"
 struct OTA_status
 {
     esp_ota_handle_t out_handle;
@@ -40,6 +41,7 @@ class HttpServer
         void handle_ssi(struct mg_connection *c, void *p);
         SettingsHandler *s_handler = nullptr;
         SwitchHandler *switch_handler = nullptr;
+        TimeKeeper *t_keeper = nullptr;
 
     private:
         volatile bool running;

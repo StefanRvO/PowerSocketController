@@ -25,6 +25,7 @@ extern "C"
 #include "SettingsHandler.h"
 #include "SwitchHandler.h"
 #include "CurrentMeasurer.h"
+#include "TimeKeeper.h"
 
 __attribute__((unused)) static const char *TAG = "PowerSocket";
 
@@ -100,9 +101,17 @@ void cpp_main()
     //__attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
     initialize_sntp();
 
-    printf("Startup done. Suspending main task\n");
-    vTaskSuspend( NULL );
+    //Keep time.
+    TimeKeeper *t_keeper = TimeKeeper::get_instance();
+    printf("Startup done\n");
+    //Enter a inifite loop which performs tasks which should happen very unfrequent
+    while(1)
+    {
+        t_keeper->do_update();
+        vTaskDelay((1000 * 60 * 60 * 24) / portTICK_PERIOD_MS); //Once per day
+        printf("Time is %f\n", t_keeper->get_uptime());
 
+    }
 }
 
 extern "C"
