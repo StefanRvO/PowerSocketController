@@ -1,16 +1,17 @@
 language: cpp
-
+dist: trusty
 before_install:
-	sudo apt-get -qq update
-	sudo apt-get install git wget make libncurses-dev flex bison gperf python python-serial
-	wget https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz
-	mkdir -p ~/esp
-	cd ~/esp
-	tar -xzf ../xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz
-	git clone --recursive https://github.com/espressif/esp-idf.git
+   - sudo apt-get -qq update
+   - sudo apt-get install git wget make libncurses-dev flex bison gperf python python-pip
+   - pip install pyserial
+   - mkdir -p esp
+#Download the xtensa compiler
+   - wget https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz -O xtensa_gcc.tar.gz
+   - tar -xzf xtensa_gcc.tar.gz -C esp/
+#clone esp-idf
+   - git clone --recursive https://github.com/espressif/esp-idf.git esp/esp-idf
 env:
-	IDF_PATH=~/esp/esp-idf
-	PATH=$PATH:$HOME/esp/xtensa-esp32-elf/bin
+   - IDF_PATH="$(pwd)/esp/esp-idf" PATH=$PATH:$(pwd)/esp/xtensa-esp32-elf/bin
+
 script:
-	cd software/
-	make all -j$(nproc)
+   - echo $IDF_PATH && echo $PATH && cd software/ && make all -j10 && make images
