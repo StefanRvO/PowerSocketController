@@ -1,0 +1,16 @@
+language: cpp
+
+before_install:
+	sudo apt-get -qq update
+	sudo apt-get install git wget make libncurses-dev flex bison gperf python python-serial
+	wget https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz
+	mkdir -p ~/esp
+	cd ~/esp
+	tar -xzf ../xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz
+	git clone --recursive https://github.com/espressif/esp-idf.git
+env:
+	IDF_PATH=~/esp/esp-idf
+	PATH=$PATH:$HOME/esp/xtensa-esp32-elf/bin
+script:
+	cd software/
+	make all -j$(nproc)
