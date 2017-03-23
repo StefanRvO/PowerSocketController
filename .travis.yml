@@ -1,17 +1,23 @@
 language: cpp
 dist: trusty
 before_install:
-   - sudo apt-get -qq update
-   - sudo apt-get install git wget make libncurses-dev flex bison gperf python python-pip
-   - pip install pyserial
-   - mkdir -p esp
-#Download the xtensa compiler
-   - wget https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz -O xtensa_gcc.tar.gz
-   - tar -xzf xtensa_gcc.tar.gz -C esp/
-#clone esp-idf
-   - git clone --recursive https://github.com/espressif/esp-idf.git esp/esp-idf
+- sudo apt-get -qq update
+- sudo apt-get install git wget make libncurses-dev flex bison gperf python python-pip
+- pip install pyserial
+- mkdir -p esp
+- wget https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz
+  -O xtensa_gcc.tar.gz
+- tar -xzf xtensa_gcc.tar.gz -C esp/
+- git clone --recursive https://github.com/espressif/esp-idf.git esp/esp-idf
 env:
-   - IDF_PATH="$(pwd)/esp/esp-idf" PATH=$PATH:$(pwd)/esp/xtensa-esp32-elf/bin
-
+- IDF_PATH="$(pwd)/esp/esp-idf" PATH=$PATH:$(pwd)/esp/xtensa-esp32-elf/bin
 script:
-   - echo $IDF_PATH && echo $PATH && cd software/ && make all -j10 && make images
+- echo $IDF_PATH && echo $PATH && cd software/ && make release -j20
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: R097yxm7H/k3sbY93EHBzx25ZIotouVDJDEWeJ+LkbLB9Tq7dJN+tVZx3Mmfuzx2PbbioZTmSqGUHdPUKGkcgKlVxIsp0pGdOCfWu/eK7IK8LO4qw2is6mDtoUsbXx7PDFf25I8VotfRZVXdj0DDZlc4jtBoXzBfgfBk7OCfL4u47i/sexAwvGrdIPHdjdBeI4WOC1TtSS7HBJUsTbwB5dOH50ceTmz5g3DD5pU1kQ1/R98TImR7i/WhFi0W9WhjaX5L5jSxGzNxWZkOqERe2+Pf62r4Fc3luiOvRh4wsX/6fmSQ4IQRgL457pqswxBEoe0OK+9FdvhtNKNtsE2W49uk5M+ECokHGme/y8KYVdbhjjPtHPmflnqtiVuI/qXebrJZseuHftVnEsbDmkdR+SvhhnKca8wB9+lBY8KYyiS4nbdRc+gHLQDtZa3JQC7fus164awIQBrcfdWzJVY2MSvp+xU9i5wv9WX+NvdYirr/QQsMibT7HFC+DvCVbwf2+iD4wt6SQZ2UiDyBZ/rgjsQNiuMvnW2dRdc9olPZvwYBMqviC3bF946KND9zZru1Jrh5uBKpTRHHcZVOfYPDYzpAnEE7h36ikKWJfyuVgnlbT2K65uK4mouTBkz+BldhdEKT9ev0ci6JLT/0VvQL8/WlezTiYb4UWl6x14gZRDY=
+  file: software/build/release.tar.gz
+  on:
+    repo: StefanRvO/PowerSocketController

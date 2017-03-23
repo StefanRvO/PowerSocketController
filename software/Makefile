@@ -11,7 +11,6 @@ PROJECT_NAME := PowerSocket
 SPIFFS_ADDR := 0x220000
 MKSPIFFS_DIR := build_tools/Lua-RTOS-ESP32/components/mkspiffs/src
 
-
 include $(IDF_PATH)/make/project.mk
 
 mkspiffs:
@@ -34,3 +33,11 @@ flashdata: images
 	$(ESPTOOLPY_WRITE_FLASH) --compress ${SPIFFS_ADDR} build/spiffs.img
 
 flashall: flash flashdata
+
+release: all images
+	echo "+---------------------+"
+	echo "| Creating release    |"
+	echo "+---------------------+"
+	mkdir -p ${BUILD_DIR_BASE}/release
+	cp ${BUILD_DIR_BASE}/partitions.bin ${BUILD_DIR_BASE}/PowerSocket.bin ${BUILD_DIR_BASE}/spiffs.img ${BUILD_DIR_BASE}/release/
+	tar -zcvf ${BUILD_DIR_BASE}/release.tar.gz -C ${BUILD_DIR_BASE}/release .
