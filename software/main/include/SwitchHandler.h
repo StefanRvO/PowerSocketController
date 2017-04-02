@@ -2,6 +2,11 @@
 //This class handles the control of the different switches, saving the state of the switches to NVS storage when changed, as well as retrieving them when starting up.
 #include "driver/gpio.h"
 #include "SettingsHandler.h"
+#include "freertos/FreeRTOS.h"
+
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+
 
 #define DEBOUNCE_TIME 30 //Millisecond threshold for debouncing
 #define DOUBLECLICK_THRESHOLD 500//Threshold time for doubleclicking
@@ -13,6 +18,11 @@ extern "C"
     #include <freertos/timers.h>
 }
 
+enum led_control_mode
+{
+    output = 0, //The LEDs is controlled by the state of the switches.
+    blinking, //The LEDs are blinking. The blink speed is controlled by the member variable blink_time.
+};
 
 enum switch_state : uint8_t
 {
@@ -30,6 +40,7 @@ enum button_push_state : uint8_t
     second_push,
     second_release,
 };
+
 enum button_event : uint8_t
 {
     no_event = 0,
@@ -61,6 +72,14 @@ class SwitchHandler
         switch_state get_switch_state(uint8_t switch_num);
         uint8_t get_switch_count();
     private:
+        uint64_t blink_time = 20; //When the LED's are in blinking state, they will blink with a frequency of 1000/(2 * blink_time).
+                                  //The resolution of this time will be POLL_TIME
+        uint64_t blink_counter = 0; //Counter for performing the blinking.
+
+        uint64_t led_state_timeout = 0; //Number of milliseconds untill the LED mode will be changed to output.
+                                        //To keep the LED's in some state, this will need to be continuosly set or be set to a really high timeout.
+
+        led_control_mode led_mode = output;
         static SwitchHandler *instance;
         SwitchHandler(const  gpio_num_t *_relay_pins, const gpio_num_t *_button_pins, const gpio_num_t *_button_leds, size_t _pin_num);
         const gpio_num_t *relay_pins;
@@ -77,6 +96,12 @@ class SwitchHandler
         button_event poll_button(uint8_t button_num); //emit events on changes (debounced)
         void handle_event(button_event the_event, uint8_t button_num);
         void handle_button_states();
+        void set_led_mode(led_control_mode mode, uint64_t timeout);
+        void set_led_blink_time(uint64_t blink_time_);
+        void handle_leds();
         button_state *button_states = nullptr;
         switch_state *state_buff = nullptr;
+        switch_state *led_state_buff = nullptr;
+        SemaphoreHandle_t led_settings_lock; //Lock for settings related to the LEDs
+
 };
