@@ -135,8 +135,8 @@ void SwitchHandler::setup_button_leds()
     io_conf.mode = GPIO_MODE_OUTPUT;
     //bit mask of the pins that you want to set
     io_conf.pin_bit_mask = 0;
-    //disable pull-down mode
-    io_conf.pull_down_en = (gpio_pulldown_t)0;
+    //enable pull-down mode
+    io_conf.pull_down_en = (gpio_pulldown_t)1;
     //disable pull-up mode
     io_conf.pull_up_en = (gpio_pullup_t)0;
     //configure GPIO with the given settings
@@ -318,8 +318,8 @@ button_event SwitchHandler::poll_button(uint8_t button_num)
         if(state.timer  >= DEBOUNCE_TIME)
             state.filtered_state = state.raw_state;
     }
-    else
-        state.timer = 0;
+    else state.timer = 0;
+    
     state.raw_state = raw_state;
 
 
