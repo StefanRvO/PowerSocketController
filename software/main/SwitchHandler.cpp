@@ -203,6 +203,22 @@ void SwitchHandler::poll_buttons(TimerHandle_t xTimer)
 
 void SwitchHandler::handle_event(button_event the_event, uint8_t button_num)
 {   //Handles events triggered by statechanges of the buttons.
+    switch(the_event)
+    {
+        case no_event:
+            return;
+        case single_push:
+            //toggle the switch
+            this->set_switch_state(button_num, (switch_state)!this->get_switch_state(button_num));
+        case single_release:
+            return;
+        case double_push:
+            return;
+        case double_release:
+            return;
+        default:
+            return;
+    }
     return;
 }
 
@@ -210,7 +226,29 @@ void SwitchHandler::handle_button_states()
 {
     //Handles actions which is to be taken as a result of the current state of the
     //buttons, as well as a combination of these states.
-    //
+
+    //Count how many buttons are pressed.
+    uint8_t btn_count = 0;
+    uint64_t min_time = 0;
+    for(uint8_t i = 0; i < this->pin_num; i++)
+    {
+        button_state & state = this->button_states[i];
+        if(state.filtered_state == true)
+        {
+            btn_count += 1;
+            if(state.timer <= min_time) min_time = state.timer;
+        }
+    }
+    if(min_time > 10000)
+    {
+        //we change into blinking state, with a timout of 500 ms
+        //And a delay between blinks of (20000 - min_time) / 20
+        this->set_led_mode(blinking, 500);
+        if(min_time < 20000)
+        {
+            this->set_led_blink_time( (20000 - min_time) / 20);
+        }
+    }
     return;
 }
 void SwitchHandler::handle_leds()
