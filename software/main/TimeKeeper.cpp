@@ -39,5 +39,4 @@ double TimeKeeper::get_uptime()
     cur_time = (total_tick_count_wrapped + last_tick_count) * double(portTICK_RATE_MS);
     xSemaphoreGive(this->lock);
     return cur_time / 1000.;
-
 }

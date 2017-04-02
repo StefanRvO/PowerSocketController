@@ -1548,6 +1548,35 @@ grid 2.5 mm, outline 2.4 x 4.4 mm</description>
 </package>
 </packages>
 </library>
+<library name="dc-dc-converter">
+<description>&lt;b&gt;DC-DC Converters&lt;/b&gt;&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="NME">
+<description>&lt;b&gt;DC-DC CONVERTER&lt;/b&gt;</description>
+<wire x1="-1.143" y1="5.842" x2="4.953" y2="5.842" width="0.1524" layer="21"/>
+<wire x1="4.953" y1="5.842" x2="4.953" y2="-5.842" width="0.1524" layer="21"/>
+<wire x1="4.953" y1="-5.842" x2="-1.143" y2="-5.842" width="0.1524" layer="21"/>
+<wire x1="-1.143" y1="-5.842" x2="-1.143" y2="-4.572" width="0.1524" layer="21"/>
+<wire x1="-1.143" y1="-4.572" x2="-1.143" y2="-3.048" width="0.1524" layer="51"/>
+<wire x1="-1.143" y1="4.572" x2="-1.143" y2="5.842" width="0.1524" layer="21"/>
+<wire x1="-1.143" y1="-2.032" x2="-1.143" y2="-0.508" width="0.1524" layer="51"/>
+<wire x1="-1.143" y1="-3.048" x2="-1.143" y2="-2.032" width="0.1524" layer="21"/>
+<wire x1="-1.143" y1="-0.508" x2="-1.143" y2="0.508" width="0.1524" layer="21"/>
+<wire x1="-1.143" y1="0.508" x2="-1.143" y2="2.032" width="0.1524" layer="51"/>
+<wire x1="-1.143" y1="2.032" x2="-1.143" y2="3.048" width="0.1524" layer="21"/>
+<wire x1="-1.143" y1="3.048" x2="-1.143" y2="4.572" width="0.1524" layer="51"/>
+<circle x="0" y="5.08" radius="0.254" width="0.1524" layer="21"/>
+<pad name="1" x="0" y="3.81" drill="0.8128" shape="long"/>
+<pad name="2" x="0" y="1.27" drill="0.8128" shape="long"/>
+<pad name="3" x="0" y="-1.27" drill="0.8128" shape="long"/>
+<pad name="4" x="0" y="-3.81" drill="0.8128" shape="long"/>
+<text x="-1.143" y="6.223" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<text x="3.048" y="-5.08" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
+<text x="4.572" y="-5.08" size="1.016" layer="21" ratio="12" rot="R90">DC-DC</text>
+</package>
+</packages>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -1812,6 +1841,12 @@ grid 2.5 mm, outline 2.4 x 4.4 mm</description>
 <attribute name="OC_NEWARK" value="14P6981" x="31.8" y="38" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="+5V" library="wirepad" package="2,15/1,0" value="+5V" x="36.7" y="43.5"/>
+<element name="DC1" library="dc-dc-converter" package="NME" value="" x="-9.4" y="6.2">
+<attribute name="MF" value="C &amp; D TECHNOLOGIES, INC" x="-9.4" y="6.2" size="1.778" layer="27" display="off"/>
+<attribute name="MPN" value="NME1205D" x="-9.4" y="6.2" size="1.778" layer="27" display="off"/>
+<attribute name="OC_FARNELL" value="1021466" x="-9.4" y="6.2" size="1.778" layer="27" display="off"/>
+<attribute name="OC_NEWARK" value="98B8198" x="-9.4" y="6.2" size="1.778" layer="27" display="off"/>
+</element>
 </elements>
 <signals>
 <signal name="GND">
@@ -2062,12 +2097,12 @@ grid 2.5 mm, outline 2.4 x 4.4 mm</description>
 <contactref element="U1" pad="30"/>
 <wire x1="12.05" y1="25.07" x2="12.12" y2="25" width="0.3048" layer="1"/>
 <wire x1="12.12" y1="25" x2="9.1" y2="24.9" width="0.3048" layer="1"/>
-<wire x1="15.5" y1="35" x2="15.5" y2="33.9" width="0.3048" layer="16"/>
-<wire x1="15.5" y1="33.9" x2="17.5" y2="31.9" width="0.3048" layer="16"/>
+<wire x1="16" y1="35" x2="16" y2="33.4" width="0.3048" layer="16"/>
+<wire x1="16" y1="33.4" x2="17.5" y2="31.9" width="0.3048" layer="16"/>
 <wire x1="17.5" y1="31.9" x2="17.5" y2="27.2" width="0.3048" layer="16"/>
 <via x="9.1" y="24.9" extent="1-16" drill="0.6" shape="square"/>
-<wire x1="5" y1="38.54" x2="11.96" y2="38.54" width="0.3048" layer="16"/>
-<wire x1="11.96" y1="38.54" x2="15.5" y2="35" width="0.3048" layer="16"/>
+<wire x1="5" y1="38.54" x2="12.46" y2="38.54" width="0.3048" layer="16"/>
+<wire x1="12.46" y1="38.54" x2="16" y2="35" width="0.3048" layer="16"/>
 <wire x1="17.5" y1="27.2" x2="15.2" y2="24.9" width="0.254" layer="16"/>
 <wire x1="15.2" y1="24.9" x2="9.1" y2="24.9" width="0.254" layer="16"/>
 </signal>

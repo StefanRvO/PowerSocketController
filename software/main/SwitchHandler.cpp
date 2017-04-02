@@ -1,8 +1,10 @@
 #include "SwitchHandler.h"
+
 extern "C"
 {
     #include "stdlib.h"
 }
+
 
 __attribute__((unused)) static const char *TAG = "SwitchHandler";
 
@@ -27,15 +29,27 @@ SwitchHandler::SwitchHandler(const  gpio_num_t *_relay_pins, const gpio_num_t *_
   //We should primarily use this for ADC input.
   //See https://esp-idf.readthedocs.io/en/latest/api/peripherals/gpio.html for GPIO info
   //There needs to be at least pin_num number of pins in each of the given pin pointers
-  this->state_buff = (switch_state *)malloc(this->pin_num);
+  this->state_buff = (switch_state *)malloc(this->pin_num * sizeof(switch_state));
+  this->button_states = (button_state *)malloc(this->pin_num * sizeof(button_state));
   this->setup_button_pins();
   this->setup_button_leds();
   this->setup_relay_pins();
+  for(uint8_t i = 0; i < this->pin_num; i++)
+  {
+      button_state &state = this->button_states[i];
+      state.state = idle;
+      state.raw_state = false;
+      state.filtered_state = false;
+      state.timer = 0;
+  }
+  this->button_poll_timer = xTimerCreate ("btn_poll_tmr", POLL_TIME / portTICK_PERIOD_MS, pdTRUE, 0, &SwitchHandler::poll_buttons);
+
 }
 
 SwitchHandler::~SwitchHandler()
 {
     free(this->state_buff);
+    free(this->button_states);
 }
 void SwitchHandler::setup_relay_pins()
 {
@@ -162,4 +176,83 @@ switch_state SwitchHandler::get_switch_state(uint8_t switch_num)
 uint8_t SwitchHandler::get_switch_count()
 {
     return this->pin_num;
+}
+
+void SwitchHandler::poll_buttons(TimerHandle_t xTimer)
+{
+    if(SwitchHandler::instance->button_states == nullptr)
+
+    //Pool all the buttons and update their states
+    for(uint8_t i = 0; i < SwitchHandler::instance->pin_num; i++)
+    {
+        button_event emitted_event = SwitchHandler::instance->poll_button(i);
+        SwitchHandler::instance->handle_event(emitted_event, i);
+    }
+    SwitchHandler::instance-> handle_button_states();
+}
+
+
+void SwitchHandler::handle_event(button_event the_event, uint8_t button_num)
+{
+    return;
+}
+void SwitchHandler::handle_button_states()
+{
+    return;
+}
+button_event SwitchHandler::poll_button(uint8_t button_num)
+{
+    //Debouncing
+    bool raw_state = gpio_get_level(this->button_pins[button_num]);
+    button_state &state = this->button_states[button_num];
+    if(state.raw_state == raw_state)
+    {
+        state.timer += POLL_TIME;
+        if(state.timer  >= DEBOUNCE_TIME)
+            state.filtered_state = state.raw_state;
+    }
+    else
+        state.timer = 0;
+    state.raw_state = raw_state;
+
+
+    switch(state.state)
+    {
+        case idle:
+            if(state.filtered_state == true)
+            {
+                state.state = first_push;
+                return button_event::single_push;
+            }
+            break;
+        case first_push:
+            if(state.filtered_state == false)
+            {
+                state.state = first_release;
+                return button_event::single_release;
+            }
+            break;
+        case first_release:
+            if(state.filtered_state == false and state.timer >= DOUBLECLICK_THRESHOLD)
+                state.state = idle;
+            else if(state.filtered_state == true)
+            {
+                state.state = second_push;
+                return button_event::double_push;
+            }
+            break;
+        case second_push:
+            if(state.filtered_state == false)
+            {
+                state.state = second_release;
+                return button_event::double_release;
+            }
+            break;
+        case second_release:
+            state.state = idle;
+            break;
+        default:
+            assert(false);
+    }
+    return button_event::no_event;
 }
