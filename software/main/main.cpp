@@ -56,17 +56,19 @@ void hello_task(void *pvParameter)
 void cpp_main()
 {
     const gpio_num_t relay_pins[] = {
+        GPIO_NUM_25,
+        GPIO_NUM_26,
         GPIO_NUM_27,
-        GPIO_NUM_27
     };
     const gpio_num_t button_leds[] = {
-        GPIO_NUM_26,
-        GPIO_NUM_26,
-
+        GPIO_NUM_19,
+        GPIO_NUM_5,
+        GPIO_NUM_16,
     };
     const gpio_num_t button_pins[] = {
-        GPIO_NUM_25,
-        GPIO_NUM_25,
+        GPIO_NUM_21,
+        GPIO_NUM_18,
+        GPIO_NUM_16,
     };
     printf("Booted, now initialising tasks and subsystems!\n");
     printf("Compile info: GCC %u.%u.%u\t", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);

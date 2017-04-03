@@ -14,6 +14,7 @@ SwitchHandler *SwitchHandler::get_instance()
 {
     return SwitchHandler::instance;
 }
+
 SwitchHandler *SwitchHandler::get_instance(const  gpio_num_t *_relay_pins, const gpio_num_t *_button_pins, const gpio_num_t *_button_leds, size_t _pin_num)
 {
     if(SwitchHandler::instance == nullptr)
@@ -300,6 +301,7 @@ void SwitchHandler::set_led_mode(led_control_mode mode, uint64_t timeout)
     this->led_state_timeout = timeout;
     xSemaphoreGive(this->led_settings_lock);
 }
+
 void SwitchHandler::set_led_blink_time(uint64_t blink_time_)
 {
     xSemaphoreTake(this->led_settings_lock, 100000 / portTICK_RATE_MS);
@@ -319,7 +321,7 @@ button_event SwitchHandler::poll_button(uint8_t button_num)
             state.filtered_state = state.raw_state;
     }
     else state.timer = 0;
-    
+
     state.raw_state = raw_state;
 
 
@@ -360,6 +362,7 @@ button_event SwitchHandler::poll_button(uint8_t button_num)
             break;
         default:
             assert(false);
+            break;
     }
     return button_event::no_event;
 }
