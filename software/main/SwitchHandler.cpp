@@ -3,8 +3,11 @@
 extern "C"
 {
     #include "stdlib.h"
-}
+    #include "driver/ledc.h"
 
+}
+#define LEDC_BITWIDTH LEDC_TIMER_13_BIT
+#define FADE_TIME 750
 
 __attribute__((unused)) static const char *TAG = "SwitchHandler";
 
@@ -127,8 +130,8 @@ void SwitchHandler::setup_button_pins()
 }
 
 void SwitchHandler::setup_button_leds()
-{   //Setup pins as output. Their actual state will be set while calling setup_relay_pins()
-    //This also means that this function must be called before setup_relay_pins().
+{   //The below sets the pins as output
+    /*
     gpio_config_t io_conf;
     //disable interrupt
     io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
@@ -147,6 +150,31 @@ void SwitchHandler::setup_button_leds()
     }
 
     ESP_ERROR_CHECK( gpio_config(&io_conf) );
+    */
+    //We use the LEDC driver for controlling the LED's.
+    //This will make fancy stuff and animations possible..
+
+    //Setup the timer
+    ledc_timer_config_t ledc_timer;
+    ledc_timer.bit_num = LEDC_BITWIDTH;             //set timer counter bit number
+    ledc_timer.freq_hz = 5000;                      //set frequency of pwm
+    ledc_timer.speed_mode = LEDC_HIGH_SPEED_MODE;   //timer mode,
+    ledc_timer.timer_num = LEDC_TIMER_0;            //timer index
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+    //Setup the channel
+    for(uint8_t i = 0; i < this->pin_num; i++)
+    {
+        ledc_channel_config_t ledc_channel;
+        ledc_channel.channel = (ledc_channel_t)i;
+        ledc_channel.duty = 0; //Off.
+        ledc_channel.gpio_num = this->button_leds[i];
+        ledc_channel.intr_type = LEDC_INTR_FADE_END;
+        ledc_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+        ledc_channel.timer_sel = LEDC_TIMER_0;
+        //set the configuration
+        ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+    }
+    ESP_ERROR_CHECK(ledc_fade_func_install(0));
 
 }
 
@@ -272,8 +300,26 @@ void SwitchHandler::handle_leds()
             //set all the leds to the switch state
             for(uint8_t i = 0; i < this->pin_num; i++)
             {
-                ESP_ERROR_CHECK(gpio_set_level(this->button_leds[i], this->state_buff[i]));
-                this->led_state_buff[i] = this->state_buff[i];
+                if(this->led_state_buff[i] != this->state_buff[i])
+                {
+                    if(this->state_buff[i] == off)
+                    {
+                        ESP_ERROR_CHECK(ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, 0, FADE_TIME));
+                        ESP_ERROR_CHECK(ledc_fade_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, LEDC_FADE_NO_WAIT));
+                    //    ESP_ERROR_CHECK(ledc_set_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, 0));
+                    //    ESP_ERROR_CHECK(ledc_update_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i));
+
+                    }
+                    else
+                    {
+                        ESP_ERROR_CHECK(ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, (1 << LEDC_BITWIDTH) - 1, FADE_TIME));
+                        ESP_ERROR_CHECK(ledc_fade_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, LEDC_FADE_NO_WAIT));
+                    //    ESP_ERROR_CHECK(ledc_set_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, 1000));
+                    //    ESP_ERROR_CHECK(ledc_update_duty(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i));
+
+                    }
+                    this->led_state_buff[i] = this->state_buff[i];
+                }
             }
             break;
         case blinking:
@@ -285,7 +331,16 @@ void SwitchHandler::handle_leds()
                 switch_state new_state = (switch_state)!this->led_state_buff[0];
                 for(uint8_t i = 0; i < this->pin_num; i++)
                 {
-                    ESP_ERROR_CHECK(gpio_set_level(this->button_leds[i], new_state));
+                    if(new_state == off)
+                    {
+                        ESP_ERROR_CHECK(ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, 0, blink_time / 4));
+                        ESP_ERROR_CHECK(ledc_fade_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, LEDC_FADE_NO_WAIT));
+                    }
+                    else
+                    {
+                        ESP_ERROR_CHECK(ledc_set_fade_with_time(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, (1 << LEDC_BITWIDTH) - 1, blink_time / 4));
+                        ESP_ERROR_CHECK(ledc_fade_start(LEDC_HIGH_SPEED_MODE, (ledc_channel_t)i, LEDC_FADE_NO_WAIT));
+                    }
                     this->led_state_buff[i] = new_state;
                 }
             }

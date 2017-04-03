@@ -98,7 +98,9 @@ void cpp_main()
     do_startup_test();
 
     __attribute__((unused)) const adc1_channel_t adc_channles[] = {
-        ADC1_CHANNEL_6,
+        ADC1_CHANNEL_7,
+        ADC1_CHANNEL_4,
+        ADC1_CHANNEL_5,
     };
     //__attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
     initialize_sntp();

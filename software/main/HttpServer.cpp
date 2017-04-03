@@ -323,7 +323,7 @@ void HttpServer::SETTING(struct mg_connection *c, int ev, void *p)
 
 void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
-    printf("reboot endpoint: %d\n", ev);
+    printf("\nreboot endpoint: %d\n", ev);
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     switch(ev)
     {
@@ -337,7 +337,7 @@ void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
 
 void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
-    printf("Switch endpoint: %d\n", ev);
+    printf("\nSwitch endpoint: %d\n", ev);
 
     __attribute__((unused))HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     struct http_message *hm = (struct http_message *) p;
@@ -360,7 +360,7 @@ void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
 
 void HttpServer::reset(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
-    printf("reset endpoint: %d\n", ev);
+    printf("\nreset endpoint: %d\n", ev);
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     switch(ev)
     {
@@ -527,7 +527,7 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
         case MG_EV_HTTP_REQUEST:
         {
             struct http_message *hm = (struct http_message *) p;
-            printf("%.*s requested\n",  hm->uri.len,  hm->uri.p);
+            printf("\n%.*s requested\n",  hm->uri.len,  hm->uri.p);
             if(strncmp(hm->uri.p, "/", hm->uri.len) == 0)
                 this->index(c, ev, p);
             else if (mg_vcmp(&hm->uri, "/api/v1/get_ap_info") == 0)
