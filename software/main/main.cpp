@@ -68,7 +68,7 @@ void cpp_main()
     const gpio_num_t button_pins[] = {
         GPIO_NUM_21,
         GPIO_NUM_18,
-        GPIO_NUM_16,
+        GPIO_NUM_17,
     };
     printf("Booted, now initialising tasks and subsystems!\n");
     printf("Compile info: GCC %u.%u.%u\t", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
@@ -78,7 +78,7 @@ void cpp_main()
     printf("Intialising settings handler and NVS system!\n");
     __attribute__((unused)) SettingsHandler *s_handler = SettingsHandler::get_instance();
     printf("Intialising switch handler!\n");
-    __attribute__((unused)) SwitchHandler *switch_handler = SwitchHandler::get_instance(relay_pins, button_pins, button_leds, 2);
+    __attribute__((unused)) SwitchHandler *switch_handler = SwitchHandler::get_instance(relay_pins, button_pins, button_leds, 3);
 
 
     printf("Initialising Wifi!\n");

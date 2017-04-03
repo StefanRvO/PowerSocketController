@@ -102,7 +102,7 @@ class SwitchHandler
         button_state *button_states = nullptr;
         switch_state *state_buff = nullptr;
         switch_state *led_state_buff = nullptr;
-        SemaphoreHandle_t switch_state_lock
+        //SemaphoreHandle_t switch_state_lock
         SemaphoreHandle_t led_settings_lock; //Lock for settings related to the LEDs
 
 };

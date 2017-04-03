@@ -1,5 +1,5 @@
 #include "SwitchHandler.h"
-
+#include <limits>
 extern "C"
 {
     #include "stdlib.h"
@@ -50,7 +50,7 @@ SwitchHandler::SwitchHandler(const  gpio_num_t *_relay_pins, const gpio_num_t *_
   if(this->led_settings_lock == NULL) printf("error creating switchhandler led semaphore!\n");
 
   this->button_poll_timer = xTimerCreate ("btn_poll_tmr", POLL_TIME / portTICK_PERIOD_MS, pdTRUE, 0, &SwitchHandler::poll_buttons);
-
+  xTimerStart(this->button_poll_timer, 100000 / portTICK_PERIOD_MS);
 }
 
 SwitchHandler::~SwitchHandler()
@@ -110,7 +110,7 @@ void SwitchHandler::setup_button_pins()
     //disable interrupt
     io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
     //set as output mode
-    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.mode = GPIO_MODE_INPUT;
     //bit mask of the pins that you want to set
     io_conf.pin_bit_mask = 0;
     //enable pull-down mode
@@ -189,8 +189,6 @@ uint8_t SwitchHandler::get_switch_count()
 
 void SwitchHandler::poll_buttons(TimerHandle_t xTimer)
 {
-    if(SwitchHandler::instance->button_states == nullptr)
-
     //Pool all the buttons and update their states
     for(uint8_t i = 0; i < SwitchHandler::instance->pin_num; i++)
     {
@@ -211,9 +209,12 @@ void SwitchHandler::handle_event(button_event the_event, uint8_t button_num)
         case single_push:
             //toggle the switch
             this->set_switch_state(button_num, (switch_state)!this->get_switch_state(button_num));
+            return;
         case single_release:
             return;
         case double_push:
+            this->set_switch_state(button_num, (switch_state)!this->get_switch_state(button_num));
+            //Just handle duoble click as single click for now.
             return;
         case double_release:
             return;
@@ -230,24 +231,26 @@ void SwitchHandler::handle_button_states()
 
     //Count how many buttons are pressed.
     uint8_t btn_count = 0;
-    uint64_t min_time = 0;
+    uint64_t min_time = std::numeric_limits<uint64_t>::max();
     for(uint8_t i = 0; i < this->pin_num; i++)
     {
         button_state & state = this->button_states[i];
         if(state.filtered_state == true)
         {
             btn_count += 1;
-            if(state.timer <= min_time) min_time = state.timer;
+            if(state.timer <= min_time)
+                min_time = state.timer;
         }
     }
-    if(min_time > 10000)
+    //printf("min_time: %llu\n", min_time);
+    if(min_time > 5000 and min_time != std::numeric_limits<uint64_t>::max())
     {
         //we change into blinking state, with a timout of 500 ms
         //And a delay between blinks of (20000 - min_time) / 20
         this->set_led_mode(blinking, 500);
-        if(min_time < 20000)
+        if(min_time < 14000)
         {
-            this->set_led_blink_time( (20000 - min_time) / 20);
+            this->set_led_blink_time( (15000 - min_time) / 20);
         }
     }
     return;
@@ -261,7 +264,6 @@ void SwitchHandler::handle_leds()
     if(this->led_state_timeout == 0) this->led_mode = output;
     led_control_mode led_mode_copy = led_mode;
     xSemaphoreGive(this->led_settings_lock);
-
     //Set the leds depending on the mode
 
     switch(led_mode_copy)
@@ -323,7 +325,7 @@ button_event SwitchHandler::poll_button(uint8_t button_num)
     else state.timer = 0;
 
     state.raw_state = raw_state;
-
+    //printf("State <Button: %d, raw: %d, debounce: %d>\n", button_num, raw_state,  state.filtered_state);
 
     switch(state.state)
     {

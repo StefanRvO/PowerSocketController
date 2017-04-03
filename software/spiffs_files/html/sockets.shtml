@@ -18,7 +18,7 @@
 <!-- When the document has finished loading, create the html for the switches.-->
 
 <script language="javascript" type="text/javascript">
-    $( document ).ready(function() {
+    $( document ).ready(function update_checkbox() {
       $.ajax({
         url: '/api/v1/get_switch_state',
         method: 'POST',
@@ -48,7 +48,12 @@
             //
             //    $(switch_name).prop('checked', parseInt(json[i].state));
             //}
+        },
+        complete: function() {
+          // Schedule the next request when the current one's complete
+          setTimeout(update_checkbox, 1000);
         }
+
       });
   });
 </script>

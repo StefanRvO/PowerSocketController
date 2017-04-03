@@ -496,10 +496,11 @@ void HttpServer::handle_get_switch_state(struct mg_connection *c, struct http_me
     { //Send data for each switch
         switch_state state = http_server->switch_handler->get_switch_state(i);
         printf("state: %hhu", state);
-        if(i + 1 == (switch_count - 1))
-            mg_printf_http_chunk(c, "\"switch%d\": { \"id\":%hhu,\n \"state\":%hhu\n }, ", i, i, state);
-        else
+        if(i + 1 == (switch_count))
             mg_printf_http_chunk(c, "\"switch%d\": { \"id\":%hhu,\n \"state\":%hhu\n }", i, i, state);
+        else
+            mg_printf_http_chunk(c, "\"switch%d\": { \"id\":%hhu,\n \"state\":%hhu\n }, ", i, i, state);
+
     }
     mg_printf_http_chunk(c, "}");
 
