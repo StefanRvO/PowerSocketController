@@ -4,10 +4,11 @@ extern "C"
 {
     #include "stdlib.h"
     #include "driver/ledc.h"
-
+    #include "esp_system.h"
+    #include "esp_err.h"
 }
 #define LEDC_BITWIDTH LEDC_TIMER_13_BIT
-#define FADE_TIME 750
+#define FADE_TIME 400
 
 __attribute__((unused)) static const char *TAG = "SwitchHandler";
 
@@ -242,7 +243,7 @@ void SwitchHandler::handle_event(button_event the_event, uint8_t button_num)
             return;
         case double_push:
             this->set_switch_state(button_num, (switch_state)!this->get_switch_state(button_num));
-            //Just handle duoble click as single click for now.
+            //Just handle double click as single click for now.
             return;
         case double_release:
             return;
@@ -279,6 +280,10 @@ void SwitchHandler::handle_button_states()
         if(min_time < 14000)
         {
             this->set_led_blink_time( (15000 - min_time) / 20);
+        }
+        else
+        {
+            esp_restart();
         }
     }
     return;

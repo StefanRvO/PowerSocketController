@@ -90,7 +90,7 @@ void cpp_main()
                                  0x100000  /*Size*/,
                                  (char *)"/spiffs"      /*Mount point */);
     fs_handler->init_spiffs();
-    //xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
+    xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
     HttpServer httpd_server("80");
     httpd_server.start();
     HttpServer httpsd_server("443", true);
@@ -102,7 +102,8 @@ void cpp_main()
         ADC1_CHANNEL_4,
         ADC1_CHANNEL_5,
     };
-    //__attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
+
+    __attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
     initialize_sntp();
 
     //Keep time.

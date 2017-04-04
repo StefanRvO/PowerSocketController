@@ -10,7 +10,7 @@
 
 #define DEBOUNCE_TIME 30 //Millisecond threshold for debouncing
 #define DOUBLECLICK_THRESHOLD 500//Threshold time for doubleclicking
-#define POLL_TIME 5
+#define POLL_TIME 15
 extern "C"
 {
     #include "freertos/FreeRTOS.h"

@@ -141,7 +141,7 @@ void WifiHandler::initialise_wifi(void)
     this->update_station_config();
     ESP_ERROR_CHECK( esp_wifi_start() );
     //Start reconnect thread (how much stack do we need??)
-    xTaskCreate(WifiHandler::reconnect_thread, "Wifi_Reconnect", 1024, this, 10, NULL);
+    xTaskCreatePinnedToCore(WifiHandler::reconnect_thread, "Wifi_Reconnect", 1024, this, 10, NULL, 0);
 }
 
 

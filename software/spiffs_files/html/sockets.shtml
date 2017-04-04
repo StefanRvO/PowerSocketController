@@ -17,6 +17,9 @@
 
 <!-- When the document has finished loading, create the html for the switches.-->
 
+<!-- We continously poll to get updates. This could probably be improved so we don't rewrite the entire form each time....-->
+
+
 <script language="javascript" type="text/javascript">
     $( document ).ready(function update_checkbox() {
       $.ajax({
@@ -28,6 +31,7 @@
             var form_str = "";
             for(i = 0; i < parseInt(json.count); i++ )
             {
+
                 var switch_name = "switch" + i;
                 form_str += "<form  id='form_switch" + i +"' method='POST' action='/post/toggle_switch' class='pure-form pure-form-stacked' >";
                 form_str += "<form  id='form_switch" + i + "' method='POST' action='/post/toggle_switch' class='pure-form pure-form-stacked' >";
