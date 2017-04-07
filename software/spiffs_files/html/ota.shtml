@@ -34,7 +34,7 @@
             <input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
             <div class="fileUpload pure-button pure-button-primary">
                 <span>Select File</span>
-                <input id="ota_upload" type="file" class="upload" />
+                <input id="ota_upload" type="file" name="file" class="upload" />
             </div>
             <br>
             <br>

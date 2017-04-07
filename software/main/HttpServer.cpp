@@ -397,21 +397,25 @@ void HttpServer::OTA_endpoint(struct mg_connection *c, int ev, void *p)
     //2. Add a simple md5 or sha sum in either the start or end of the file. We verify this as we go, and only change boot partition if verification succeds.
     HttpServer *http_server = (HttpServer *)c->mgr->user_data;
     struct mg_http_multipart_part *mp = (struct mg_http_multipart_part *)p;
-    printf("Entered OTA handler\n");
+    printf("Entered OTA handler with event %d\n", ev);
     esp_err_t err;
     switch(ev)
     {
         case MG_EV_HTTP_PART_BEGIN:
         //We have recieved a new attempt at uploading OTA data.
             http_server->ota_init();
+            printf("http_part_begin\n");
             break;
         case MG_EV_HTTP_PART_DATA:
             //OTA data incomming
             err = esp_ota_write(http_server->ota_status.out_handle, mp->data.p, mp->data.len);
+            printf("http_part data\n");
 
             ESP_LOGI(TAG, "esp_ota_write header OK");
             break;
         case MG_EV_HTTP_PART_END:
+            printf("http_part end\n");
+
             if (esp_ota_end(http_server->ota_status.out_handle) != ESP_OK) {
                 ESP_LOGE(TAG, "esp_ota_end failed!");
                 return;
