@@ -12,6 +12,7 @@ extern "C"
     #include "freertos/semphr.h"
 }
 #include "SwitchHandler.h"
+#include "SettingsHandler.h"
 
 #define BIAS_OFF_CALIB_TIME
 #define BIAS_ON_CALIB_TIME
@@ -81,7 +82,9 @@ class CurrentMeasurer
         calibration_result handle_bias_off_calibration(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_measuring(uint8_t &channel, amp_measurement &cur_sample, switch_state &current_state);
         calibration_result handle_bias_calibration(uint8_t &channel, amp_measurement &cur_sample, switch_state bias_type);
+        calibration_result load_current_calibration(uint8_t &channel, CurrentCalibration &calibration);
 
+        void save_current_calibration(uint8_t &channel, CurrentCalibration &calibration);
         CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num);
         const adc1_channel_t *pins; //array of gpio pins to sample
         size_t pin_num; //number
@@ -95,5 +98,6 @@ class CurrentMeasurer
         CurrentStatistics *cur_statistics = nullptr;
         CurrentSampleState *cur_state = nullptr;
         SwitchHandler *switch_handler;
+        SettingsHandler *settings_handler;
 
 };

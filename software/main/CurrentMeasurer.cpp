@@ -67,7 +67,8 @@ CurrentMeasurer *CurrentMeasurer::get_instance(const adc1_channel_t *_pins, size
 }
 
 CurrentMeasurer::CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num)
-: pins(_pins), pin_num(_pin_num), switch_handler(SwitchHandler::get_instance())
+: pins(_pins), pin_num(_pin_num), switch_handler(SwitchHandler::get_instance()),
+  settings_handler(SettingsHandler::get_instance())
 {
     this->adc_queues = new QueueHandle_t[this->pin_num];
     this->last_time = new uint64_t[this->pin_num];
@@ -82,7 +83,9 @@ CurrentMeasurer::CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num)
         //Setup queues for the adc sampling. We allocate space for 1K samples.
         this->adc_queues[i] = xQueueCreate(QUEUE_SIZE, sizeof(amp_measurement));
         this->last_time[i] = 0;
-        this->cur_state[i] = measuring;
+        if(this->load_current_calibration(i, this->cur_calibs[i]) == success)
+             this->cur_state[i] = measuring;
+        else this->cur_state[i] = calibrating_conversion;
 
         //Set amplification for adc
         ESP_ERROR_CHECK(adc1_config_channel_atten(this->pins[i], ADC_ATTEN_11db));
@@ -200,7 +203,9 @@ calibration_result CurrentMeasurer::handle_bias_off_calibration(uint8_t &channel
     else if(result == success)
     {
         //This is the last calibration for now. Set switch states to the saved one and continue to measuring.
+        //Also, save the calibration to nvs.
         this->switch_handler->set_saved_state(channel);
+        this->save_current_calibration(channel, this->cur_calibs[channel]);
         this->cur_state[channel] = measuring;
     }
     return result;
@@ -267,4 +272,24 @@ calibration_result CurrentMeasurer::handle_measuring(uint8_t &channel, amp_measu
     }
 
     return in_progress;
+}
+
+calibration_result CurrentMeasurer::load_current_calibration(uint8_t &channel, CurrentCalibration &calibration)
+{
+    char *calib_str = (char *)malloc(10);
+    snprintf(calib_str, 10,  "CCALIB%d", channel);
+    size_t len = sizeof(CurrentCalibration);
+    esp_err_t err = this->settings_handler->nvs_get(calib_str, &calibration, &len);
+    free(calib_str);
+    if(err != ESP_OK || len != sizeof(CurrentCalibration))
+        return fail;
+    return success;
+}
+
+void CurrentMeasurer::save_current_calibration(uint8_t &channel, CurrentCalibration &calibration)
+{
+    char *calib_str = (char *)malloc(10);
+    snprintf(calib_str, 10,  "CCALIB%d", channel);
+    ESP_ERROR_CHECK(this->settings_handler->nvs_set(calib_str, &calibration, sizeof(CurrentCalibration)));
+    free(calib_str);
 }

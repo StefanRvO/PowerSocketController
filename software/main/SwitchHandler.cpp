@@ -149,27 +149,7 @@ void SwitchHandler::setup_button_pins()
 }
 
 void SwitchHandler::setup_button_leds()
-{   //The below sets the pins as output
-    /*
-    gpio_config_t io_conf;
-    //disable interrupt
-    io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
-    //set as output mode
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    //bit mask of the pins that you want to set
-    io_conf.pin_bit_mask = 0;
-    //enable pull-down mode
-    io_conf.pull_down_en = (gpio_pulldown_t)1;
-    //disable pull-up mode
-    io_conf.pull_up_en = (gpio_pullup_t)0;
-    //configure GPIO with the given settings
-    for(uint8_t i = 0; i < this->pin_num; i++)
-    {
-        io_conf.pin_bit_mask += 1<< (uint64_t)(this->button_leds[i]);
-    }
-
-    ESP_ERROR_CHECK( gpio_config(&io_conf) );
-    */
+{
     //We use the LEDC driver for controlling the LED's.
     //This will make fancy stuff and animations possible..
 
@@ -204,9 +184,6 @@ void SwitchHandler::set_switch_state(uint8_t switch_num, switch_state state, boo
 
     //Set the relay state
     ESP_ERROR_CHECK(gpio_set_level(this->relay_pins[switch_num], state));
-    //Set the led state
-    //ESP_ERROR_CHECK(gpio_set_level(this->button_leds[switch_num], state));
-    //printf("%d", this->button_leds[switch_num]);
     //Set the state in the buffer
     this->state_buff[switch_num] = state;
 
