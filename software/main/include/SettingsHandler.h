@@ -17,6 +17,7 @@ class SettingsHandler
         nvs_handle handle;
         void set_default_values();
         void reset_settings();
+        void set_default_value();
 
         esp_err_t nvs_get(const char *key, int8_t *val);
         esp_err_t nvs_get(const char *key, uint8_t *val);
@@ -39,6 +40,7 @@ class SettingsHandler
         esp_err_t nvs_set(const char *key, uint64_t val);
         esp_err_t nvs_set(const char *key, const char *buff);
         esp_err_t nvs_set(const char *key, const void *buff, size_t len);
+
         template <class T>
         esp_err_t set_default_value(const char *key, T val)
         {

@@ -17,7 +17,7 @@
                         <p> gateway: <span id="span_sta_gw">Loading...</span> </p>
                         <p> netmask: <span id="span_sta_nm">Loading...</span> </p>
 
-                        <h2 class="content-subhead">Uptime (This prints time since 1970, so not really uptime...)</h2>
+                        <h2 class="content-subhead">Uptime</h2>
                         <p> <span id="span_uptime">&nbsp;</span> </p>
 
                     </div>

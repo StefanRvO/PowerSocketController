@@ -107,6 +107,24 @@ void SwitchHandler::setup_relay_pins()
 
 }
 
+void SwitchHandler::set_saved_state(uint8_t switch_num, char *buff)
+{   //Read the state from nvs and output it to the pins
+    bool malloced = false;
+    if(buff == nullptr)
+    {
+        malloced = true;
+        buff = (char *)malloc(10);
+    }
+    snprintf(buff, 10,  "SWITCH%d", switch_num);
+    //Read the saved state
+    switch_state state = off;
+
+    ESP_ERROR_CHECK( this->s_handler->nvs_get(buff, (uint8_t *)&state) );
+    //Set the state
+    this->set_switch_state(switch_num, state, false);
+
+    if(malloced) free(buff);
+}
 void SwitchHandler::setup_button_pins()
 { //Setup all the button pins. They needs to be set as input with pull-down
 

@@ -71,6 +71,9 @@ class SwitchHandler
         void set_switch_state(uint8_t switch_num, switch_state state, bool write_to_nvs = true);
         switch_state get_switch_state(uint8_t switch_num);
         uint8_t get_switch_count();
+        void set_saved_state(uint8_t switch_num, char *buff = nullptr);  //Buffer needs to be able to hold at least 10 bytes
+                                                                        //if null is given, we will malloc the memory ourself.
+
     private:
         uint64_t blink_time = 20; //When the LED's are in blinking state, they will blink with a frequency of 1000/(2 * blink_time).
                                   //The resolution of this time will be POLL_TIME
@@ -103,6 +106,7 @@ class SwitchHandler
         switch_state *state_buff = nullptr;
         switch_state *led_state_buff = nullptr;
         //SemaphoreHandle_t switch_state_lock
+
         SemaphoreHandle_t led_settings_lock; //Lock for settings related to the LEDs
 
 };
