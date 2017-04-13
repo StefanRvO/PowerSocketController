@@ -83,7 +83,7 @@ CurrentMeasurer::CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num)
         //Setup queues for the adc sampling. We allocate space for 1K samples.
         this->adc_queues[i] = xQueueCreate(QUEUE_SIZE, sizeof(amp_measurement));
         this->last_time[i] = 0;
-        if(this->load_current_calibration(i, this->cur_calibs[i]) == success)
+        if(this->load_current_calibration(i, this->cur_calibs[i], true) == success)
              this->cur_state[i] = measuring;
         else this->cur_state[i] = calibrating_conversion;
 
@@ -274,15 +274,22 @@ calibration_result CurrentMeasurer::handle_measuring(uint8_t &channel, amp_measu
     return in_progress;
 }
 
-calibration_result CurrentMeasurer::load_current_calibration(uint8_t &channel, CurrentCalibration &calibration)
+calibration_result CurrentMeasurer::load_current_calibration(uint8_t &channel, CurrentCalibration &calibration, bool from_nvs)
 {
-    char *calib_str = (char *)malloc(10);
-    snprintf(calib_str, 10,  "CCALIB%d", channel);
-    size_t len = sizeof(CurrentCalibration);
-    esp_err_t err = this->settings_handler->nvs_get(calib_str, &calibration, &len);
-    free(calib_str);
-    if(err != ESP_OK || len != sizeof(CurrentCalibration))
-        return fail;
+    if(from_nvs)
+    {
+        char *calib_str = (char *)malloc(10);
+        snprintf(calib_str, 10,  "CCALIB%d", channel);
+        size_t len = sizeof(CurrentCalibration);
+        esp_err_t err = this->settings_handler->nvs_get(calib_str, &calibration, &len);
+        free(calib_str);
+        if(err != ESP_OK || len != sizeof(CurrentCalibration))
+            return fail;
+    }
+    else
+    {
+        calibration = this->cur_calibs[channel];
+    }
     return success;
 }
 

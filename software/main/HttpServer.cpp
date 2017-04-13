@@ -212,7 +212,8 @@ bool HttpServer::ota_init()
 
 HttpServer::HttpServer(const char *_port, bool _use_ssl) :
 port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance()),
-switch_handler(SwitchHandler::get_instance()), t_keeper(TimeKeeper::get_instance())
+switch_handler(SwitchHandler::get_instance()), t_keeper(TimeKeeper::get_instance()),
+cur_measurer(CurrentMeasurer::get_instance())
 {
     return;
 }
@@ -524,6 +525,34 @@ void HttpServer::handle_get_uptime(struct mg_connection *c, struct http_message 
     mg_send_http_chunk(c, "", 0); /* Send empty chunk, the end of response */
 }
 
+
+void HttpServer::handle_get_calibrations(struct mg_connection *c, struct http_message *hm)
+{
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    /* Send headers */
+    mg_printf(c,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: keep-alive:\r\nTransfer-Encoding: chunked\r\n\r\n");
+    //Send the current state of the switches as json.
+    uint8_t count = http_server->cur_measurer->get_current_count();
+    mg_printf_http_chunk(c, "{ \"count\":%hhu,\n ", count);
+    for(uint8_t i = 0; i < count; i++)
+    {   //Send data for each calibration
+        CurrentCalibration cur_calib;
+        http_server->cur_measurer->load_current_calibration(i, cur_calib);
+        if(i + 1 == (count))
+            mg_printf_http_chunk(c, "\"ccalib%d\": { \"id\":%hhu,\n \"conversion\":%f,\n"
+                                    "\"bias_on\":%f,\n \"bias_off\":%f,\n \"calibrated\":%hhu\n}",
+                                    i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off, cur_calib.completed);
+        else
+        mg_printf_http_chunk(c, "\"ccalib%d\": { \"id\":%hhu,\n \"conversion\":%f,\n"
+                                "\"bias_on\":%f,\n \"bias_off\":%f,\n \"calibrated\":%hhu\n},",
+                                i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off, cur_calib.completed);
+
+    }
+    mg_printf_http_chunk(c, "}");
+
+    mg_send_http_chunk(c, "", 0); /* Send empty chunk, the end of response */
+
+}
 void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
 {
     switch(ev)
@@ -550,8 +579,10 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
             {
                 this->handle_get_switch_state(c, hm);
             }
-
-
+            else if (mg_vcmp(&hm->uri, "/api/v1/get_calibrations") == 0)
+            {
+                this->handle_get_calibrations(c, hm);
+            }
 
             else
                 mg_serve_http(c, hm, this->s_http_server_opts);

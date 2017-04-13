@@ -57,7 +57,7 @@ struct CurrentCalibration
 
     float bias_off = 2033;     //The bias when the relays are off. May not be needed as we could asume "zero" current while off.
                         // but for safety purposes, it may be good to sanity check the current in the off state.
-
+    bool completed = false;
 };
 
 enum CurrentSampleState
@@ -75,14 +75,14 @@ class CurrentMeasurer
     public:
         static CurrentMeasurer *get_instance();
         static CurrentMeasurer *get_instance(const adc1_channel_t *_pins, size_t _pin_num);
-
+        calibration_result load_current_calibration(uint8_t &channel, CurrentCalibration &calibration, bool from_nvs = false);
+        uint8_t get_current_count() {return this->pin_num;}
     private:
         calibration_result handle_conversion_calibration(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_bias_on_calibration(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_bias_off_calibration(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_measuring(uint8_t &channel, amp_measurement &cur_sample, switch_state &current_state);
         calibration_result handle_bias_calibration(uint8_t &channel, amp_measurement &cur_sample, switch_state bias_type);
-        calibration_result load_current_calibration(uint8_t &channel, CurrentCalibration &calibration);
 
         void save_current_calibration(uint8_t &channel, CurrentCalibration &calibration);
         CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num);

@@ -7,6 +7,7 @@
 #include "WifiHandler.h"
 #include "SwitchHandler.h"
 #include "TimeKeeper.h"
+#include "CurrentMeasurer.h"
 struct OTA_status
 {
     esp_ota_handle_t out_handle;
@@ -35,12 +36,14 @@ class HttpServer
         static void handle_get_ip_info(struct mg_connection *c, struct http_message *hm, tcpip_adapter_if_t adapter);
         static void handle_get_uptime(struct mg_connection *c, struct http_message *hm);
         static void handle_get_switch_state(struct mg_connection *c, struct http_message *hm);
+        static void handle_get_calibrations(struct mg_connection *c, struct http_message *hm);
         bool ota_init();
         OTA_status ota_status;
         struct mg_serve_http_opts s_http_server_opts;
         void handle_ssi(struct mg_connection *c, void *p);
         SettingsHandler *s_handler = nullptr;
         SwitchHandler *switch_handler = nullptr;
+        CurrentMeasurer *cur_measurer = nullptr;
         TimeKeeper *t_keeper = nullptr;
 
     private:
