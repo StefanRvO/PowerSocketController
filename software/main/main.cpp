@@ -26,6 +26,7 @@ extern "C"
 #include "SwitchHandler.h"
 #include "CurrentMeasurer.h"
 #include "TimeKeeper.h"
+#include "mDNSServer.h"
 
 __attribute__((unused)) static const char *TAG = "PowerSocket";
 
@@ -108,6 +109,7 @@ void cpp_main()
     httpd_server.start();
     HttpServer httpsd_server("443", true);
     httpsd_server.start();
+    __attribute__((unused)) mDNSServer *mdns_server = mDNSServer::get_instance();
     do_startup_test();
 
     //Enter a inifite loop which performs tasks which should happen very unfrequent
