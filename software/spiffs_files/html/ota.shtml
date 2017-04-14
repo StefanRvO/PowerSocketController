@@ -30,7 +30,7 @@
             Currently, we only supports flashing a new firmware. <br>Flashing the filesystem may be supported at a later time.
         </p>
 
-        <form method="POST" action="/post/ota_upload" enctype="multipart/form-data">
+        <form method="POST" action="/api/v1/post/ota_upload" enctype="multipart/form-data">
             <input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
             <div class="fileUpload pure-button pure-button-primary">
                 <span>Select File</span>

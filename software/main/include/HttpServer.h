@@ -30,6 +30,7 @@ class HttpServer
         static void reboot(struct mg_connection *c, int ev, void *p);
         static void reset(struct mg_connection *c, int ev, void *p);
         static void SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p);
+        static void RECALIB_CURRENT_ENDPOINT(struct mg_connection *c, int ev, void *p);
 
         static void index(struct mg_connection *c, int ev, void *p);
         static void SETTING(struct mg_connection *c, int ev, void *p);

@@ -84,8 +84,8 @@ CurrentMeasurer::CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num)
         this->adc_queues[i] = xQueueCreate(QUEUE_SIZE, sizeof(amp_measurement));
         this->last_time[i] = 0;
         if(this->load_current_calibration(i, this->cur_calibs[i], true) == success)
-             this->cur_state[i] = measuring;
-        else this->cur_state[i] = calibrating_conversion;
+             this->cur_state[i] = calibration_done;
+        else this->cur_state[i] = calibration_start;
 
         //Set amplification for adc
         ESP_ERROR_CHECK(adc1_config_channel_atten(this->pins[i], ADC_ATTEN_11db));
@@ -139,8 +139,8 @@ void CurrentMeasurer::sample_thread()
                 switch(this->cur_state[i])
                 {
                     //We now have the sample in cur_sample
-                    case calibrating_conversion:
-                        this->handle_conversion_calibration(i, cur_sample);
+                    case calibration_start:
+                        this->handle_calibration_start(i, cur_sample);
                         break;
                     case calibrating_bias_on:
                         this->handle_bias_on_calibration(i, cur_sample);
@@ -148,9 +148,16 @@ void CurrentMeasurer::sample_thread()
                     case calibrating_bias_off:
                         this->handle_bias_off_calibration(i, cur_sample);
                         break;
+                    case calibrating_conversion:
+                        this->handle_conversion_calibration(i, cur_sample);
+                        break;
+                    case calibration_done:
+                        this->handle_calibration_start(i, cur_sample);
+                        break;
                     case measuring:
                         this->handle_measuring(i, cur_sample, this_state);
                         break;
+
                 }
             }
             if(i == 2)
@@ -164,15 +171,35 @@ void CurrentMeasurer::sample_thread()
 calibration_result CurrentMeasurer::handle_conversion_calibration(uint8_t &channel, amp_measurement &cur_sample)
 {
     __attribute__((unused)) CurrentCalibration &cur_calibration = this->cur_calibs[channel];
-    CurrentStatistics &cur_stats = this->cur_statistics[channel];
-    cur_stats.cnt = 0;
-    cur_stats.time = 0;
-    cur_stats.squared_total = 0;
-    cur_stats.rms_current = 0;
-    this->cur_state[channel] = calibrating_bias_on; //We can't do anything here..
-    //(maybe in the future, perform a calibration where the trimpot is turned an entire turn), maybe we can use this somehow.
+    __attribute__((unused)) CurrentStatistics &cur_stats = this->cur_statistics[channel];
+    this->cur_state[channel] = calibration_done;
     return success;
 }
+
+calibration_result CurrentMeasurer::handle_calibration_done(uint8_t &channel, amp_measurement &cur_sample)
+{
+    //This is the last calibration for now. Set switch states to the saved one and continue to measuring.
+    //Also, save the calibration to nvs.
+    this->switch_handler->set_saved_state(channel);
+    this->save_current_calibration(channel, this->cur_calibs[channel]);
+    xQueueReset(this->adc_queues[channel]);
+    this->cur_state[channel] = measuring;
+    return success;
+}
+
+calibration_result CurrentMeasurer::handle_calibration_start(uint8_t &channel, amp_measurement &cur_sample)
+{   //Reset the calibration and statistics and clear the queue
+    //(this may cause issues for individual calibrations as we only pool on how "full" the queue for channel 0 is.).
+    CurrentCalibration &cur_calibration = this->cur_calibs[channel];
+    CurrentStatistics &cur_stats = this->cur_statistics[channel];
+
+    xQueueReset(this->adc_queues[channel]);
+    this->cur_state[channel] = calibrating_bias_on;
+    cur_calibration = CurrentCalibration();
+    cur_stats = CurrentStatistics();
+    return success;
+}
+
 
 calibration_result CurrentMeasurer::handle_bias_on_calibration(uint8_t &channel, amp_measurement &cur_sample)
 {
@@ -202,11 +229,7 @@ calibration_result CurrentMeasurer::handle_bias_off_calibration(uint8_t &channel
     }
     else if(result == success)
     {
-        //This is the last calibration for now. Set switch states to the saved one and continue to measuring.
-        //Also, save the calibration to nvs.
-        this->switch_handler->set_saved_state(channel);
-        this->save_current_calibration(channel, this->cur_calibs[channel]);
-        this->cur_state[channel] = measuring;
+        this->cur_state[channel] = calibrating_conversion;
     }
     return result;
 }
@@ -243,7 +266,7 @@ calibration_result CurrentMeasurer::handle_bias_calibration(uint8_t &channel, am
     {
         cur_stats.time -= TIMER_SCALE_ADC * 1; //Substract the first second where we did not sample.
         *bias /= cur_stats.time; //Compute the final bias.
-        //Now, we reset the stats and continue to off calibration.
+        //Now, we reset the stats and return that we was done
         cur_stats.time = 0;
         cur_stats.cnt = 0;
         return success;
@@ -299,4 +322,15 @@ void CurrentMeasurer::save_current_calibration(uint8_t &channel, CurrentCalibrat
     snprintf(calib_str, 10,  "CCALIB%d", channel);
     ESP_ERROR_CHECK(this->settings_handler->nvs_set(calib_str, &calibration, sizeof(CurrentCalibration)));
     free(calib_str);
+}
+
+void CurrentMeasurer::recalib_current_sensors()
+{
+    for(uint8_t i = 0; i < this->pin_num; i++)
+        this->recalib_current_sensor(i);
+}
+
+void CurrentMeasurer::recalib_current_sensor(uint8_t channel)
+{
+    this->cur_state[channel] = calibration_start;
 }

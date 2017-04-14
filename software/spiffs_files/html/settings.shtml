@@ -11,7 +11,7 @@
         <p>
             Change settings for the access point hosted by the device.
         </p>
-                <form method="POST" action="/post/AP_SSID" class="pure-form pure-form-stacked">
+                <form method="POST" action="/api/v1/post/AP_SSID" class="pure-form pure-form-stacked">
                     <fieldset>
                         <div class="pure-control-group">
                             <label for="ap_ssid">Access Point SSID:</label>
@@ -54,7 +54,7 @@
                 </p>
 
                 <!-- STA settings -->
-                <form method="POST" action="/post/STA_SSID" class="pure-form pure-form-stacked">
+                <form method="POST" action="/api/v1/post/STA_SSID" class="pure-form pure-form-stacked">
                     <fieldset>
                         <div class="pure-control-group">
                             <label  for="sta_ssid">Station SSID:</label>
@@ -81,7 +81,7 @@
                     Not implemented at the moment.
                 </p>
 
-                <form method="POST" action="/post/htpasswd" class="pure-form pure-form-stacked">
+                <form method="POST" action="/api/v1/post/htpasswd" class="pure-form pure-form-stacked">
                     <fieldset>
 
                         <!-- user input-->

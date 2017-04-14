@@ -270,13 +270,14 @@ void HttpServer::http_thread()
     this->s_http_server_opts.auth_domain = "all";
     this->s_http_server_opts.global_auth_file = "/spiffs/htpasswd";
 
-    mg_register_http_endpoint(nc, "/post/ota_upload", HttpServer::OTA_endpoint);
-    mg_register_http_endpoint(nc, "/post/reboot", HttpServer::reboot);
-    mg_register_http_endpoint(nc, "/post/reset", HttpServer::reset);
+    mg_register_http_endpoint(nc, "/api/v1/post/ota_upload", HttpServer::OTA_endpoint);
+    mg_register_http_endpoint(nc, "/api/v1/post/reboot", HttpServer::reboot);
+    mg_register_http_endpoint(nc, "/api/v1/post/reset", HttpServer::reset);
 
-    mg_register_http_endpoint(nc, "/post/AP_SSID", HttpServer::SETTING);
-    mg_register_http_endpoint(nc, "/post/STA_SSID", HttpServer::SETTING);
-    mg_register_http_endpoint(nc, "/post/toggle_switch", HttpServer::SWITCH_ENDPOINT);
+    mg_register_http_endpoint(nc, "/api/v1/post/AP_SSID", HttpServer::SETTING);
+    mg_register_http_endpoint(nc, "/api/v1/post/STA_SSID", HttpServer::SETTING);
+    mg_register_http_endpoint(nc, "/api/v1/post/toggle_switch", HttpServer::SWITCH_ENDPOINT);
+    mg_register_http_endpoint(nc, "/api/v1/post/recalib_current", HttpServer::RECALIB_CURRENT_ENDPOINT);
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
@@ -319,7 +320,6 @@ void HttpServer::SETTING(struct mg_connection *c, int ev, void *p)
         }
 
     }
-
 }
 
 void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
@@ -335,6 +335,20 @@ void HttpServer::reboot(struct mg_connection *c, int ev, void *p)
     }
 
 }
+
+void HttpServer::RECALIB_CURRENT_ENDPOINT(struct mg_connection *c, int ev, void *p)
+{   //Endpoint for requesting recalibration of the current sensors.
+    HttpServer *http_server = (HttpServer *)c->mgr->user_data;
+    switch(ev)
+    {
+        case MG_EV_HTTP_REQUEST:
+            mg_http_send_error(c, 204, NULL);
+            http_server->cur_measurer->recalib_current_sensors(); 
+            break;
+    }
+
+}
+
 
 void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
 {   //Endpoint for requesting a reboot.
@@ -579,7 +593,7 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
             {
                 this->handle_get_switch_state(c, hm);
             }
-            else if (mg_vcmp(&hm->uri, "/api/v1/get_calibrations") == 0)
+            else if (mg_vcmp(&hm->uri, "/api/v1/get_current_calibrations") == 0)
             {
                 this->handle_get_calibrations(c, hm);
             }

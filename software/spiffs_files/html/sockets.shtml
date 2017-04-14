@@ -33,8 +33,8 @@
             {
 
                 var switch_name = "switch" + i;
-                form_str += "<form  id='form_switch" + i +"' method='POST' action='/post/toggle_switch' class='pure-form pure-form-stacked' >";
-                form_str += "<form  id='form_switch" + i + "' method='POST' action='/post/toggle_switch' class='pure-form pure-form-stacked' >";
+                form_str += "<form  id='form_switch" + i +"' method='POST' action='/api/v1/post/toggle_switch' class='pure-form pure-form-stacked' >";
+                form_str += "<form  id='form_switch" + i + "' method='POST' action='/api/v1/post/toggle_switch' class='pure-form pure-form-stacked' >";
                 form_str += "<div class='pure-control-group checkbox-switch'>";
                 form_str += "<input type='hidden' value='0' name='switch" + i + "' id='switch" + i + "_hidden'>";
                 form_str += "<input type='checkbox' class='input-checkbox' value='1' id='switch" + i + "' name='switch" + i + "' onchange=\"if(document.getElementById('switch" + i  + "').checked) {document.getElementById('switch" + i + "_hidden').disabled = true;} else {document.getElementById('switch" + i + "_hidden').disabled = false;} document.getElementById('form_switch" + i + "').submit()\"";

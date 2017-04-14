@@ -46,25 +46,27 @@ struct CurrentStatistics
 
 struct CurrentCalibration
 {
-    float conversion = 5. / 2048;   //Multiply with this number to convert from adc values to current in amps.
+    float conversion = 0;   //Multiply with this number to convert from adc values to current in amps.
                         //We can probably not calibrate this with the current hardware, so we need to measure it
                         //Depending on the voltage divider and the acs712 specs
 
-    float bias_on = 2037;      //This is the "bias" while the relays are switched on. Can be easily measured, as it should simply be the
+    float bias_on = 0;      //This is the "bias" while the relays are switched on. Can be easily measured, as it should simply be the
                         //average measurement. Unless hardware is used which draws current in very strange ways, e.g, only on the
                         //top half of the sine. We may need to look into if this is a problem, if then, just calibrate at first startup
                         //and save to nvs.
 
-    float bias_off = 2033;     //The bias when the relays are off. May not be needed as we could asume "zero" current while off.
+    float bias_off = 0;     //The bias when the relays are off. May not be needed as we could asume "zero" current while off.
                         // but for safety purposes, it may be good to sanity check the current in the off state.
     bool completed = false;
 };
 
 enum CurrentSampleState
 {
-    calibrating_conversion, //Can we do this? how?
+    calibration_start,
     calibrating_bias_on,
     calibrating_bias_off,
+    calibrating_conversion, //Can we do this? how?
+    calibration_done,
     measuring,
 };
 
@@ -77,12 +79,17 @@ class CurrentMeasurer
         static CurrentMeasurer *get_instance(const adc1_channel_t *_pins, size_t _pin_num);
         calibration_result load_current_calibration(uint8_t &channel, CurrentCalibration &calibration, bool from_nvs = false);
         uint8_t get_current_count() {return this->pin_num;}
+        void recalib_current_sensor(uint8_t channel);
+        void recalib_current_sensors();
+
     private:
         calibration_result handle_conversion_calibration(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_bias_on_calibration(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_bias_off_calibration(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_measuring(uint8_t &channel, amp_measurement &cur_sample, switch_state &current_state);
         calibration_result handle_bias_calibration(uint8_t &channel, amp_measurement &cur_sample, switch_state bias_type);
+        calibration_result handle_calibration_done(uint8_t &channel, amp_measurement &cur_sample);
+        calibration_result handle_calibration_start(uint8_t &channel, amp_measurement &cur_sample);
 
         void save_current_calibration(uint8_t &channel, CurrentCalibration &calibration);
         CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num);
@@ -99,5 +106,4 @@ class CurrentMeasurer
         CurrentSampleState *cur_state = nullptr;
         SwitchHandler *switch_handler;
         SettingsHandler *settings_handler;
-
 };
