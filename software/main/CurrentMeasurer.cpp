@@ -17,6 +17,7 @@ extern "C"
     #include "stdio.h"
     #include "esp_system.h"
     #include "esp_err.h"
+    #include "math.h"
 }
 
 //We can not access flash memory while in this function. This either needs to be fixed,
@@ -54,6 +55,7 @@ CurrentMeasurer *CurrentMeasurer::instance = nullptr;
 
 CurrentMeasurer *CurrentMeasurer::get_instance()
 {
+    assert(CurrentMeasurer::instance != nullptr);
     return CurrentMeasurer::instance;
 }
 
@@ -152,7 +154,7 @@ void CurrentMeasurer::sample_thread()
                         this->handle_conversion_calibration(i, cur_sample);
                         break;
                     case calibration_done:
-                        this->handle_calibration_start(i, cur_sample);
+                        this->handle_calibration_done(i, cur_sample);
                         break;
                     case measuring:
                         this->handle_measuring(i, cur_sample, this_state);
@@ -169,9 +171,15 @@ void CurrentMeasurer::sample_thread()
 
 
 calibration_result CurrentMeasurer::handle_conversion_calibration(uint8_t &channel, amp_measurement &cur_sample)
-{
+{   //We calculate the conversion rate as follows:
+    //We assume a magnetic offset of the sensors of 0mV. In reality, the datasheet states +-40mV, resulting in an inaccuracy of about +-1%
+    //As the sensors measure +-5A, the conversion rate will be 5 / bias_off.
+    printf("Conversion calibration.\n");
+
     __attribute__((unused)) CurrentCalibration &cur_calibration = this->cur_calibs[channel];
     __attribute__((unused)) CurrentStatistics &cur_stats = this->cur_statistics[channel];
+    if(cur_calibration.bias_off == 0) cur_calibration.conversion = 0;
+    else cur_calibration.conversion = 5. / cur_calibration.bias_off;
     this->cur_state[channel] = calibration_done;
     return success;
 }
@@ -179,10 +187,14 @@ calibration_result CurrentMeasurer::handle_conversion_calibration(uint8_t &chann
 calibration_result CurrentMeasurer::handle_calibration_done(uint8_t &channel, amp_measurement &cur_sample)
 {
     //This is the last calibration for now. Set switch states to the saved one and continue to measuring.
+    //Also reset the stats
     //Also, save the calibration to nvs.
+    printf("Calibration done\n");
     this->switch_handler->set_saved_state(channel);
+    this->cur_calibs[channel].completed = true;
     this->save_current_calibration(channel, this->cur_calibs[channel]);
     xQueueReset(this->adc_queues[channel]);
+    this->cur_statistics[channel] = CurrentStatistics();
     this->cur_state[channel] = measuring;
     return success;
 }
@@ -190,9 +202,10 @@ calibration_result CurrentMeasurer::handle_calibration_done(uint8_t &channel, am
 calibration_result CurrentMeasurer::handle_calibration_start(uint8_t &channel, amp_measurement &cur_sample)
 {   //Reset the calibration and statistics and clear the queue
     //(this may cause issues for individual calibrations as we only pool on how "full" the queue for channel 0 is.).
+    printf("Starting ACS712 Calibration\n");
+
     CurrentCalibration &cur_calibration = this->cur_calibs[channel];
     CurrentStatistics &cur_stats = this->cur_statistics[channel];
-
     xQueueReset(this->adc_queues[channel]);
     this->cur_state[channel] = calibrating_bias_on;
     cur_calibration = CurrentCalibration();
@@ -212,6 +225,7 @@ calibration_result CurrentMeasurer::handle_bias_on_calibration(uint8_t &channel,
     }
     else if(result == success)
     {
+        printf("finished bias on Calibration\n");
         //Continue to off calibration
         this->cur_state[channel] = calibrating_bias_off;
     }
@@ -229,6 +243,7 @@ calibration_result CurrentMeasurer::handle_bias_off_calibration(uint8_t &channel
     }
     else if(result == success)
     {
+        printf("finished bias off Calibration\n");
         this->cur_state[channel] = calibrating_conversion;
     }
     return result;
@@ -238,38 +253,53 @@ calibration_result CurrentMeasurer::handle_bias_calibration(uint8_t &channel, am
 {
     CurrentCalibration &cur_calibration = this->cur_calibs[channel];
     CurrentStatistics &cur_stats = this->cur_statistics[channel];
-    float *bias;
-    if(bias_type == on) bias = &cur_calibration.bias_on;
-    else bias = &cur_calibration.bias_off;
+    double *bias;
+    double *stddev;
+    if(bias_type == on)
+    {
+        bias = &cur_calibration.bias_on;
+        stddev = &cur_calibration.stddev_on;
+
+    }
+    else
+    {
+        bias = &cur_calibration.bias_off;
+        stddev = &cur_calibration.stddev_off;
+
+    }
     if(cur_stats.cnt == 0)
     {
         this->switch_handler->set_switch_state(channel, bias_type, false);
         //Clear the queue so we only get samples for when the switch was on/off.
         xQueueReset(this->adc_queues[channel]);
-        cur_stats.time = 0;
+        cur_stats.time = -TIMER_SCALE_ADC * 2; //Wait until the relay have been on/off in 2 seconds
     }
-    else if(cur_stats.time < TIMER_SCALE_ADC * 1) //Wait until the relay have been on/off in 1 second
+    else if(cur_stats.time < 0)
     {
         cur_stats.time += cur_sample.period;
-        if(cur_stats.time >= TIMER_SCALE_ADC * 1) //Set time to excatly one second, so we can use this
-        {                                         //As offset in the later bias computation.
-            cur_stats.time = TIMER_SCALE_ADC * 1;
+        if(cur_stats.time >= 0) //Set time to excatly zero when done waiting
+        {
+            cur_stats.time = 0;
             *bias = 0;
+            *stddev = 0;
         }
     }
-    else if(cur_stats.time >= TIMER_SCALE_ADC * 1)
-    {
+    else if(cur_stats.time >= 0)
+    {   //Compute mean and variance using https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Weighted_incremental_algorithm
+        //We could in theory run this algorithm "always" to update on - the -go...
         cur_stats.time += cur_sample.period;
-        *bias += cur_sample.raw_sample * cur_stats.time;
-    }
-    else if(cur_stats.time >= TIMER_SCALE_ADC * 3) //Allow two seconds for the calibration
-    {
-        cur_stats.time -= TIMER_SCALE_ADC * 1; //Substract the first second where we did not sample.
-        *bias /= cur_stats.time; //Compute the final bias.
-        //Now, we reset the stats and return that we was done
-        cur_stats.time = 0;
-        cur_stats.cnt = 0;
-        return success;
+        double mean_old = *bias;
+        *bias = mean_old + (cur_sample.period / double(cur_stats.time) ) * (cur_sample.raw_sample - mean_old);
+        *stddev += cur_sample.period * (cur_sample.raw_sample - mean_old) * (cur_sample.raw_sample - *bias);
+
+        if(cur_stats.time >= TIMER_SCALE_ADC * 5) //Exit after 5 seconds
+        {
+            *stddev /= cur_stats.time;
+            printf("channel:%hhu\tbias:%f\tstddev:%f\ttime: %llu\n", channel, *bias, *stddev, cur_stats.time);
+            cur_stats.time = 0;
+            cur_stats.cnt = 0;
+            return success;
+        }
     }
     cur_stats.cnt++;
     return in_progress;
@@ -281,10 +311,17 @@ calibration_result CurrentMeasurer::handle_measuring(uint8_t &channel, amp_measu
     CurrentCalibration &cur_calibration = this->cur_calibs[channel];
     CurrentStatistics &cur_stats = this->cur_statistics[channel];
 
-    float amps = ( ( (int32_t)cur_sample.raw_sample) - cur_calibration.bias_on) * cur_calibration.conversion;
+    float amps;
+    if(current_state == on)
+        amps = ( ( (int32_t)cur_sample.raw_sample) - cur_calibration.bias_on) * cur_calibration.conversion;
+    else if(current_state == off)
+        amps = ( ( (int32_t)cur_sample.raw_sample) - cur_calibration.bias_off) * cur_calibration.conversion;
+    else
+        amps = 0;
     if(cur_stats.time >= TIMER_SCALE_ADC * 0.3)
     {
-        cur_stats.rms_current = sqrt(cur_stats.squared_total) / cur_stats.time;
+        //printf("%f\t%lld\n", cur_stats.squared_total, cur_stats.time);
+        cur_stats.rms_current = sqrt(cur_stats.squared_total / cur_stats.time) ;
         cur_stats.squared_total = amps * amps * cur_sample.period;
         cur_stats.time = cur_sample.period;
     }

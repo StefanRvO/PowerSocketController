@@ -10,20 +10,11 @@
     <div class="content">
         <h2 class="content-subhead">Current Calibrations</h2>
         <h3 >Calibrations related to the ACS712 current sensors and related curcuitry</h3>
-
-        <h4>Bias when the relays are in</h4>
-        <div id="bias_on">
-        </div>
-        <h4>Bias when the relays are off</h4>
-        <div id="bias_off">
-        </div>
-        <h4>Conversion rate</h4>
-        <div id="conversion">
-        </div>
+        <div id="current_calibs"></div>
         <h3>Recalibrate Current Sensors</h3>
         <p> Re-perform the calibration.. This takes about ten seconds. Preferable this should be done with nothing plugged in to the sockets.</p>
         <form method="POST" action="/api/v1/post/recalib_current">
-            <input type="submit" class="pure-button button-warning" value="Reboot">
+            <input type="submit" class="pure-button button-warning" value="Recalibrate">
         </form>
 
 </div>
@@ -42,40 +33,26 @@
         success: function(json) {
             //Create table header
 
-            var bias_on_str = "<table class='pure-table'><thead> <tr> <th>Channel</th> <th>Bias</th> <th>Valid</th> </tr></thead><tbody>";
-            var bias_off_str = bias_on_str;
-            var conversion_str = "<table class='pure-table'><thead> <tr> <th>Channel</th> <th>Conversion</th> <th>Unit</th> <th>Valid</th> </tr></thead><tbody>";
+            var ccalib_str = "<table class='pure-table'><thead> <tr> <th>Channel</th> <th>Bias On</th>";
+            ccalib_str += "<th>Stddev On</th> <th>Bias Off</th> <th>Stddev Off</th> <th>Conversion (1/A)</th>";
+            ccalib_str +=  "<th>Valid</th> </tr></thead><tbody>";
             for(i = 0; i < parseInt(json.count); i++ )
             {
                 var calib_name = "ccalib" + i;
-                bias_on_str += "<tr>";
-                bias_on_str += "<td>" + json[calib_name].id + "</td>";
-                bias_on_str += "<td>" + json[calib_name].bias_on + "</td>";
-                bias_on_str += "<td>" + json[calib_name].calibrated + "</td>";
+                ccalib_str += "<tr>";
+                ccalib_str += "<td>" + json[calib_name].id + "</td>";
+                ccalib_str += "<td>" + json[calib_name].bias_on + "</td>";
+                ccalib_str += "<td>" + json[calib_name].stddev_on + "</td>";
+                ccalib_str += "<td>" + json[calib_name].bias_off + "</td>";
+                ccalib_str += "<td>" + json[calib_name].stddev_off + "</td>";
+                ccalib_str += "<td>" + json[calib_name].conversion + "</td>";
+                ccalib_str += "<td>" + json[calib_name].calibrated + "</td>";
+                ccalib_str += "</tr>";
 
-                bias_on_str += "</tr>";
-
-                bias_off_str += "<tr>";
-                bias_off_str += "<td>" + json[calib_name].id + "</td>";
-                bias_off_str += "<td>" + json[calib_name].bias_off + "</td>";
-                bias_off_str += "<td>" + json[calib_name].calibrated + "</td>";
-
-                bias_off_str += "</tr>";
-
-                conversion_str += "<tr>";
-                conversion_str += "<td>" + json[calib_name].id + "</td>";
-                conversion_str += "<td>" + json[calib_name].conversion + "</td>";
-                conversion_str += "<td>" + "1/V" + "</td>";
-                conversion_str += "<td>" + json[calib_name].calibrated + "</td>";
-                conversion_str += "</tr>";
             }
-            bias_on_str     += "</tbody></table>"
-            bias_off_str    += "</tbody></table>"
-            conversion_str  += "</tbody></table>"
+            ccalib_str += "</tbody></table>"
 
-            $('#bias_on').html(bias_on_str);
-            $('#bias_off').html(bias_on_str);
-            $('#conversion_str').html(bias_on_str);
+            $('#current_calibs').html(ccalib_str);
         },
       });
   });

@@ -91,11 +91,6 @@ void cpp_main()
                                  (char *)"/spiffs"      /*Mount point */);
     fs_handler->init_spiffs();
     xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
-    HttpServer httpd_server("80");
-    httpd_server.start();
-    HttpServer httpsd_server("443", true);
-    httpsd_server.start();
-    do_startup_test();
 
     __attribute__((unused)) const adc1_channel_t adc_channles[] = {
         ADC1_CHANNEL_7,
@@ -109,6 +104,12 @@ void cpp_main()
     //Keep time.
     TimeKeeper *t_keeper = TimeKeeper::get_instance();
     printf("Startup done\n");
+    HttpServer httpd_server("80");
+    httpd_server.start();
+    HttpServer httpsd_server("443", true);
+    httpsd_server.start();
+    do_startup_test();
+
     //Enter a inifite loop which performs tasks which should happen very unfrequent
     while(1)
     {

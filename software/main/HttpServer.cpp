@@ -343,7 +343,7 @@ void HttpServer::RECALIB_CURRENT_ENDPOINT(struct mg_connection *c, int ev, void 
     {
         case MG_EV_HTTP_REQUEST:
             mg_http_send_error(c, 204, NULL);
-            http_server->cur_measurer->recalib_current_sensors(); 
+            http_server->cur_measurer->recalib_current_sensors();
             break;
     }
 
@@ -553,13 +553,23 @@ void HttpServer::handle_get_calibrations(struct mg_connection *c, struct http_me
         CurrentCalibration cur_calib;
         http_server->cur_measurer->load_current_calibration(i, cur_calib);
         if(i + 1 == (count))
+        {
             mg_printf_http_chunk(c, "\"ccalib%d\": { \"id\":%hhu,\n \"conversion\":%f,\n"
-                                    "\"bias_on\":%f,\n \"bias_off\":%f,\n \"calibrated\":%hhu\n}",
-                                    i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off, cur_calib.completed);
+                                    "\"bias_on\":%f,\n \"bias_off\":%f,\n"
+                                    "\"stddev_on\":%f,\n \"stddev_off\":%f,\n"
+                                    "\"calibrated\":%hhu\n}",
+                                    i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off,
+                                    cur_calib.stddev_on, cur_calib.stddev_off, cur_calib.completed);
+        }
         else
-        mg_printf_http_chunk(c, "\"ccalib%d\": { \"id\":%hhu,\n \"conversion\":%f,\n"
-                                "\"bias_on\":%f,\n \"bias_off\":%f,\n \"calibrated\":%hhu\n},",
-                                i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off, cur_calib.completed);
+        {
+            mg_printf_http_chunk(c, "\"ccalib%d\": { \"id\":%hhu,\n \"conversion\":%f,\n"
+                                "\"bias_on\":%f,\n \"bias_off\":%f,\n"
+                                "\"stddev_on\":%f,\n \"stddev_off\":%f,\n"
+                                "\"calibrated\":%hhu\n},",
+                                i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off,
+                                cur_calib.stddev_on, cur_calib.stddev_off, cur_calib.completed);
+        }
 
     }
     mg_printf_http_chunk(c, "}");

@@ -40,25 +40,27 @@ struct CurrentStatistics
 {
     float squared_total = 0; //Squared total since last boot (how do we do rms in last x seconds without saving massive amounts of samples?)
     uint32_t cnt = 0;
-    uint64_t time = 0;
+    int64_t time = 0;
     float rms_current = 0;
 };
 
 struct CurrentCalibration
 {
-    float conversion = 0;   //Multiply with this number to convert from adc values to current in amps.
+    double conversion = 0;   //Multiply with this number to convert from adc values to current in amps.
                         //We can probably not calibrate this with the current hardware, so we need to measure it
                         //Depending on the voltage divider and the acs712 specs
 
-    float bias_on = 0;      //This is the "bias" while the relays are switched on. Can be easily measured, as it should simply be the
+    double stddev_on = 0;
+    double bias_on = 0;      //This is the "bias" while the relays are switched on. Can be easily measured, as it should simply be the
                         //average measurement. Unless hardware is used which draws current in very strange ways, e.g, only on the
                         //top half of the sine. We may need to look into if this is a problem, if then, just calibrate at first startup
                         //and save to nvs.
-
-    float bias_off = 0;     //The bias when the relays are off. May not be needed as we could asume "zero" current while off.
+    double stddev_off = 0;
+    double bias_off = 0;     //The bias when the relays are off. May not be needed as we could asume "zero" current while off.
                         // but for safety purposes, it may be good to sanity check the current in the off state.
     bool completed = false;
 };
+
 
 enum CurrentSampleState
 {

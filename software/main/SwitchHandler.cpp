@@ -16,6 +16,7 @@ SwitchHandler *SwitchHandler::instance = nullptr;
 
 SwitchHandler *SwitchHandler::get_instance()
 {
+    assert(SwitchHandler::instance != nullptr);
     return SwitchHandler::instance;
 }
 
