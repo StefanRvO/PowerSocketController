@@ -23,6 +23,7 @@ extern "C"
     #include "soc/sens_reg.h"
 
 }
+#include <algorithm>
 
 //We can not access flash memory while in the timer interrupt function.
 //The below functions reimplement the timer and adc interfaces with IRAM_ATTR so thay can be accessed
@@ -412,6 +413,40 @@ calibration_result CurrentMeasurer::handle_measuring(uint8_t &channel, amp_measu
 
     return in_progress;
 }
+calibration_result CurrentMeasurer::handle_live_calib(uint8_t &channel, amp_measurement &cur_sample, switch_state &current_state)
+{
+    CurrentCalibration &cur_calibration = this->cur_calibs[channel];
+    CurrentStatistics &cur_stats = this->cur_statistics[channel];
+    BiasCalibrationList *bias_list;
+    if(current_state == on)
+    {
+        bias_list = &cur_calibration.bias_on;
+    }
+    else
+    {
+        bias_list = &cur_calibration.bias_off;
+    }
+    //Update bias and stddev
+    bias_list->time += cur_sample.period;
+    double mean_old = bias_list->next.bias;
+    bias_list->next.bias = mean_old + (cur_sample.period / double(bias_list->time) ) * (cur_sample.raw_sample - mean_old);
+    bias_list->next.stddev += cur_sample.period * (cur_sample.raw_sample - mean_old) * (cur_sample.raw_sample - bias_list->next.bias);
+
+    //Check if it is time to swap (we should probably time this with rms update).
+    if(bias_list->time >= TIMER_SCALE_ADC * CURCALIB_SWAP_TIME - interval / 2) //Exit after 5 seconds +- interval / 2 to get the best fit.
+    {
+        bias_list->next.stddev /= bias_list->time;
+        bias_list->time = 0;
+        bias_list->next.completed = true;
+        std::swap(bias_list->next, bias_list->last);
+        bias_list->next.completed = false;
+        bias_list->next.stddev = 0;
+        bias_list->next.bias = 0;
+    }
+    return in_progress;
+}
+
+
 
 calibration_result CurrentMeasurer::load_current_calibration(uint8_t &channel, CurrentCalibration &calibration, bool from_nvs)
 {

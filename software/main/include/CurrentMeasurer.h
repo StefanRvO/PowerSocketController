@@ -14,14 +14,14 @@ extern "C"
 #include "SwitchHandler.h"
 #include "SettingsHandler.h"
 
-#define CURCALIB_SWAP_TIME 5000 //Time between swaps of current calibration in milliseconds
+#define CURCALIB_SWAP_TIME 5 //Time between swaps of current calibration in seconds
 
 
 enum calibration_result
 {
-    in_progress,
-    success,
-    fail,
+    in_progress = 0,
+    success = 1 << 0,
+    fail = 1 << 1,
 };
 //We use ADC1 for now.
 //We may be able to expand to ADC2 at some future point with a bit of work.
@@ -96,6 +96,7 @@ class CurrentMeasurer
         calibration_result handle_bias_calibration(uint8_t &channel, amp_measurement &cur_sample, switch_state bias_type);
         calibration_result handle_calibration_done(uint8_t &channel, amp_measurement &cur_sample);
         calibration_result handle_calibration_start(uint8_t &channel, amp_measurement &cur_sample);
+        calibration_result handle_live_calib(uint8_t &channel, amp_measurement &cur_sample, switch_state &current_state);
 
         void save_current_calibration(uint8_t &channel, CurrentCalibration &calibration);
         CurrentMeasurer(const adc1_channel_t *_pins, size_t _pin_num);
@@ -112,4 +113,5 @@ class CurrentMeasurer
         CurrentSampleState *cur_state = nullptr;
         SwitchHandler *switch_handler;
         SettingsHandler *settings_handler;
+
 };
