@@ -270,15 +270,6 @@ void HttpServer::http_thread()
     this->s_http_server_opts.auth_domain = "all";
     this->s_http_server_opts.global_auth_file = "/spiffs/htpasswd";
 
-    mg_register_http_endpoint(nc, "/api/v1/post/ota_upload", HttpServer::OTA_endpoint);
-    mg_register_http_endpoint(nc, "/api/v1/post/reboot", HttpServer::reboot);
-    mg_register_http_endpoint(nc, "/api/v1/post/reset", HttpServer::reset);
-
-    mg_register_http_endpoint(nc, "/api/v1/post/AP_SSID", HttpServer::SETTING);
-    mg_register_http_endpoint(nc, "/api/v1/post/STA_SSID", HttpServer::SETTING);
-    mg_register_http_endpoint(nc, "/api/v1/post/toggle_switch", HttpServer::SWITCH_ENDPOINT);
-    mg_register_http_endpoint(nc, "/api/v1/post/recalib_current", HttpServer::RECALIB_CURRENT_ENDPOINT);
-
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
 
@@ -558,8 +549,8 @@ void HttpServer::handle_get_calibrations(struct mg_connection *c, struct http_me
                                     "\"bias_on\":%f,\n \"bias_off\":%f,\n"
                                     "\"stddev_on\":%f,\n \"stddev_off\":%f,\n"
                                     "\"calibrated\":%hhu\n}",
-                                    i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off,
-                                    cur_calib.stddev_on, cur_calib.stddev_off, cur_calib.completed);
+                                    i, i, cur_calib.conversion, cur_calib.bias_on.last.bias, cur_calib.bias_off.last.bias,
+                                    cur_calib.bias_on.last.stddev, cur_calib.bias_off.last.stddev, cur_calib.bias_on.last.completed);
         }
         else
         {
@@ -567,8 +558,8 @@ void HttpServer::handle_get_calibrations(struct mg_connection *c, struct http_me
                                 "\"bias_on\":%f,\n \"bias_off\":%f,\n"
                                 "\"stddev_on\":%f,\n \"stddev_off\":%f,\n"
                                 "\"calibrated\":%hhu\n},",
-                                i, i, cur_calib.conversion, cur_calib.bias_on, cur_calib.bias_off,
-                                cur_calib.stddev_on, cur_calib.stddev_off, cur_calib.completed);
+                                i, i, cur_calib.conversion, cur_calib.bias_on.last.bias, cur_calib.bias_off.last.bias,
+                                cur_calib.bias_on.last.stddev, cur_calib.bias_off.last.stddev, cur_calib.bias_on.last.completed);
         }
 
     }
@@ -583,6 +574,8 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
     {
         case MG_EV_HTTP_REQUEST:
         {
+
+            //Get requests
             struct http_message *hm = (struct http_message *) p;
             printf("\n%.*s requested\n",  hm->uri.len,  hm->uri.p);
             if(strncmp(hm->uri.p, "/", hm->uri.len) == 0)
@@ -606,6 +599,36 @@ void HttpServer::ev_handler(struct mg_connection *c, int ev, void *p)
             else if (mg_vcmp(&hm->uri, "/api/v1/get_current_calibrations") == 0)
             {
                 this->handle_get_calibrations(c, hm);
+            }
+
+            //Post requests
+            else if (mg_vcmp(&hm->uri, "/api/v1/post/ota_upload") == 0)
+            {
+                this->OTA_endpoint(c, ev, p);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/post/reboot") == 0)
+            {
+                this->reboot(c, ev, p);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/post/reset") == 0)
+            {
+                this->reset(c, ev, p);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/post/AP_SSID") == 0)
+            {
+                this->SETTING(c, ev, p);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/post/STA_SSID") == 0)
+            {
+                this->SETTING(c, ev, p);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/post/toggle_switch") == 0)
+            {
+                this->SWITCH_ENDPOINT(c, ev, p);
+            }
+            else if (mg_vcmp(&hm->uri, "/api/v1/post/recalib_current") == 0)
+            {
+                this->RECALIB_CURRENT_ENDPOINT(c, ev, p);
             }
 
             else

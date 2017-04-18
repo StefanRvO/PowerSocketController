@@ -14,8 +14,8 @@ extern "C"
 #include "SwitchHandler.h"
 #include "SettingsHandler.h"
 
-#define BIAS_OFF_CALIB_TIME
-#define BIAS_ON_CALIB_TIME
+#define CURCALIB_SWAP_TIME 5000 //Time between swaps of current calibration in milliseconds
+
 
 enum calibration_result
 {
@@ -34,7 +34,6 @@ struct amp_measurement
 };
 
 struct CurrentStatistics
-//We may need to compute this in chunks (e.g. off 500ms intervals, as we actually needs all the samples to compute the rms.)
 //This may be way way easier when we get the voltage too, as it is simply I * U *dt, and then add them up.
 //take a snapshot at some interval and compare them, thus getting power consumption per period.
 {
@@ -44,21 +43,26 @@ struct CurrentStatistics
     float rms_current = 0;
 };
 
+struct bias_calibration
+{
+    double stddev = 0;
+    double bias = 0;      //This is the "bias" while the relays are switched on or off.
+    bool completed = false;
+};
+
+struct BiasCalibrationList
+{
+    bias_calibration last;
+    bias_calibration next;
+    int64_t time = 0; //Contains the time since the last "swap"
+};
+
+
 struct CurrentCalibration
 {
     double conversion = 0;   //Multiply with this number to convert from adc values to current in amps.
-                        //We can probably not calibrate this with the current hardware, so we need to measure it
-                        //Depending on the voltage divider and the acs712 specs
-
-    double stddev_on = 0;
-    double bias_on = 0;      //This is the "bias" while the relays are switched on. Can be easily measured, as it should simply be the
-                        //average measurement. Unless hardware is used which draws current in very strange ways, e.g, only on the
-                        //top half of the sine. We may need to look into if this is a problem, if then, just calibrate at first startup
-                        //and save to nvs.
-    double stddev_off = 0;
-    double bias_off = 0;     //The bias when the relays are off. May not be needed as we could asume "zero" current while off.
-                        // but for safety purposes, it may be good to sanity check the current in the off state.
-    bool completed = false;
+    BiasCalibrationList bias_on;
+    BiasCalibrationList bias_off;
 };
 
 
