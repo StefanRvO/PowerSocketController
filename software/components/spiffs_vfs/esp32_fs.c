@@ -16,8 +16,6 @@
 
 LOG_TAG("spiffs_vfs");
 
-
-
 static int spiffs_open_p(void *ctx, const char *path, int flags, int mode) {
   return spiffs_vfs_open((spiffs *)ctx, path, flags, mode);
 }

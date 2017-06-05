@@ -1,6 +1,6 @@
 #include "CurrentMeasurer.h"
 #include <cmath>
-#define SAMPLE_FREQ_ADC 2500
+#define SAMPLE_FREQ_ADC 1000
 
 #define TIMER_GROUP_ADC TIMER_GROUP_0
 #define TIMER_NUM_ADC TIMER_1
