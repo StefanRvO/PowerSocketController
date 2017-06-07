@@ -40,3 +40,14 @@ double TimeKeeper::get_uptime()
     xSemaphoreGive(this->lock);
     return cur_time / 1000.;
 }
+
+uint64_t TimeKeeper::get_uptime_milliseconds()
+{
+    //Do an update of the time.
+    uint64_t cur_time = 0;
+    this->do_update();
+    xSemaphoreTake(this->lock, 100000 / portTICK_RATE_MS);
+    cur_time = (total_tick_count_wrapped + last_tick_count) * portTICK_RATE_MS;
+    xSemaphoreGive(this->lock);
+    return cur_time;
+}

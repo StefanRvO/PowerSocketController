@@ -15,6 +15,8 @@ class TimeKeeper
         static TimeKeeper *get_instance();
         void do_update(); //updates the wrapped counter and last_tick_count.
         double get_uptime(); //get time since boot.
+        uint64_t get_uptime_milliseconds(); //get time since boot.
+
     private:
         static TimeKeeper *instance;
         TimeKeeper();

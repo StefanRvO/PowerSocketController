@@ -50,6 +50,7 @@ void WifiHandler::update_station_config()
             "",
             false,
             "",
+            1,
         },
     };
 

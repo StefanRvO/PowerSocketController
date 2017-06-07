@@ -38,7 +38,7 @@ void SettingsHandler::set_default_values()
     ESP_ERROR_CHECK( set_default_value("STA_SSID","SDU-GUEST") );
     ESP_ERROR_CHECK( set_default_value("STA_PASSWORD","") );
 
-    ESP_ERROR_CHECK( set_default_value("AP_SSID", "ESP_AP_32"));
+    ESP_ERROR_CHECK( set_default_value("AP_SSID", "PowerSocket_AP"));
     ESP_ERROR_CHECK( set_default_value("AP_PASS", "PASSWORD"));
     ESP_ERROR_CHECK( set_default_value("AP_AUTH", (uint32_t)WIFI_AUTH_OPEN));
     uint32_t tmp;
