@@ -1,6 +1,6 @@
 #include "CurrentMeasurer.h"
 #include <cmath>
-#define SAMPLE_FREQ_ADC 1000
+#define SAMPLE_FREQ_ADC 5000
 
 #define TIMER_GROUP_ADC TIMER_GROUP_0
 #define TIMER_NUM_ADC TIMER_1
@@ -374,6 +374,7 @@ calibration_result CurrentMeasurer::handle_bias_calibration(uint8_t &channel, am
         if(*time >= TIMER_SCALE_ADC * 5 - interval / 2) //Exit after 5 seconds +- interval / 2 to get the best fit.
         {
             *stddev /= *time;
+            *stddev = sqrt(*stddev);
             printf("channel:%hhu\tbias:%f\tstddev:%f\ttime: %llu\n", channel, *bias, *stddev, *time);
             *time = 0;
             cur_stats.cnt = 0;

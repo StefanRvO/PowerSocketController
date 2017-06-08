@@ -66,7 +66,7 @@ class LoginManager
         ~LoginManager() {};
         login_error add_user(char *username, char *passwd); //done
         login_error remove_user(char *username); //done
-        login_error change_passwd(char *username, char *oldpasswd, char *newpasswd);
+        login_error change_passwd(char *username, char *oldpasswd, char *newpasswd); //not done.
         login_error get_username(char *username, session_key *session); //done
         login_error perform_login(char *username, char *passwd, session_key *session); //done
         login_error logout(char *username); //done
