@@ -7,47 +7,6 @@
         <h2>Change various settings on the device</h2>
     </div>
     <div class="content">
-        <h2 class="content-subhead">Access Point Settings</h2>
-        <p>
-            Change settings for the access point hosted by the device.
-        </p>
-                <form method="POST" action="/api/v1/post/AP_SSID" class="pure-form pure-form-stacked">
-                    <fieldset>
-                        <div class="pure-control-group">
-                            <label for="ap_ssid">Access Point SSID:</label>
-                            <input type="text" name="ap_ssid" id="ap_ssid" value="">
-                        </div>
-
-                        <div class="pure-control-group">
-                            <label for="ap_ip_title">Access Point IP:</label>
-                                <input type="text" name="ap_ip" id="ap_ip" value="" title="Access Point IP">
-                        </div>
-                        <div class="pure-control-group">
-                            <label for="ap_gw_title">Access Point Gateway:</label>
-                                <input type="text" name="ap_gw" id="ap_gw" value="" title="Access Point GW">
-                        </div>
-
-                        <div class="pure-control-group">
-                            <label for="ap_netmask_title">Access Point Netmask:</label>
-                                <input type="text" name="ap_netmask" id="ap_netmask" value="" title="Access Point netmask">
-                            </div>
-                            <input type='hidden' value='0' name='ap_enable'>
-
-                        <div class="pure-control-group checkbox-switch">
-                                    <input type="checkbox" value='1' class="input-checkbox" id="ap_enable" name='ap_enable' >
-                        			<div class="checkbox-animate">
-                        				<span class="checkbox-off">OFF</span>
-                        				<span class="checkbox-on">ON</span>
-                        			</div>
-                        </div>
-                        <div class="pure-controls">
-                            <button id="submit" name="submit" class="pure-button">Accept</button>
-                        </div>
-
-                    </fieldset>
-
-                </form>
-
                 <h2 class="content-subhead">Station settings</h2>
                 <p>
                     Change settings for which access point the device connects to.
@@ -73,6 +32,46 @@
                     </fieldset>
 
                 </form>
+                <h2 class="content-subhead">Access Point Settings</h2>
+                <p>
+                    Change settings for the access point hosted by the device.
+                </p>
+                        <form method="POST" action="/api/v1/post/AP_SSID" class="pure-form pure-form-stacked">
+                            <fieldset>
+                                <div class="pure-control-group">
+                                    <label for="ap_ssid">Access Point SSID:</label>
+                                    <input type="text" name="ap_ssid" id="ap_ssid" value="">
+                                </div>
+
+                                <div class="pure-control-group">
+                                    <label for="ap_ip_title">Access Point IP:</label>
+                                        <input type="text" name="ap_ip" id="ap_ip" value="" title="Access Point IP">
+                                </div>
+                                <div class="pure-control-group">
+                                    <label for="ap_gw_title">Access Point Gateway:</label>
+                                        <input type="text" name="ap_gw" id="ap_gw" value="" title="Access Point GW">
+                                </div>
+
+                                <div class="pure-control-group">
+                                    <label for="ap_netmask_title">Access Point Netmask:</label>
+                                        <input type="text" name="ap_netmask" id="ap_netmask" value="" title="Access Point netmask">
+                                    </div>
+                                    <input type='hidden' value='0' name='ap_enable'>
+
+                                <div class="pure-control-group checkbox-switch">
+                                            <input type="checkbox" value='1' class="input-checkbox" id="ap_enable" name='ap_enable' >
+                                			<div class="checkbox-animate">
+                                				<span class="checkbox-off">OFF</span>
+                                				<span class="checkbox-on">ON</span>
+                                			</div>
+                                </div>
+                                <div class="pure-controls">
+                                    <button id="submit" name="submit" class="pure-button">Accept</button>
+                                </div>
+
+                            </fieldset>
+
+                        </form>
 
                 <!-- Login settings -->
                 <h2 class="content-subhead">Login Settings</h2>

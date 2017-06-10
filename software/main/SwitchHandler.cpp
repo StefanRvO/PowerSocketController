@@ -279,6 +279,7 @@ void SwitchHandler::handle_button_states()
         }
         else
         {
+            this->s_handler->reset_settings();
             esp_restart();
         }
     }

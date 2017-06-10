@@ -1,13 +1,13 @@
 <!--#include file="ssi/header.html"-->
 <div id="main">
     <div class="header">
-        <h1>Reboot</h1>
-        <h2>Here you can reboot your device!</p>
+        <h1>Restart</h1>
+        <h2>Here you can restart your device!</p>
     </div>
     <div class="content">
-        <h2 class="content-subhead">Perform Reboot</h2>
+        <h2 class="content-subhead">Perform Restart</h2>
         <p>
-            Perform a reboot of the device.
+            Perform a restart of the device.
             <br>A reboot takes about 5 seconds.
         </p>
         <form method="POST" action="/api/v1/post/reboot">
