@@ -16,7 +16,6 @@ extern "C"
 static const char *TAG = "WifiHandler";
 
 //This bit is cleared if we are connected and set if not connected
-const int CONNECTED_BIT = BIT0;
 
 EventGroupHandle_t WifiHandler::wifi_event_group;
 WifiHandler *WifiHandler::instance = nullptr;
@@ -137,6 +136,8 @@ void WifiHandler::initialise_wifi(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
     ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+    xEventGroupSetBits(WifiHandler::wifi_event_group, INITIALISE_BIT);
+
     this->update_wifi_mode();
     this->update_ap_config();
     this->update_station_config();
@@ -188,7 +189,7 @@ void WifiHandler::reconnect_thread(void *PvParameters)
     {
         EventBits_t bits = xEventGroupWaitBits(handler->wifi_event_group, BIT0, pdFALSE,pdTRUE, portMAX_DELAY);
 
-        if ((bits | BIT0))
+        if ((bits & BIT0)) 
         {   //Try to reconnect in 15 seconds after disconnect
             vTaskDelay(15000 / portTICK_PERIOD_MS);
             esp_wifi_connect();
