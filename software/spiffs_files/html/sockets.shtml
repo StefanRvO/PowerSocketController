@@ -24,7 +24,7 @@
 var loaded = 0;
 $( document ).ready(function update_checkbox() {
         $.ajax({
-                url: '/api/v1/get_switch_state.php',
+                url: '/api/v1/get_switch_state',
                 method: 'GET',
                 dataType: 'json',
                 cache:false,
@@ -57,11 +57,14 @@ $( document ).ready(function update_checkbox() {
         });
 
         $(".input-checkbox").unbind().on("change", function () {
+		var switch_state = $(this).prop('checked');
+		var switch_name = $(this).attr('name');
+
                 // AJAX Code To Submit Form.
                 $.ajax({
                         type: "POST",
-                        url: "set_state.php",
-                        data: $(this).serialize(),
+                        url: "/api/v1/post/toggle_switch",
+                        data: switch_name  + "=" + (switch_state ? 1 : 0),
                         cache: false,
                         success: function(result){
                                 console.log(result);
