@@ -13866,9 +13866,9 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <label x="-9.7" y="-86.14" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="U1" gate="G$1" pin="IO4"/>
-<wire x1="30.48" y1="-2.54" x2="53.34" y2="-2.54" width="0.1524" layer="91"/>
-<label x="48.72" y="-2.32" size="1.778" layer="95"/>
+<pinref part="U1" gate="G$1" pin="IO0"/>
+<wire x1="30.48" y1="-5.08" x2="40.64" y2="-5.08" width="0.1524" layer="91"/>
+<label x="33.02" y="-5.08" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="GATE3" class="0">

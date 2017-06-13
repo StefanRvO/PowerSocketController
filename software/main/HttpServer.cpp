@@ -357,7 +357,7 @@ void HttpServer::SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p)
             {
                 parse_post(&hm->body, switch_post_parser, c->mgr->user_data);
             }
-            mg_http_send_error(c, 204, NULL);
+            mg_http_send_error(c, 200, NULL);
             break;
     }
 
