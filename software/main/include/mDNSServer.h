@@ -9,7 +9,9 @@ class mDNSServer
     public:
         static mDNSServer *get_instance();
     private:
+        static void mdns_monitor(void *PvParameters);
         static mDNSServer *instance;
-        mdns_server_t *server = nullptr;
+        static mdns_server_t *server_sta;
+        static mdns_server_t *server_ap;
         mDNSServer();
 };
