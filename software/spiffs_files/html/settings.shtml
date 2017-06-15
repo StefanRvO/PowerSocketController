@@ -1,3 +1,4 @@
+-<!--#include file="ssi/header.html"--> 
 <link href="css/switch.css" rel="stylesheet">
 
 <div id="main">
@@ -196,3 +197,4 @@ $( document ).ready(function() {
 
 });
 </script>
+-<!--#include file="ssi/footer.html"--> 

@@ -1,3 +1,4 @@
+-<!--#include file="ssi/header.html"-->
 <style>
 .fileUpload {
 position: relative;
@@ -65,3 +66,4 @@ $( document ).ready(function() {
 		});
 	});
 });
+-<!--#include file="ssi/footer.html"-->
