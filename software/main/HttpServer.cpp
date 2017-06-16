@@ -305,7 +305,7 @@ void HttpServer::SETTING(struct mg_connection *c, int ev, void *p)
                 if(strncmp(hm->method.p, "POST", hm->method.len) == 0)
                     parse_post(&hm->body, post_parser, c->mgr->user_data);
 
-                mg_http_send_error(c, 204, NULL);
+                mg_http_send_error(c, 200, NULL);
                 break;
             }
         }
@@ -430,7 +430,7 @@ void HttpServer::OTA_endpoint(struct mg_connection *c, int ev, void *p)
             if (err != ESP_OK) {
                 ESP_LOGE(TAG, "esp_ota_set_boot_partition failed! err=0x%x", err);
             }
-            mg_http_send_error(c, 204, NULL);
+            mg_http_send_error(c, 200, NULL);
 
         break;
     }

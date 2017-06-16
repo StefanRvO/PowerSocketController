@@ -1,53 +1,69 @@
-<!--#include file="ssi/header.html"-->
+-<!--#include file="ssi/header.html"-->
 <style>
-    .fileUpload {
-        position: relative;
-        overflow: hidden;
-        margin: 10px;
-    }
+.fileUpload {
+position: relative;
+overflow: hidden;
+margin: 10px;
+}
 
-    .fileUpload input.upload {
-        position: absolute;
-        top: 0;
-        right: 0;
-        margin: 0;
-        padding: 0;
-        font-size: 20px;
-        cursor: pointer;
-        opacity: 0;
-        filter: alpha(opacity=0);
-    }
+.fileUpload input.upload {
+position: absolute;
+top: 0;
+right: 0;
+margin: 0;
+padding: 0;
+font-size: 20px;
+cursor: pointer;
+opacity: 0;
+filter: alpha(opacity=0);
+}
 </style>
 <div id="main">
-    <div class="header">
-        <h1>OTA Upgrade!</h1>
-        <h2>Upload new firmware to the device and perform an upgrade Over The Air!</h2>
-    </div>
-    <div class="content">
-        <h2 class="content-subhead">Upload firmware</h2>
-        <p>
-            Select a firmware file you want flashed to the device.
-            Currently, we only supports flashing a new firmware. <br>Flashing the filesystem may be supported at a later time.
-        </p>
+<div class="header">
+<h1>OTA Upgrade!</h1>
+<h2>Upload new firmware to the device and perform an upgrade Over The Air!</h2>
+</div>
+<div class="content">
+<h2 class="content-subhead">Upload firmware</h2>
+<p>
+Select a firmware file you want flashed to the device.
+Currently, we only supports flashing a new firmware. <br>Flashing the filesystem may be supported at a later time.
+</p>
 
-        <form method="POST" action="/api/v1/post/ota_upload" enctype="multipart/form-data">
-            <input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
-            <div class="fileUpload pure-button pure-button-primary">
-                <span>Select File</span>
-                <input id="ota_upload" type="file" name="file" class="upload" />
-            </div>
-            <br>
-            <br>
-            <input type="submit" value="Upload" class="pure-button button-warning">
-        </form>
-    </div>
+<form method="POST" id="FormOTA" enctype="multipart/form-data">
+<input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
+<div class="fileUpload pure-button pure-button-primary">
+<span>Select File</span>
+<input id="ota_upload" type="file" name="file" class="upload" />
+</div>
+<br>
+<br>
+<input type="submit" value="Upload" class="pure-button button-warning">
+</form>
+</div>
 </div>
 
-<!--#include file="ssi/com_js.html"-->
-<script>
-    document.getElementById("ota_upload").onchange = function() {
-        document.getElementById("ota_upload_file").value = this.value;
-    };
-</script>
+</div>
 
-<!--#include file="ssi/footer.html"-->
+<script src="js/ui.js"></script>
+<script src="js/jquery.min.js"></script>
+<script>
+document.getElementById("ota_upload").onchange = function() {
+	document.getElementById("ota_upload_file").value = this.value;
+};
+
+$( document ).ready(function() {
+	// POST firmware
+	$('#FormOTA').submit(function(e){
+		e.preventDefault();
+		$.ajax({
+			url:'/api/v1/post/ota_upload',
+			type:'POST',
+			data:$('#FormOTA').serialize(),
+			success:function(){
+				console.log("Success");
+			}
+		});
+	});
+});
+-<!--#include file="ssi/footer.html"-->
