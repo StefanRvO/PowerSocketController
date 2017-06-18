@@ -3130,10 +3130,10 @@ Number of pins: &lt;b&gt;3&lt;/b&gt;&lt;b&gt;&lt;P&gt;
 <element name="C5" library="rcl" library_urn="urn:adsk.eagle:library:334" package="C0805" value="100nF" x="35.5" y="7.9"/>
 <element name="U$1" library="i2c" package="SO16" value="PCF8574AT" x="20.9" y="38.8" rot="MR90"/>
 <element name="JP1" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="2X09/90" value="" x="56.6" y="12.2" rot="R270"/>
-<element name="R8" library="rcl" package="R0805" value="1K" x="48.3" y="5" rot="R90"/>
-<element name="R9" library="rcl" package="R0805" value="1K" x="47.2" y="8.4"/>
-<element name="R5" library="rcl" package="R0805" value="1K" x="38.6" y="7.5" rot="R270"/>
-<element name="R6" library="rcl" package="R0805" value="1K" x="36.4" y="4.8" rot="R270"/>
+<element name="R8" library="rcl" package="R0805" value="2.5K" x="48.3" y="5" rot="R90"/>
+<element name="R9" library="rcl" package="R0805" value="2.5K" x="47.2" y="8.4"/>
+<element name="R5" library="rcl" package="R0805" value="2.5K" x="38.6" y="7.5" rot="R270"/>
+<element name="R6" library="rcl" package="R0805" value="2.5K" x="36.4" y="4.8" rot="R270"/>
 <element name="B1" library="Rembrandt" package="JST-XH-03-PACKAGE-LONG-PAD" value="JST-XH-03-PIN-LONG-PAD" x="7.4" y="25.8"/>
 <element name="B2" library="Rembrandt" package="JST-XH-03-PACKAGE-LONG-PAD" value="JST-XH-03-PIN-LONG-PAD" x="7.4" y="31.9"/>
 <element name="B3" library="Rembrandt" package="JST-XH-03-PACKAGE-LONG-PAD" value="JST-XH-03-PIN-LONG-PAD" x="7.4" y="38"/>

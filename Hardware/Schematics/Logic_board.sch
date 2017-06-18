@@ -15118,12 +15118,12 @@ Number of pins: &lt;b&gt;3&lt;/b&gt;&lt;b&gt;&lt;P&gt;
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
 <part name="P+7" library="supply1" deviceset="VCC" device=""/>
 <part name="JP1" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-2X9" device="/90"/>
-<part name="R8" library="rcl" deviceset="R-EU_" device="R0805" value="1K"/>
-<part name="R9" library="rcl" deviceset="R-EU_" device="R0805" value="1K"/>
+<part name="R8" library="rcl" deviceset="R-EU_" device="R0805" value="2.5K"/>
+<part name="R9" library="rcl" deviceset="R-EU_" device="R0805" value="2.5K"/>
 <part name="P+22" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+5V" device=""/>
 <part name="P+23" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+5V" device=""/>
-<part name="R5" library="rcl" deviceset="R-EU_" device="R0805" value="1K"/>
-<part name="R6" library="rcl" deviceset="R-EU_" device="R0805" value="1K"/>
+<part name="R5" library="rcl" deviceset="R-EU_" device="R0805" value="2.5K"/>
+<part name="R6" library="rcl" deviceset="R-EU_" device="R0805" value="2.5K"/>
 <part name="P+12" library="supply1" deviceset="VCC" device=""/>
 <part name="P+15" library="supply1" deviceset="VCC" device=""/>
 <part name="B1" library="Rembrandt" deviceset="JST-XH-03-PIN" device="-LONG-PAD"/>
