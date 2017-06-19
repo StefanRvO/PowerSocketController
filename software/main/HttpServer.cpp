@@ -243,8 +243,8 @@ void HttpServer::http_thread()
     if(use_ssl)
     {
         memset(&bind_opts, 0, sizeof(bind_opts));
-        bind_opts.ssl_cert = "/spiffs/ssl/cert.pem";
-        bind_opts.ssl_key = "/spiffs/ssl/key.pem";
+        bind_opts.ssl_cert = "/data/ssl/cert.pem";
+        bind_opts.ssl_key = "/data/ssl/key.pem";
 
         // Use bind_opts to specify SSL certificate & key file
         nc = mg_bind_opt(&mgr, this->port, this->ev_handler_wrapper, bind_opts);
@@ -263,12 +263,12 @@ void HttpServer::http_thread()
     //Create the http thread
     //struct mg_serve_http_opts s_http_server_opts;
     memset(&(this->s_http_server_opts), 0, sizeof((this->s_http_server_opts)));
-    this->s_http_server_opts.document_root = "/spiffs/html/";  // Serve spiffs fs.
+    this->s_http_server_opts.document_root = "/data/html/";
     this->s_http_server_opts.enable_directory_listing = "no";
     this->s_http_server_opts.index_files = "/index.shtml";
     //this->s_http_server_opts.per_directory_auth_file = ".htpasswd";
     this->s_http_server_opts.auth_domain = "all";
-    this->s_http_server_opts.global_auth_file = "/spiffs/htpasswd";
+    this->s_http_server_opts.global_auth_file = "/data/htpasswd";
 
     printf("Mongoose HTTP server successfully started!, serving on port %s\n", this->port);
     this->running = true;
