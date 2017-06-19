@@ -27,6 +27,16 @@ images: mkspiffs
 	echo "| Building spiffs.img |"
 	echo "+---------------------+"
 	${BUILD_DIR_BASE}/mkspiffs -c ${BUILD_DIR_BASE}/spiffs_files -b 65536 -p 256 -s 0x100000 ${BUILD_DIR_BASE}/spiffs.img
+fat_images:
+	echo "Resolving server side includes"
+	cp -R -T spiffs_files ${BUILD_DIR_BASE}/spiffs_files/
+	cd ${BUILD_DIR_BASE}/spiffs_files/html/; bash ${PROJECT_PATH}/SSI_parser.sh
+	echo "+---------------------+"
+	echo "| Building fatfs.img |"
+	echo "+---------------------+"
+	dd if=/dev/zero of=${BUILD_DIR_BASE}/fatfs.img count=1 bs=1M
+	mkfs.vfat ${BUILD_DIR_BASE}/fatfs.img
+	mcopy -si ${BUILD_DIR_BASE}/fatfs.img ${BUILD_DIR_BASE}/spiffs_files/* ::/
 
 flashdata: images
 	echo "Flashing SPIFFS to ESP32"

@@ -80,10 +80,7 @@ void cpp_main()
     printf("Initialised wifi!.\n");
     wifi_h->print_ap_settings();
     printf("Now initialising the filesystem.\n");
-    FilesystemHandler *fs_handler = FilesystemHandler::get_instance(0x220000 /*Start address on flash*/,
-                                 0x100000  /*Size*/,
-                                 (char *)"/spiffs"      /*Mount point */);
-    fs_handler->init_spiffs();
+    FilesystemHandler::register_filesystem("storage", "/spiffs/");
     xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
 
     __attribute__((unused)) const adc1_channel_t adc_channles[] = {
@@ -106,6 +103,7 @@ void cpp_main()
     do_startup_test();
 
     //Enter a inifite loop which performs tasks which should happen very unfrequent
+
     while(1)
     {
         t_keeper->do_update();
