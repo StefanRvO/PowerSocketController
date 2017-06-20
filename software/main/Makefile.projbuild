@@ -6,7 +6,6 @@ ALL_FLAGS += -ffunction-sections
 ALL_FLAGS += -fdata-sections
 ALL_FLAGS += -Wall
 ALL_FLAGS += -Wextra
-ALL_FLAGS += -Werror
 CXXFLAGS += ${ALL_FLAGS}
 CFLAGS += ${ALL_FLAGS}
 LDFLAGS += -ffunction-sections

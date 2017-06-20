@@ -15239,6 +15239,7 @@ Source: &lt;a href="http://www.hirose.co.jp/cataloge_hp/e53600014.pdf"&gt;http:/
 <part name="BUTTON2" library="con-hirose-df13" deviceset="DF13-3P-1.25" device="V"/>
 <part name="BUTTON1" library="con-hirose-df13" deviceset="DF13-3P-1.25" device="V"/>
 <part name="BUTTON3" library="con-hirose-df13" deviceset="DF13-3P-1.25" device="V"/>
+<part name="GND22" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -15337,6 +15338,7 @@ Source: &lt;a href="http://www.hirose.co.jp/cataloge_hp/e53600014.pdf"&gt;http:/
 <instance part="BUTTON2" gate="G$1" x="25.4" y="165.1"/>
 <instance part="BUTTON1" gate="G$1" x="25.4" y="193.04"/>
 <instance part="BUTTON3" gate="G$1" x="25.4" y="132.08"/>
+<instance part="GND22" gate="1" x="-12.7" y="15.24" rot="R270"/>
 </instances>
 <busses>
 </busses>
@@ -15529,6 +15531,14 @@ Source: &lt;a href="http://www.hirose.co.jp/cataloge_hp/e53600014.pdf"&gt;http:/
 <pinref part="R10" gate="G$1" pin="1"/>
 <pinref part="GND21" gate="1" pin="GND"/>
 <wire x1="20.32" y1="121.92" x2="22.86" y2="121.92" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="GND22" gate="1" pin="GND"/>
+<pinref part="U1" gate="G$1" pin="IO34"/>
+<wire x1="-10.16" y1="15.24" x2="-5.08" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="U1" gate="G$1" pin="IO35"/>
+<wire x1="-5.08" y1="15.24" x2="-5.08" y2="12.7" width="0.1524" layer="91"/>
+<junction x="-5.08" y="15.24"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -16300,6 +16310,7 @@ Source: &lt;a href="http://www.hirose.co.jp/cataloge_hp/e53600014.pdf"&gt;http:/
 <pinref part="R11" gate="G$1" pin="1"/>
 <wire x1="185.42" y1="-33.02" x2="185.42" y2="-30.48" width="0.1524" layer="91"/>
 <wire x1="185.42" y1="-30.48" x2="177.8" y2="-30.48" width="0.1524" layer="91"/>
+<junction x="177.8" y="-30.48"/>
 </segment>
 </net>
 <net name="AC1" class="0">
@@ -16311,6 +16322,7 @@ Source: &lt;a href="http://www.hirose.co.jp/cataloge_hp/e53600014.pdf"&gt;http:/
 <pinref part="R11" gate="G$1" pin="2"/>
 <wire x1="185.42" y1="-43.18" x2="185.42" y2="-45.72" width="0.1524" layer="91"/>
 <wire x1="185.42" y1="-45.72" x2="177.8" y2="-45.72" width="0.1524" layer="91"/>
+<junction x="177.8" y="-45.72"/>
 </segment>
 </net>
 </nets>

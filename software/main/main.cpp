@@ -80,7 +80,7 @@ void cpp_main()
     printf("Initialised wifi!.\n");
     wifi_h->print_ap_settings();
     printf("Now initialising the filesystem.\n");
-    FilesystemHandler::register_filesystem("storage", "/spiffs/");
+    FilesystemHandler::register_filesystem("storage", "/data");
     xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
 
     __attribute__((unused)) const adc1_channel_t adc_channles[] = {
