@@ -15217,7 +15217,7 @@ Source: &lt;a href="http://www.hirose.co.jp/cataloge_hp/e53600014.pdf"&gt;http:/
 <part name="U$1" library="i2c" deviceset="PCF8574" device="AT"/>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
 <part name="P+7" library="supply1" deviceset="VCC" device=""/>
-<part name="JP1" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-2X9" device="/90"/>
+<part name="JP1" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-2X9" device=""/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="R0805" value="2.5K"/>
 <part name="R9" library="rcl" deviceset="R-EU_" device="R0805" value="2.5K"/>
 <part name="P+22" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+5V" device=""/>
