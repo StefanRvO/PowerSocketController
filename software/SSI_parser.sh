@@ -18,4 +18,4 @@ replace() {
 while read f; do
   echo "parsing $f for SSI"
   replace "$f" > tmp_$$.tmp && mv tmp_$$.tmp "$f"
-done < <(find $search  -maxdepth 1 -name '*.shtml')
+done < <(find $search  -maxdepth 1 -name '*.html')

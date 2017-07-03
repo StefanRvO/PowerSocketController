@@ -7,7 +7,26 @@ extern "C"
 
 #include "FilesystemHandler.h"
 
-void listdir(const char *name, int level)
+void printfile(const char *name)
+{
+    printf("Printing context of:%s\n", name);
+    char buf[100];
+    FILE *file;
+    file = fopen(name, "rw");
+    if (file) {
+        while (fgets(buf, 50, file) != nullptr)
+        {
+            printf("%s", buf);
+        }
+        fclose(file);
+        printf("\n");
+    }
+
+}
+
+
+
+void printdir(const char *name, int level)
 {
     DIR *dir;
     struct dirent *entry;
@@ -25,10 +44,11 @@ void listdir(const char *name, int level)
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
                 continue;
             printf("%*s[%s]\n", level*2, "", entry->d_name);
-            listdir(path, level + 1);
+            printdir(path, level + 1);
         }
         else
             printf("%*s- %s\n", level*2, "", entry->d_name);
+            //printfile(entry->d_name);
     } while ( (entry = readdir(dir)) );
     closedir(dir);
 }
@@ -41,7 +61,7 @@ bool do_startup_test()
     printf("Now trying to read using VFS API!\n");
 
     FILE *file;
-    file = fopen("/data/html/README.md", "rw");
+    file = fopen("/data/html/index.html", "rw");
     if (file) {
         while (fgets(buf, 50, file) != nullptr)
         {
@@ -69,10 +89,10 @@ bool do_startup_test()
     struct stat stat_buf;
     printf("Stat result:%d\n",stat("/data/html/README.md", &stat_buf));
 
-    printf("Stat result:%d\n",stat("/data/html/.", &stat_buf));
+    printf("Stat result:%d\n",stat("/data/html/index.html.", &stat_buf));
     printf("Stat result:%d\n",stat("/data/ht/.", &stat_buf));
     printf("Stat result:%d\n",stat("/data/html", &stat_buf));
     printf("Stat result:%d\n",stat("/data/html/", &stat_buf));
-    listdir("/data/", 10);
+    //printdir("/data", 10);
     return true;
 }

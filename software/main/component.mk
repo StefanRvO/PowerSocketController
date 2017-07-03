@@ -3,7 +3,7 @@
 #
 # (Uses default behaviour of compiling all source files in directory, adding 'include' to include path.)
 
-ALL_FLAGS = -Wno-reorder
-
+CXXFLAGS += -Wno-reorder
+CXXFLAGS +=-Wno-switch
 CFLAGS += ${ALL_FLAGS}
 CXXFLAGS += ${ALL_FLAGS}

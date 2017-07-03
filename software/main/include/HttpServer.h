@@ -8,11 +8,21 @@
 #include "SwitchHandler.h"
 #include "TimeKeeper.h"
 #include "CurrentMeasurer.h"
+#include <libwebsockets.h>
+
 struct OTA_status
 {
     esp_ota_handle_t out_handle;
     esp_partition_t operate_partition;
 };
+
+//Struct to use for holding the session data when the /api/v1/get/ API is used
+struct get_api_session_data {
+	unsigned char *json_str;
+    uint32_t sent;
+    uint32_t len;
+};
+
 
 class HttpServer
 {
@@ -46,8 +56,12 @@ class HttpServer
         SwitchHandler *switch_handler = nullptr;
         CurrentMeasurer *cur_measurer = nullptr;
         TimeKeeper *t_keeper = nullptr;
-
+        static int get_callback(struct lws *wsi, enum lws_callback_reasons reason,
+        		    void *user, void *in, size_t len);
+        int create_get_callback_reply(get_api_session_data *session_data, char *request_uri);
     private:
+        struct lws_context *context;
+        struct lws_context_creation_info info;
         volatile bool running;
         bool use_ssl;
         int do_reboot = 0;

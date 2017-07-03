@@ -79,8 +79,8 @@ void cpp_main()
     __attribute__((unused)) WifiHandler *wifi_h = WifiHandler::get_instance();
     printf("Initialised wifi!.\n");
     wifi_h->print_ap_settings();
-    printf("Now initialising the filesystem.\n");
-    FilesystemHandler::register_filesystem("storage", "/data");
+    //printf("Now initialising the filesystem.\n");
+    //FilesystemHandler::register_filesystem("storage", "/data");
     xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
 
     __attribute__((unused)) const adc1_channel_t adc_channles[] = {
@@ -97,10 +97,10 @@ void cpp_main()
     printf("Startup done\n");
     HttpServer httpd_server("80");
     httpd_server.start();
-    HttpServer httpsd_server("443", true);
-    httpsd_server.start();
+    //HttpServer httpsd_server("443", true);
+    //httpsd_server.start();
     __attribute__((unused)) mDNSServer *mdns_server = mDNSServer::get_instance();
-    do_startup_test();
+    //do_startup_test();
 
     //Enter a inifite loop which performs tasks which should happen very unfrequent
 
