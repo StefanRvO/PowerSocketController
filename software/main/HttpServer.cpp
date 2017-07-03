@@ -6,9 +6,8 @@
 #include "cJSON.h"
 static const char *TAG = "HTTP_SERVER";
 /*We define this here as we need to access cpp functions from it.
-//Other relevant LWS structs are defined in lws_server_structs.c
+**Other relevant LWS structs are defined in lws_server_structs.c
 */
-
 
 static const struct lws_protocols __protocols[] = {
 	{
@@ -24,22 +23,6 @@ static const struct lws_protocols __protocols[] = {
 		0, 1, NULL, 900
     },
 	{ NULL, NULL, 0, 0, 0, NULL, 0 } /* terminator */
-};
-
-
-
-static const char * const param_names[] = {
-	"text",
-	"send",
-	"file",
-	"upload",
-};
-
-enum enum_param_names {
-	EPN_TEXT,
-	EPN_SEND,
-	EPN_FILE,
-	EPN_UPLOAD,
 };
 
 
@@ -106,14 +89,134 @@ bool HttpServer::stop()
     return true;
 }
 
+int HttpServer::handle_get_switch_state(get_api_session_data *session_data, char *request_uri)
+{
+    //Send the current state of the switches as json.
+    uint8_t switch_count = this->switch_handler->get_switch_count();
+    cJSON *root,*fmt;
+	root = cJSON_CreateObject();
+    cJSON_AddNumberToObject(root, "count", switch_count);
+    for(uint8_t i = 0; i < switch_count; i++)
+    { //Send data for each switch
+        char switch_name[10];
+        snprintf(switch_name, 10, "switch%d", i);
+        switch_state state = this->switch_handler->get_switch_state(i);
+        cJSON_AddItemToObject(root, switch_name, fmt=cJSON_CreateObject());
+        cJSON_AddNumberToObject(fmt, "id", i);
+        cJSON_AddNumberToObject(fmt, "state", state);
+    }
+    session_data->json_str = (unsigned char *)cJSON_PrintBuffered(root,  switch_count * 20 + 15, 1);
+    cJSON_Delete(root);
+    return 0;
+}
+
+int HttpServer::handle_get_uptime(get_api_session_data *session_data, char *request_uri)
+{
+	cJSON *root = cJSON_CreateObject();
+    cJSON_AddNumberToObject(root, "uptime", this->t_keeper->get_uptime());
+    session_data->json_str = (unsigned char *)cJSON_PrintBuffered(root,  20, 1);
+    cJSON_Delete(root);
+    return 0;
+}
+
+
+int HttpServer::handle_get_calibrations(get_api_session_data *session_data, char *request_uri)
+{
+    cJSON *root,*fmt;
+	root = cJSON_CreateObject();
+    uint8_t count = this->cur_measurer->get_current_count();
+    cJSON_AddNumberToObject(root, "count", count);
+
+    for(uint8_t i = 0; i < count; i++)
+    {   //Send data for each calibration
+        char calib_name[10];
+        CurrentCalibration cur_calib;
+        this->cur_measurer->load_current_calibration(i, cur_calib);
+        snprintf(calib_name, 10, "ccalib%d", i);
+        cJSON_AddItemToObject(root, calib_name, fmt=cJSON_CreateObject());
+        cJSON_AddNumberToObject(fmt, "id", i);
+        cJSON_AddNumberToObject(fmt, "conversion",  cur_calib.conversion);
+        cJSON_AddNumberToObject(fmt, "bias_on",     cur_calib.bias_on.last.bias);
+        cJSON_AddNumberToObject(fmt, "bias_off",    cur_calib.bias_off.last.bias);
+        cJSON_AddNumberToObject(fmt, "stddev_on",   cur_calib.bias_on.last.stddev);
+        cJSON_AddNumberToObject(fmt, "stddev_off",  cur_calib.bias_off.last.stddev);
+        cJSON_AddNumberToObject(fmt, "calibrated",  cur_calib.bias_on.last.completed);
+    }
+    session_data->json_str = (unsigned char *)cJSON_PrintBuffered(root,  count * 100 + 10, 1);
+    cJSON_Delete(root);
+    return 0;
+}
+
+int HttpServer::handle_get_ip_info(get_api_session_data *session_data, char *request_uri, tcpip_adapter_if_t adapter)
+{
+    if(adapter != TCPIP_ADAPTER_IF_AP and adapter != TCPIP_ADAPTER_IF_STA)
+        return 1;
+    tcpip_adapter_ip_info_t ip_info;
+    ESP_ERROR_CHECK (tcpip_adapter_get_ip_info (adapter , &ip_info));
+    char *ip_str, *gw_str, *nm_str, *ssid_name = nullptr;
+    uint8_t enabled = 0;
+    ip_str = (char *)malloc(16);
+    gw_str = (char *)malloc(16);
+    nm_str = (char *)malloc(16);
+    strcpy(ip_str,inet_ntoa(ip_info.ip));
+    strcpy(gw_str,inet_ntoa(ip_info.gw));
+    strcpy(nm_str,inet_ntoa(ip_info.netmask));
+
+    //Retrieve ssid settings
+    if(adapter == TCPIP_ADAPTER_IF_AP)
+    {
+        size_t ssid_len = 0;
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_SSID", (char *)nullptr, &ssid_len) );
+        ssid_name = (char *)malloc(ssid_len);
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("AP_SSID", ssid_name, &ssid_len) );
+        //Se if the AP is enabled
+        wifi_mode_t mode;
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("WIFI_MODE", (uint32_t *)(&mode)));
+        if(mode == WIFI_MODE_APSTA)
+            enabled = 1;
+    }
+    if(adapter == TCPIP_ADAPTER_IF_STA)
+    {
+        size_t ssid_len = 0;
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("STA_SSID", (char *)nullptr, &ssid_len) );
+        ssid_name = (char *)malloc(ssid_len);
+        ESP_ERROR_CHECK( this->s_handler->nvs_get("STA_SSID", ssid_name, &ssid_len) );
+        //For now, station mode is always enabled
+        enabled = 1;
+    }
+    cJSON *root;
+	root = cJSON_CreateObject();
+    cJSON_AddNumberToObject(root, "enabled", enabled);
+    cJSON_AddStringToObject(root, "ssid", ssid_name);
+    cJSON_AddStringToObject(root, "ip", ip_str);
+    cJSON_AddStringToObject(root, "gw", gw_str);
+    cJSON_AddStringToObject(root, "nm", nm_str);
+    free(ssid_name); //This is allocated in the above if - else blocks (adapter == something).
+                     //This also means that the adapter NEEDS to be one of the types we are checking or,
+                     //We will free an unallocated piece of memory (very bad!).
+                     //Check at function entry if the adapter is one of the supported ones..
+    free(ip_str);
+    free(gw_str);
+    free(nm_str);
+    session_data->json_str = (unsigned char *)cJSON_PrintBuffered(root,  100, 1);
+    cJSON_Delete(root);
+    return 0;
+}
+
+
 int HttpServer::create_get_callback_reply(get_api_session_data *session_data, char *request_uri)
 {
-    static const char * static_response= "{A:0}";
-    session_data->json_str = (unsigned char *)malloc(10);
-    strncpy((char *)session_data->json_str, static_response, 10);
-    session_data->sent = 0;
-    session_data->len = strlen((char *)session_data->json_str);
-    return 0;
+    if(strcmp(request_uri, "/switch_state") == 0)
+        return handle_get_switch_state(session_data, request_uri);
+    if(strcmp(request_uri, "/current_calibrations") == 0)
+        return handle_get_calibrations(session_data, request_uri);
+    if(strcmp(request_uri, "/sta_info") == 0)
+        return handle_get_ip_info(session_data, request_uri, TCPIP_ADAPTER_IF_STA);
+    if(strcmp(request_uri, "/ap_info") == 0)
+        return handle_get_ip_info(session_data, request_uri, TCPIP_ADAPTER_IF_AP);
+    if(strcmp(request_uri, "/uptime") == 0)
+        return handle_get_uptime(session_data, request_uri);
+    return 2; //This results in a 404 being sent
 }
 
 
@@ -126,6 +229,7 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
     int n,m = 0;
     unsigned char buffer[1024 + LWS_PRE];
     unsigned char *p, *end;
+    int json_result;
     get_api_session_data *session_data = (get_api_session_data *)user;
 	switch (reason) {
     	case LWS_CALLBACK_HTTP:
@@ -134,10 +238,18 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
             end = p + sizeof(buffer) - LWS_PRE;
             ESP_LOGD(TAG, "get_callback: line %d\n", __LINE__);
             ESP_LOGI(TAG, "lws_http_serve: %s\n", (const char *)in);
-            //*((int *)nullptr) = 9;
-            if( ((HttpServer *)lws_context_user(lws_get_context(wsi)))->create_get_callback_reply(session_data, (char *)in) ||
+            json_result = ((HttpServer *)lws_context_user(lws_get_context(wsi)))->create_get_callback_reply(session_data, (char *)in);
+            if( json_result != 0 ||
                 session_data->json_str == nullptr)
+            {
+                if(json_result == 2)
+                    lws_return_http_status(wsi, HTTP_STATUS_NOT_FOUND, NULL);
+                    goto try_to_reuse;
                 goto header_failure;
+            }
+            session_data->len = strlen((char *)session_data->json_str);
+            session_data->sent = 0;
+
             ESP_LOGD(TAG, "get_callback: line %d\n", __LINE__);
             if (lws_add_http_header_status(wsi, HTTP_STATUS_OK, &p, end))
                 goto header_failure;
