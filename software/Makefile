@@ -34,5 +34,5 @@ release: all
 	echo "| Creating release    |"
 	echo "+---------------------+"
 	mkdir -p ${BUILD_DIR_BASE}/release
-	cp ${BUILD_DIR_BASE}/partitions.bin ${BUILD_DIR_BASE}/PowerSocket.bin ${BUILD_DIR_BASE}/release/
+	cp ${BUILD_DIR_BASE}/partitions.bin ${BUILD_DIR_BASE}/software.bin ${BUILD_DIR_BASE}/release/
 	tar -zcvf ${BUILD_DIR_BASE}/release.tar.gz -C ${BUILD_DIR_BASE}/release .
