@@ -2,9 +2,6 @@
 [submodule "software/components/spiffs/spiffs"]
 	path = software/components/spiffs/spiffs
 	url = https://github.com/pellepl/spiffs.git
-[submodule "software/build_tools/Lua-RTOS-ESP32"]
-	path = software/build_tools/Lua-RTOS-ESP32
-	url = https://github.com/whitecatboard/Lua-RTOS-ESP32.git
 [submodule "software/components/libwebsockets"]
 	path = software/components/libwebsockets
 	url = https://github.com/warmcat/libwebsockets.git
