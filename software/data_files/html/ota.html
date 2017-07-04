@@ -1,46 +1,71 @@
--<!--#include file="ssi/header.html"-->
-<style>
-.fileUpload {
-position: relative;
-overflow: hidden;
-margin: 10px;
-}
+<!--#include file="ssi/header.html"-->
+<style type="text/css">
+    .progr {
+        width: 100%;
+        height: 32px;
+        background-color: rgba(240, 240, 24, 0.6);
+        color: #c0c0c0;
+    }
 
-.fileUpload input.upload {
-position: absolute;
-top: 0;
-right: 0;
-margin: 0;
-padding: 0;
-font-size: 20px;
-cursor: pointer;
-opacity: 0;
-filter: alpha(opacity=0);
-}
+    .progr-ok {
+        width: 100%;
+        height: 32px;
+        background-color: rgba(240, 240, 24, 1.0);
+        color: #e0e060;
+    }
+
+    .progr-fail {
+        width: 100%;
+        height: 32px;
+        background-color: rgba(240, 240, 24, 1.0);
+        color: #c00000;
+    }
+
+    .progr-done {
+        width: 100%;
+        height: 32px;
+        background-color: rgba(240, 240, 24, 1.0);
+        color: #00c000;
+    }
+
 </style>
-<div id="main">
-<div class="header">
-<h1>OTA Upgrade!</h1>
-<h2>Upload new firmware to the device and perform an upgrade Over The Air!</h2>
-</div>
-<div class="content">
-<h2 class="content-subhead">Upload firmware</h2>
-<p>
-Select a firmware file you want flashed to the device.
-Currently, we only supports flashing a new firmware. <br>Flashing the filesystem may be supported at a later time.
-</p>
 
-<form method="POST" id="FormOTA" enctype="multipart/form-data">
-<input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
-<div class="fileUpload pure-button pure-button-primary">
-<span>Select File</span>
-<input id="ota_upload" type="file" name="file" class="upload" />
-</div>
-<br>
-<br>
-<input type="submit" value="Upload" class="pure-button button-warning">
-</form>
-</div>
+
+<div id="main">
+    <div class="header">
+        <h1>OTA Upgrade!</h1>
+        <h2>Upload new firmware to the device and perform an upgrade Over The Air!</h2>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead">Upload firmware</h2>
+        <p>
+            Select a firmware file you want flashed to the device.
+
+            <form name=multipart action="/api/v1/ota/" method="post" enctype="multipart/form-data" onsubmit="do_upload(this); return false;">
+                <table>
+                    <tr>
+                        <td>
+                            <input type="file" name="ota" id="ota" size="20" accept=".bin" onchange="file_change();" style="font-size: 12pt">
+                        </td>
+                        <td colspan=2>
+                            <span id=file_info style="font-size:12pt;"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan=3>
+                            <input type="submit" id="update" name="upload" disabled value="Upload" style="font-size: 18pt">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan=3>
+                            <progress id=progr value=0 max=100 class=progr>Upload Progress</progress>
+                        </td>
+                    </tr>
+                </table>
+                </td>
+                </tr>
+                </table>
+            </form>
+    </div>
 </div>
 
 </div>
@@ -48,22 +73,42 @@ Currently, we only supports flashing a new firmware. <br>Flashing the filesystem
 <script src="js/ui.js"></script>
 <script src="js/jquery.min.js"></script>
 <script>
-document.getElementById("ota_upload").onchange = function() {
-	document.getElementById("ota_upload_file").value = this.value;
-};
 
-$( document ).ready(function() {
-	// POST firmware
-	$('#FormOTA').submit(function(e){
-		e.preventDefault();
-		$.ajax({
-			url:'/api/v1/post/ota_upload',
-			type:'POST',
-			data:$('#FormOTA').serialize(),
-			success:function(){
-				console.log("Success");
-			}
-		});
-	});
-});
--<!--#include file="ssi/footer.html"-->
+    function do_upload(f) {
+        var xhr = new XMLHttpRequest();
+
+        document.getElementById('update').disabled = 1;
+        document.getElementById("progr").class = "progr-ok";
+
+        xhr.upload.addEventListener("progress", function(e) {
+            document.getElementById("progr").value = parseInt(e.loaded / e.total * 100);
+
+            if (e.loaded == e.total) {
+            }
+
+        }, false);
+
+        xhr.onreadystatechange = function(e) {
+            console.log("rs" + xhr.readyState + " status " + xhr.status);
+            if (xhr.readyState == 4) {
+                document.getElementById("progr").class = "progr-ok";
+                setTimeout(function() {
+                    window.location.href = location.origin + "/";
+                }, 1000);
+            }
+        };
+
+        xhr.open("POST", f.action, true);
+        xhr.send(new FormData(f));
+
+        return false;
+    }
+
+    function file_change() {
+        document.getElementById('update').disabled = 0;
+    }
+</script>
+
+
+
+    <!--#include file="ssi/footer.html"-->

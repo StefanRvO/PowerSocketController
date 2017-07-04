@@ -13,8 +13,8 @@ include $(IDF_PATH)/make/project.mk
 include sdkconfig
 include ${PWD}/components/libwebsockets/scripts/esp32.mk
 CFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
-
-
+CXXFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
+GENCERTS = 0
 
 romfs_prepare:
 	echo "Resolving server side includes"
