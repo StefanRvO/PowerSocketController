@@ -4,6 +4,7 @@
 #include "esp_err.h"
 #include "lws_server_structs.h"
 #include "cJSON.h"
+#include <arpa/inet.h>
 static const char *TAG = "HTTP_SERVER";
 /*We define this here as we need to access cpp functions from it.
 **Other relevant LWS structs are defined in lws_server_structs.c

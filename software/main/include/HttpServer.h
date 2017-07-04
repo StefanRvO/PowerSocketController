@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include "mongoose.h"
 #include "esp_ota_ops.h"
 #include "esp_partition.h"
 

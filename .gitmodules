@@ -2,9 +2,6 @@
 [submodule "software/components/spiffs/spiffs"]
 	path = software/components/spiffs/spiffs
 	url = https://github.com/pellepl/spiffs.git
-[submodule "software/components/mongoose/mongoose"]
-	path = software/components/mongoose/mongoose
-	url = https://github.com/StefanRvO/mongoose.git
 [submodule "software/build_tools/Lua-RTOS-ESP32"]
 	path = software/build_tools/Lua-RTOS-ESP32
 	url = https://github.com/whitecatboard/Lua-RTOS-ESP32.git
