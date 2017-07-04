@@ -64,7 +64,7 @@ $( document ).ready(function update_checkbox() {
                 $.ajax({
                         type: "POST",
                         url: "/api/v1/post/toggle_switch",
-                        data: switch_name  + "=" + (switch_state ? 1 : 0),
+                        data: "{\"" + switch_name   + "\":" + (switch_state ? 1 : 0) + "}",
                         cache: false,
                         success: function(result){
                                 console.log(result);

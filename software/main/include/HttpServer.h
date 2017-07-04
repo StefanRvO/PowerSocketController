@@ -23,6 +23,12 @@ struct get_api_session_data {
     uint32_t len;
 };
 
+struct post_api_session_data {
+    uint32_t total_post_length;
+    char post_data[1024];
+    char post_uri[40];
+};
+
 
 class HttpServer
 {
@@ -33,19 +39,12 @@ class HttpServer
         bool stop();
         const char *port;
         static void http_thread_wrapper(void *PvParameters);
-        static void ev_handler_wrapper(struct mg_connection *c, int ev, void *p);
         void http_thread();
-        static void OTA_endpoint(struct mg_connection *c, int ev, void *p);
-        static void reboot(struct mg_connection *c, int ev, void *p);
-        static void reset(struct mg_connection *c, int ev, void *p);
-        static void SWITCH_ENDPOINT(struct mg_connection *c, int ev, void *p);
-        static void RECALIB_CURRENT_ENDPOINT(struct mg_connection *c, int ev, void *p);
-
-        static void index(struct mg_connection *c, int ev, void *p);
-        static void SETTING(struct mg_connection *c, int ev, void *p);
         bool ota_init();
         OTA_status ota_status;
         static int get_callback(struct lws *wsi, enum lws_callback_reasons reason,
+        		    void *user, void *in, size_t len);
+        static int post_callback(struct lws *wsi, enum lws_callback_reasons reason,
         		    void *user, void *in, size_t len);
         int create_get_callback_reply(get_api_session_data *session_data, char *request_uri);
     private:
@@ -59,10 +58,13 @@ class HttpServer
         volatile bool running;
         bool use_ssl;
         int do_reboot = 0;
+        int handle_post_data(post_api_session_data *session_data);
         int handle_get_switch_state(get_api_session_data *session_data, char *request_uri);
         int handle_get_ip_info(get_api_session_data *session_data, char *request_uri, tcpip_adapter_if_t adapter);
         int handle_get_uptime(get_api_session_data *session_data, char *request_uri);
         int handle_get_calibrations(get_api_session_data *session_data, char *request_uri);
-
+        int post_set_ap(post_api_session_data *session_data);
+        int post_set_sta(post_api_session_data *session_data);
+        int post_set_switch_state(post_api_session_data *session_data);
 
 };

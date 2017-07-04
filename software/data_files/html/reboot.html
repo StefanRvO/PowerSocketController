@@ -10,7 +10,7 @@
             Perform a restart of the device.
             <br>A reboot takes about 5 seconds.
         </p>
-        <form method="POST" action="/api/v1/post/reboot">
+        <form method="POST" action="/api/v1/post/reboot", id="formReboot">
             <input type="submit" class="pure-button button-warning" value="Reboot">
         </form>
         <h2 class="content-subhead">Perform Reset</h2>
@@ -18,11 +18,51 @@
             Perform a reset of all settings on the device
             <br> This will reset the all settings to factory defaults and reboot afterwards
         </p>
-        <form method="POST" action="/api/v1/post/reset">
+        <form method="POST" action="/api/v1/post/reset", id="formReset">
             <input type="submit" class="pure-button button-error" value="Reset">
         </form>
     </div>
 </div>
+
 <!--#include file="ssi/com_js.html"-->
+
+<script src="js/jquery.serialize-object.min.js"></script>
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+
+        // Submit reset form
+        $('form#formReset').submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/api/v1/post/reset',
+                type: 'POST',
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: $('form#formReset').serializeJSON(),
+                success: function() {
+                    console.log("Success");
+                }
+            });
+        });
+
+        // Submit reboot form
+        $('form#formReboot').submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/api/v1/post/reboot',
+                type: 'POST',
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: $('form#formReboot').serializeJSON(),
+                success: function() {
+                    console.log("Success");
+                }
+            });
+        });
+
+    });
+
+</script>
 
 <!--#include file="ssi/footer.html"-->

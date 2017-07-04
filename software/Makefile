@@ -20,7 +20,7 @@ romfs_prepare:
 	echo "Resolving server side includes"
 	cp -R -T data_files ${BUILD_DIR_BASE}/data_files/
 	cd ${BUILD_DIR_BASE}/data_files/html/; bash ${PROJECT_PATH}/SSI_parser.sh
-	cd ${BUILD_DIR_BASE}/data_files/html/; zip -r ${BUILD_DIR_BASE}/data_files/html.zip .
+	cd ${BUILD_DIR_BASE}/data_files/html/; zip -9 -r ${BUILD_DIR_BASE}/data_files/html.zip .
 	rm -Rf ${BUILD_DIR_BASE}/data_files/html/
 	echo "+---------------------------------------------------+"
 	echo "| Copying to romfs_files as libwebsockets want this |"

@@ -30,7 +30,7 @@
         $( document ).ready(function() {
           $.ajax({
             url: '/api/v1/get/ap_info',
-            method: 'POST',
+            method: 'GET',
             dataType: 'json',
             data: {},
             success: function(json) {
@@ -43,7 +43,7 @@
       $( document ).ready(function() {
         $.ajax({
           url: '/api/v1/get/sta_info',
-          method: 'POST',
+          method: 'GET',
           dataType: 'json',
           data: {},
           success: function(json) {
@@ -57,7 +57,7 @@
     (function worker() {
   $.ajax({
       url: '/api/v1/get/uptime',
-      method: 'POST',
+      method: 'GET',
       dataType: 'json',
       data: {},
       success: function(json) {

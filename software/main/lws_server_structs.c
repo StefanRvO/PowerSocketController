@@ -10,13 +10,30 @@ const struct lws_protocol_vhost_options __pvo_headers = {
 	"timeout=15, max=20",
 };
 
-const struct lws_protocol_vhost_options __get_pvo = {
+const struct lws_protocol_vhost_options __post_pvo = {
 	NULL,
+	NULL,
+	"post",
+	""
+};
+
+const struct lws_protocol_vhost_options __get_pvo = {
+	&__post_pvo,
 	NULL,
 	"get",
 	""
 };
+
+const struct lws_http_mount __post_mount = {
+	    .mountpoint		= "/api/v1/post/",
+        .origin			= "post",
+        .origin_protocol	= LWSMPRO_CALLBACK,
+        .mountpoint_len		= 12,
+        .protocol = "post",
+};
+
 const struct lws_http_mount __get_mount = {
+        .mount_next     = &__post_mount,
 	    .mountpoint		= "/api/v1/get/",
         .origin			= "get",
         .origin_protocol	= LWSMPRO_CALLBACK,

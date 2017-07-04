@@ -1,200 +1,144 @@
--<!--#include file="ssi/header.html"-->
+<!--#include file="ssi/header.html"-->
 <link href="css/switch.css" rel="stylesheet">
 
 <div id="main">
-<div class="header">
-<h1>Settings</h1>
-<h2>Change various settings on the device</h2>
-</div>
-<div class="content">
-<h2 class="content-subhead">Station settings</h2>
-<p>
-Change settings for which access point the device connects to.
-</p>
+    <div class="header">
+        <h1>Settings</h1>
+        <h2>Change various settings on the device</h2>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead">Station settings</h2>
+        <p>
+            Change settings for which access point the device connects to.
+        </p>
 
-<!-- STA settings -->
-<form method="POST" class="pure-form pure-form-stacked" id="FormSTASettings">
-<fieldset>
-<div class="pure-control-group">
-<label  for="sta_ssid">Station SSID:</label>
-<input type="text" name="sta_ssid" id="sta_ssid" value="" >
-</div>
-<div class="pure-control-group">
+        <!-- STA settings -->
+        <form method="POST" class="pure-form pure-form-stacked" id="FormSTASettings">
+            <fieldset>
+                <div class="pure-control-group">
+                    <label for="sta[ssid]">Station SSID:</label>
+                    <input type="text" name="sta[ssid]" id="sta[ssid]" value="">
+                </div>
+                <div class="pure-control-group">
 
-<label  for="sta_passwd">Station Password</label>
-<input type="password" name="sta_passwd" id="sta_passwd" >
-</div>
+                    <label for="sta[passwd]">Station Password</label>
+                    <input type="password" name="sta[passwd]" id="sta[passwd]">
+                </div>
 
-<div class="pure-controls">
-<label  for="submit"></label>
-<button id="submit" name="submit" class="pure-button">Accept</button>
-</div>
-</fieldset>
+                <div class="pure-controls">
+                    <label for="submit"></label>
+                    <button id="submit" name="submit" class="pure-button">Accept</button>
+                </div>
+            </fieldset>
 
-</form>
-<h2 class="content-subhead">Access Point Settings</h2>
-<p>
-Change settings for the access point hosted by the device.
-</p>
-<form method="POST" class="pure-form pure-form-stacked" id="FormAPSettings">
-<fieldset>
-<div class="pure-control-group">
-<label for="ap_ssid">Access Point SSID:</label>
-<input type="text" name="ap_ssid" id="ap_ssid" value="">
-</div>
+        </form>
+        <h2 class="content-subhead">Access Point Settings</h2>
+        <p>
+            Change settings for the access point hosted by the device.
+        </p>
+        <form method="POST" class="pure-form pure-form-stacked" id="FormAPSettings">
+            <fieldset>
+                <div class="pure-control-group">
+                    <label for="ap[ssid]">Access Point SSID:</label>
+                    <input type="text" name="ap[ssid]" id="ap[ssid]" value="">
+                </div>
 
-<div class="pure-control-group">
-<label for="ap_ip_title">Access Point IP:</label>
-<input type="text" name="ap_ip" id="ap_ip" value="" title="Access Point IP">
-</div>
-<div class="pure-control-group">
-<label for="ap_gw_title">Access Point Gateway:</label>
-<input type="text" name="ap_gw" id="ap_gw" value="" title="Access Point GW">
-</div>
+                <div class="pure-control-group">
+                    <label for="ap_ip_title">Access Point IP:</label>
+                    <input type="text" name="ap[ip]" id="ap[ip]" value="" title="Access Point IP">
+                </div>
+                <div class="pure-control-group">
+                    <label for="ap_gw_title">Access Point Gateway:</label>
+                    <input type="text" name="ap[gw]" id="ap[gw]" value="" title="Access Point GW">
+                </div>
 
-<div class="pure-control-group">
-<label for="ap_netmask_title">Access Point Netmask:</label>
-<input type="text" name="ap_netmask" id="ap_netmask" value="" title="Access Point netmask">
-</div>
-<input type='hidden' value='0' name='ap_enable'>
+                <div class="pure-control-group">
+                    <label for="ap_netmask_title">Access Point Netmask:</label>
+                    <input type="text" name="ap[netmask]" id="ap[netmask]" value="" title="Access Point netmask">
+                </div>
+                <input type='hidden' value='0' name='ap[enable]'>
 
-<div class="pure-control-group checkbox-switch">
-<input type="checkbox" value='1' class="input-checkbox" id="ap_enable" name='ap_enable' >
-<div class="checkbox-animate">
-<span class="checkbox-off">OFF</span>
-<span class="checkbox-on">ON</span>
-</div>
-</div>
-<div class="pure-controls">
-<button id="submit" name="submit" class="pure-button">Accept</button>
-</div>
+                <div class="pure-control-group checkbox-switch">
+                    <input type="checkbox" value='1' class="input-checkbox" id='ap[enable]' name='ap[enable]'>
+                    <div class="checkbox-animate">
+                        <span class="checkbox-off">OFF</span>
+                        <span class="checkbox-on">ON</span>
+                    </div>
+                </div>
+                <div class="pure-controls">
+                    <button id="submit" name="submit" class="pure-button">Accept</button>
+                </div>
 
-</fieldset>
+            </fieldset>
 
-</form>
+        </form>
 
-<!-- Login settings -->
-<h2 class="content-subhead">Login Settings</h2>
-<p>
-Change the username and password used to authenticate with the device.<br>
-Not implemented at the moment.
-</p>
+        <script src="js/ui.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/jquery.serialize-object.min.js"></script>
 
-<form method="POST" class="pure-form pure-form-stacked" id="FormLoginSettings">
-<fieldset>
-
-<!-- user input-->
-<div class="pure-control-group">
-<label  for="piCurrUser">Current Username</label>
-<input id="curr_user=" name="curr_user" type="text" placeholder=""  required="">
-</div>
-<!-- Password input-->
-<div class="pure-control-group">
-<label  for="piCurrPass">Current Password</label>
-<input id="curr_password" name="curr_password" type="password" placeholder=""  required="">
-</div>
-
-<div class="pure-control-group">
-<label  for="piNewUser">New Username</label>
-<input id="new_user" name="new_user" type="text" placeholder=""  required="">
-</div>
-<!-- Password input-->
-<div class="pure-control-group">
-<label  for="piNewPass">New Password</label>
-<input id="new_password" name="new_password" type="password" placeholder=""  required="">
-</div>
-
-<!-- Password input-->
-<div class="pure-control-group">
-<label  for="piNewPassRepeat">Repeat New Password</label>
-<input id="password_repeat" name="password_repeat" type="password" placeholder=""  required="">
-</div>
-
-<!-- Button -->
-<div class="pure-control-group">
-<label  for="bCancel"></label>
-<button id="bAccept" name="bAccept" class="pure-button">Accept</button>
-</div>
-
-</fieldset>
-</form>
-</div>
-</div>
-</div>
-
-<script src="js/ui.js"></script>
-<script src="js/jquery.min.js"></script>
-
-<!-- Fetch values from the server -->
-<script language="javascript" type="text/javascript">
-$( document ).ready(function() {
+        <!-- Fetch values from the server -->
+        <script language="javascript" type="text/javascript">
+            $(document).ready(function() {
 
 
-	// Submit STA form
-	$('#FormSTASettings').submit(function(e){
-	    e.preventDefault();
-	    $.ajax({
-	        url:'/api/v1/post/STA_SSID',
-	        type:'POST',
-	        data:$('#FormSTASettings').serialize(),
-	        success:function(){
-//			console.log("Success");
-	        }
-	    });
-	});
+                // Submit STA form
+                $('form#FormSTASettings').submit(function(e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: '/api/v1/post/STA_SSID',
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType:"application/json; charset=utf-8",
+                        data: $('form#FormSTASettings').serializeJSON(),
+                        success: function() {
+                            			console.log("Success");
+                        }
+                    });
+                });
 
-	// Submit AP form
-	$('#FormAPSettings').submit(function(e){
-	    e.preventDefault();
-	    $.ajax({
-	        url:'/api/v1/post/AP_SSID',
-	        type:'POST',
-	        data:$('#FormAPSettings').serialize(),
-	        success:function(){
-//			console.log("Success");
-	        }
-	    });
-	});
+                // Submit AP form
+                $('form#FormAPSettings').submit(function(e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: '/api/v1/post/AP_SSID',
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType:"application/json; charset=utf-8",
+                        data: $('form#FormAPSettings').serializeJSON(),
+                        success: function() {
+                            			console.log("Success");
+                        }
+                    });
+                });
 
-	// Submit login settings form
-	$('#FormLoginSettings').submit(function(e){
-	    e.preventDefault();
-	    $.ajax({
-	        url:'/api/v1/post/htpasswd',
-	        type:'POST',
-	        data:$('#FormLoginSettings').serialize(),
-	        success:function(){
-//			console.log("Success");
-	        }
-	    });
-	});
+                // Get station AP information
+                $.ajax({
+                    url: '/api/v1/get/sta_info',
+                    method: 'GET',
+                    dataType: 'json',
+                    data: {},
+                    success: function(json) {
+                        $('#sta\\[ssid\\]').val(json.ssid);
+                    }
+                });
 
-	// Get station AP information
-	$.ajax({
-		url: '/api/v1/get/sta_info',
-		method: 'GET',
-		dataType: 'json',
-		data: {},
-		success: function(json) {
-			$('#sta_ssid').val(json.ssid);
-		}
-	});
+                // Get AP information
+                $.ajax({
+                    url: '/api/v1/get/ap_info',
+                    method: 'GET',
+                    dataType: 'json',
+                    data: {},
+                    success: function(json) {
+                        $('#ap\\[ip\\]').val(json.ip);
+                        $('#ap\\[gw\\]').val(json.gw);
+                        $('#ap\\[netmask\\]').val(json.nm);
+                        $('#ap\\[ssid\\]').val(json.ssid);
+                        $("#ap\\[enable\\]").prop("checked", parseInt(json.enabled));
+                    }
+                });
 
-	// Get AP information
-	$.ajax({
-		url: '/api/v1/get/ap_info',
-		method: 'GET',
-		dataType: 'json',
-		data: {},
-		success: function(json) {
-			$('#ap_ip').val(json.ip);
-			$('#ap_gw').val(json.gw);
-			$('#ap_netmask').val(json.nm);
-			$('#ap_ssid').val(json.ssid);
-			$("#ap_enable").prop( "checked", parseInt(json.enabled));
-		}
-	});
-
-});
-</script>
--<!--#include file="ssi/footer.html"-->
+            });
+        </script>
+        -
+        <!--#include file="ssi/footer.html"-->
