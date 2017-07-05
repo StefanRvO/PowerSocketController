@@ -7,6 +7,10 @@
 __attribute__((unused)) static const char *TAG = "LoginManager";
 
 LoginManager *LoginManager::instance = nullptr;
+Session LoginManager::sessions[MAX_SESSIONS];
+
+#define DEFAULT_USER "admin"
+#define DEFAULT_USER_PASSWD "password"
 
 Session::Session(char *_username, user_type _type, uint64_t current_time)
 :valid(true), created(current_time), last_used(current_time), u_type(_type)
@@ -68,12 +72,36 @@ login_error LoginManager::remove_user(char *username)
 
 login_error LoginManager::logout(char *username)
 {
+    bool found = false;
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
     Session *session = this->get_session(username);
-    if(session != nullptr) session->valid = false;
+    if(session != nullptr)
+    {
+        session->valid = false;
+        found = true;
+    }
     xSemaphoreGive(this->session_lock);
+    if(!found) return session_invalid;
     return no_error;
 }
+
+login_error LoginManager::get_user_type(session_key *session_id, user_type *type)
+{
+    bool found = false;
+    xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
+    Session *session = this->get_session(session_id);
+    if(session != nullptr)
+    {
+        *type = session->u_type;
+        found = true;
+    }
+    else *type = no_access;
+    xSemaphoreGive(this->session_lock);
+    if(!found) return session_invalid;
+    return no_error;
+}
+
+
 
 login_error LoginManager::get_username(char *username, session_key *session_id)
 {
@@ -93,6 +121,7 @@ login_error LoginManager::get_username(char *username, session_key *session_id)
 login_error LoginManager::perform_login(char *username, char *passwd, session_key *session)
 {
     size_t len = 0;
+    if(!username or !passwd or !session) return fatal_error;
     esp_err_t err = nvs_get_blob(this->nvs_login_handle, username, (char *)nullptr, &len);
     if(err != ESP_OK) return invalid_username;
     User *loaded_user = (User *)malloc(sizeof(User));
@@ -110,6 +139,7 @@ login_error LoginManager::perform_login(char *username, char *passwd, session_ke
     free(hash);
     if(cmp_result != 0) return invalid_password;
     return this->create_session(username, admin, session, this->time_keeper->get_uptime_milliseconds());
+
 }
 login_error LoginManager::is_valid(session_key *session_id)
 {
@@ -128,18 +158,34 @@ login_error LoginManager::is_valid(session_key *session_id)
 
 login_error LoginManager::logout(session_key *session_id)
 {
+    bool found = false;
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
     Session *session = this->get_session(session_id);
     if(session != nullptr) session->valid = false;
+    {
+        session->valid = false;
+        found = true;
+    }
     xSemaphoreGive(this->session_lock);
+    if(!found) return session_invalid;
     return no_error;
 }
 
 LoginManager::LoginManager()
-:time_keeper(TimeKeeper::get_instance())
+:time_keeper(TimeKeeper::get_instance()), s_handler(SettingsHandler::get_instance())
 {
     this->session_lock = xSemaphoreCreateMutex();
     ESP_ERROR_CHECK( nvs_open("LOGINMANGER", NVS_READWRITE, &this->nvs_login_handle) );
+    //Add the default user if this is first boot
+    uint8_t mngr_state;
+    ESP_ERROR_CHECK( this->s_handler->nvs_get("LGN_MNGR_STATE", &mngr_state));
+    if(!mngr_state)
+    {
+        ESP_ERROR_CHECK( nvs_erase_all(this->nvs_login_handle) );
+        ESP_ERROR_CHECK( nvs_commit(this->nvs_login_handle));
+        ESP_ERROR_CHECK( this->s_handler->nvs_set("LGN_MNGR_STATE", (uint8_t)1));
+        this->add_user(DEFAULT_USER, DEFAULT_USER_PASSWD);
+    }
 }
 
 login_error LoginManager::add_user(char *username, char *password)
@@ -151,6 +197,7 @@ login_error LoginManager::add_user(char *username, char *password)
     new_user->salt = this->generate_salt();
     this->get_hash(password, new_user->salt, new_user->hash, sizeof(User::hash));
     ESP_ERROR_CHECK( nvs_set_blob(this->nvs_login_handle, username, (uint8_t *)new_user, sizeof(User)) );
+    ESP_ERROR_CHECK( nvs_commit(this->nvs_login_handle)    );
     free(new_user);
     return no_error;
 }

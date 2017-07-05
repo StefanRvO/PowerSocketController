@@ -14,9 +14,11 @@ extern "C"
 
 }
 #include "TimeKeeper.h"
+#include "SettingsHandler.h"
 
 #include <cstdint>
-typedef struct session_key {uint8_t key[16];} session_key;
+#define SESSION_KEY_LEN 16
+typedef struct session_key {uint8_t key[SESSION_KEY_LEN];} session_key;
 #define MAX_USERNAMELEN 16
 #define MAX_SESSIONS 10
 #define EXPIRE_MAX ((uint64_t)60 * (uint64_t)60 * (uint64_t)24 * (uint64_t)31 * (uint64_t)1000) //1 month
@@ -32,6 +34,7 @@ enum login_error
     invalid_username,
     fatal_error,
     session_invalid,
+    logout,
 };
 
 enum user_type: uint8_t
@@ -67,11 +70,13 @@ class LoginManager
         login_error add_user(char *username, char *passwd); //done
         login_error remove_user(char *username); //done
         login_error change_passwd(char *username, char *oldpasswd, char *newpasswd); //not done.
-        login_error get_username(char *username, session_key *session); //done
-        login_error perform_login(char *username, char *passwd, session_key *session); //done
+        login_error get_username(char *username, session_key *session_id); //done
+        login_error perform_login(char *username, char *passwd, session_key *session_id); //done
         login_error logout(char *username); //done
-        login_error logout(session_key *session); //done
-        login_error is_valid(session_key *session); //done
+        login_error logout(session_key *session_id); //done
+        login_error is_valid(session_key *session_id); //done
+        login_error get_user_type(session_key *session_id, user_type *type); //done
+
 
     private:
         static Session sessions[MAX_SESSIONS]; //Max ten active sessions at a time
@@ -81,6 +86,7 @@ class LoginManager
         uint64_t get_expire_time(Session *session);
         void update_session(Session *session, uint64_t cur_time);
         TimeKeeper *time_keeper;
+        SettingsHandler *s_handler;
         static LoginManager *instance;
         LoginManager();
         nvs_handle nvs_login_handle;

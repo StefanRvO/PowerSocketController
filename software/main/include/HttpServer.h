@@ -8,6 +8,7 @@
 #include "TimeKeeper.h"
 #include "CurrentMeasurer.h"
 #include <libwebsockets.h>
+#include "LoginManager.h"
 
 struct OTA_status
 {
@@ -20,12 +21,14 @@ struct get_api_session_data {
 	unsigned char *json_str;
     uint32_t sent;
     uint32_t len;
+    session_key session_token;
 };
 
 struct post_api_session_data {
     uint32_t total_post_length;
     char post_data[1024];
     char post_uri[40];
+    session_key session_token;
 };
 
 
@@ -45,12 +48,15 @@ class HttpServer
         		    void *user, void *in, size_t len);
         static int post_callback(struct lws *wsi, enum lws_callback_reasons reason,
         		    void *user, void *in, size_t len);
+        static int login_callback(struct lws *wsi, enum lws_callback_reasons reason,
+        		    void *user, void *in, size_t len);
         int create_get_callback_reply(get_api_session_data *session_data, char *request_uri);
     private:
         SettingsHandler *s_handler = nullptr;
         SwitchHandler *switch_handler = nullptr;
         CurrentMeasurer *cur_measurer = nullptr;
         TimeKeeper *t_keeper = nullptr;
+        LoginManager *login_manager = nullptr;
 
         struct lws_context *context;
         struct lws_context_creation_info info;
@@ -65,5 +71,9 @@ class HttpServer
         int post_set_ap(post_api_session_data *session_data);
         int post_set_sta(post_api_session_data *session_data);
         int post_set_switch_state(post_api_session_data *session_data);
+        login_error handle_login(post_api_session_data *session_data);
+        login_error handle_try_login(post_api_session_data *session_data);
+        void read_session(struct lws *wsi, session_key *dest); //NEED TO BE CALLED DURING LWS_CALLBACK_HTTP
+        login_error try_login(post_api_session_data *session_data);
 
 };

@@ -50,6 +50,7 @@ void SettingsHandler::set_default_values()
     ESP_ERROR_CHECK( set_default_value("AP_GATEWAY", (uint32_t)tmp)); //192.168.1.1
 
     ESP_ERROR_CHECK( set_default_value("WIFI_MODE", (uint32_t)WIFI_MODE_APSTA) );
+    ESP_ERROR_CHECK( set_default_value("LGN_MNGR_STATE", (uint8_t)0) );
 
 
 }

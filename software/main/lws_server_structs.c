@@ -10,8 +10,15 @@ const struct lws_protocol_vhost_options __pvo_headers = {
 	"timeout=15, max=20",
 };
 
-const struct lws_protocol_vhost_options __ota_pvo = {
+const struct lws_protocol_vhost_options __login_pvo = {
 	NULL,
+	NULL,
+	"login",
+	""
+};
+
+const struct lws_protocol_vhost_options __ota_pvo = {
+    &__login_pvo,
 	NULL,
 	"esplws-ota",
 	""
@@ -31,8 +38,18 @@ const struct lws_protocol_vhost_options __get_pvo = {
 	""
 };
 
-const struct lws_http_mount __ota_mount = {
+const struct lws_http_mount __login_mount = {
         .mount_next = NULL,
+	    .mountpoint		= "/api/v1/login/",
+        .origin			= "login",
+        .origin_protocol	= LWSMPRO_CALLBACK,
+        .mountpoint_len		= 13,
+        .protocol = "login",
+};
+
+
+const struct lws_http_mount __ota_mount = {
+        .mount_next = &__login_mount,
 	    .mountpoint		= "/api/v1/ota/",
         .origin			= "ota",
         .origin_protocol	= LWSMPRO_CALLBACK,

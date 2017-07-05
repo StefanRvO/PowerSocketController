@@ -4,8 +4,35 @@
 #include "esp_log.h"
 #include <arpa/inet.h>
 
-static const char *TAG = "HTTP_SERVER_GET";
+__attribute__((unused)) static const char *TAG = "HTTP_SERVER_GET";
 
+
+void dump_handshake_info(struct lws *wsi)
+{
+	int n = 0, len;
+	char buf[256];
+	const unsigned char *c;
+
+	do {
+		c = lws_token_to_string((lws_token_indexes)n);
+		if (!c) {
+			n++;
+			continue;
+		}
+
+		len = lws_hdr_total_length(wsi, (lws_token_indexes)n);
+		if (!len || len > sizeof(buf) - 1) {
+			n++;
+			continue;
+		}
+
+		lws_hdr_copy(wsi, buf, sizeof buf, (lws_token_indexes)n);
+		buf[sizeof(buf) - 1] = '\0';
+
+		printf("    %s = %s\n", (char *)c, buf);
+		n++;
+	} while (c);
+}
 
 
 int HttpServer::handle_get_switch_state(get_api_session_data *session_data, char *request_uri)
@@ -149,10 +176,15 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
     unsigned char buffer[1024 + LWS_PRE];
     unsigned char *p, *end;
     int json_result;
+	char b64[64];
+	struct timeval tv;
+
     get_api_session_data *session_data = (get_api_session_data *)user;
 	switch (reason) {
     	case LWS_CALLBACK_HTTP:
         {
+    	   dump_handshake_info(wsi);
+           ((HttpServer *)lws_context_user(lws_get_context(wsi)))->read_session(wsi, &session_data->session_token);
             p = buffer + LWS_PRE;
             end = p + sizeof(buffer) - LWS_PRE;
             ESP_LOGD(TAG, "get_callback: line %d\n", __LINE__);
@@ -180,6 +212,15 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
                     WSI_TOKEN_HTTP_CONTENT_TYPE, (unsigned char *)"text/json",
                     9, &p, end))
                 goto header_failure;
+
+
+                n = sprintf(b64, "PS_sid=ewef142esc23r2_sid_COOKIE;Max-Age=360000");
+            if( lws_add_http_header_by_name(wsi,
+                (unsigned char *)"set-cookie:",
+                (unsigned char *)b64, n, &p,
+                (unsigned char *)buffer + sizeof(buffer) - LWS_PRE))
+            goto header_failure;
+
             if (lws_add_http_header_content_length(wsi,
                                    session_data->len, &p,
                                    end))

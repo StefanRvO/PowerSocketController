@@ -10,7 +10,7 @@ extern "C"
     #include "ota_protocol.h"
 }
 
-static const char *TAG = "HTTP_SERVER";
+__attribute__((unused)) static const char *TAG = "HTTP_SERVER";
 /*We define this here as we need to access cpp functions from it.
 **Other relevant LWS structs are defined in lws_server_structs.c
 */
@@ -41,6 +41,13 @@ static const struct lws_protocols __protocols[] = {
         sizeof(struct per_session_data__esplws_ota), \
         4096, 0, NULL, 900 \
     },
+    { \
+        "login", \
+        HttpServer::login_callback, \
+        sizeof(post_api_session_data), \
+        4096, 0, NULL, 900 \
+    },
+
 	{ NULL, NULL, 0, 0, 0, NULL, 0 } /* terminator */
 };
 
@@ -48,7 +55,7 @@ static const struct lws_protocols __protocols[] = {
 HttpServer::HttpServer(const char *_port, bool _use_ssl) :
 port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance()),
 switch_handler(SwitchHandler::get_instance()), t_keeper(TimeKeeper::get_instance()),
-cur_measurer(CurrentMeasurer::get_instance())
+cur_measurer(CurrentMeasurer::get_instance()), login_manager(LoginManager::get_instance())
 {
     memset(&this->info, 0, sizeof(this->info));
     return;

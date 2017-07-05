@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include <arpa/inet.h>
 
-static const char *TAG = "HTTP_SERVER_POST";
+__attribute__((unused)) static const char *TAG = "HTTP_SERVER_POST";
 
 
 int HttpServer::post_set_sta(post_api_session_data *session_data)
