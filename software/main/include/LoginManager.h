@@ -23,6 +23,9 @@ typedef struct session_key {uint8_t key[SESSION_KEY_LEN];} session_key;
 #define MAX_SESSIONS 10
 #define EXPIRE_MAX ((uint64_t)60 * (uint64_t)60 * (uint64_t)24 * (uint64_t)31 * (uint64_t)1000) //1 month
 #define EXPIRE_INACTIVE ((uint64_t)60 * (uint64_t)60 * (uint64_t)24 * (uint64_t)7) //1 week
+#define SESSION_ID_MAX_ENCODED_LEN ( (SESSION_KEY_LEN * 8) / 6 + 4)
+#define SESSION_ID_ENCODED_BUF_LEN ( SESSION_ID_MAX_ENCODED_LEN + 1)
+
 class LoginManager;
 
 enum login_error
@@ -76,7 +79,9 @@ class LoginManager
         login_error logout(session_key *session_id); //done
         login_error is_valid(session_key *session_id); //done
         login_error get_user_type(session_key *session_id, user_type *type); //done
-
+        void print_all_sessions();
+        void print_session_key(session_key *session_id);
+        void print_session(Session *session);
 
     private:
         static Session sessions[MAX_SESSIONS]; //Max ten active sessions at a time

@@ -1,0 +1,41 @@
+<!--#include file="ssi/header.html"-->
+<div id="main">
+    <div class="header">
+        <h1>Logout</h1>
+        <h2>You can sign out from here!</p>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead">Sign out of the session.</h2>
+        <form method="POST" action="/api/v1/login/logout", id="formLogout">
+            <label for="Logout">Sign out</label>
+            <input type="submit" class="pure-button button-warning" value="Logout">
+        </form>
+    </div>
+</div>
+
+<!--#include file="ssi/com_js.html"-->
+
+<script src="js/jquery.serialize-object.min.js"></script>
+
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+
+        // Submit reset form
+        $('form#formLogout').submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/api/v1/login/logout',
+                type: 'POST',
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                data: $('form#formLogout').serializeJSON(),
+                success: function() {
+                    window.location.href = "/login.html";
+                }
+            });
+        });
+    });
+
+</script>
+
+<!--#include file="ssi/footer.html"-->

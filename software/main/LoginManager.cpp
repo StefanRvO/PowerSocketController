@@ -22,6 +22,34 @@ Session::Session(char *_username, user_type _type, uint64_t current_time)
     *( ((uint32_t *)this->session_id.key) + 3 ) = esp_random();
 };
 
+
+#include <libwebsockets.h>
+void LoginManager::print_session(Session *session)
+{
+    ESP_LOGI(TAG, "Username:\t%.*s\n", MAX_USERNAMELEN, session->username );
+    ESP_LOGI(TAG, "Type:\t%d\n", session->u_type);
+    ESP_LOGI(TAG, "Created:\t%llu\n", session->created);
+    ESP_LOGI(TAG, "Last Use:\t%llu\n", session->last_used);
+    ESP_LOGI(TAG, "Valid:\t%d\n", session->valid);
+    this->print_session_key(&session->session_id);
+}
+void LoginManager::print_session_key(session_key *session_id)
+{
+    char session_id_b64[SESSION_ID_ENCODED_BUF_LEN];
+    lws_b64_encode_string((const char*)session_id, sizeof(session_key), session_id_b64, sizeof(session_id_b64));
+    ESP_LOGI(TAG, "Session id:\t%s\n", session_id_b64);
+}
+
+void LoginManager::print_all_sessions()
+{
+    for(uint8_t i = 0; i < MAX_SESSIONS; i++)
+    {
+            xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
+            print_session(this->sessions + i);
+            xSemaphoreGive(this->session_lock);
+    }
+}
+
 LoginManager *LoginManager::get_instance()
 {
     if(LoginManager::instance == nullptr)
@@ -49,7 +77,7 @@ Session *LoginManager::get_session(session_key *session)
 {
     for(uint8_t i = 0; i < MAX_SESSIONS; i++)
     {
-        if(this->sessions[i].valid && memcmp(session, &this->sessions[i].session_id, sizeof(session_key)) == 0)
+        if(this->sessions[i].valid == true && memcmp(session, &this->sessions[i].session_id, sizeof(session_key)) == 0)
         {
             return this->sessions + i;
         }
@@ -88,6 +116,7 @@ login_error LoginManager::logout(char *username)
 login_error LoginManager::get_user_type(session_key *session_id, user_type *type)
 {
     bool found = false;
+    this->print_all_sessions();
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
     Session *session = this->get_session(session_id);
     if(session != nullptr)
@@ -159,14 +188,19 @@ login_error LoginManager::is_valid(session_key *session_id)
 login_error LoginManager::logout(session_key *session_id)
 {
     bool found = false;
+    //this->print_all_sessions();
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
     Session *session = this->get_session(session_id);
-    if(session != nullptr) session->valid = false;
+    //ESP_LOGI(TAG, "%p\n", session);
+    this->print_session_key(session_id);
+
+    if(session != nullptr)
     {
         session->valid = false;
         found = true;
     }
     xSemaphoreGive(this->session_lock);
+    //this->print_all_sessions();
     if(!found) return session_invalid;
     return no_error;
 }
@@ -277,7 +311,7 @@ void LoginManager::get_hash(char *password, uint64_t salt, uint8_t *hash_buff, s
         return;
     }
     ret = mbedtls_pkcs5_pbkdf2_hmac( &sha1_ctx, (uint8_t*)password, passwd_len, (uint8_t*)&salt,
-                              sizeof(salt), 2000, hash_len, hash_buff );
+                              sizeof(salt), 500, hash_len, hash_buff );
     if( ret != 0)
     {
         ESP_LOGI(TAG, "ERROR computing PBKDF2 sum");

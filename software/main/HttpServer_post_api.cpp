@@ -123,12 +123,23 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
 {
     post_api_session_data *session_data = (post_api_session_data *)user;
     int post_result;
+    HttpServer *server = (HttpServer *)lws_context_user(lws_get_context(wsi));
     printf("post callback reason: %d\n", reason);
 
 	switch (reason) {
     case LWS_CALLBACK_HTTP:
-        strncpy(session_data->post_uri, (const char*)in, sizeof(session_data->post_uri));
         printf("LWS_CALLBACK_HTTP\n");
+        strncpy(session_data->post_uri, (const char*)in, sizeof(session_data->post_uri));
+        switch(server->check_session_access(wsi, &session_data->session_token))
+        {
+            case 0:
+                break;
+            case 1:
+                goto try_to_reuse;
+            case 2:
+            default:
+                return -1;
+        }
         break;
 	case LWS_CALLBACK_HTTP_BODY:
         printf("LWS_CALLBACK_HTTP_BODY\n");
@@ -152,7 +163,7 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
 
 	case LWS_CALLBACK_HTTP_WRITEABLE:
 		printf("LWS_CALLBACK_HTTP_WRITEABLE\n");
-        post_result = ((HttpServer *)lws_context_user(lws_get_context(wsi)))->handle_post_data(session_data);
+        post_result = server->handle_post_data(session_data);
         if(post_result == 0)
         {
             lws_return_http_status(wsi, HTTP_STATUS_OK, NULL);

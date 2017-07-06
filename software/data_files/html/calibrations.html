@@ -20,9 +20,6 @@
 </div>
 <!--#include file="ssi/com_js.html"-->
 
-<script src="js/jquery.serialize-object.min.js"></script>
-
-
 <script language="javascript" type="text/javascript">
     $(document).ready(function() {
 
@@ -32,6 +29,11 @@
             dataType: 'json',
             data: {},
             success: function(json) {
+                if (data.redirect) {
+                    // data.redirect contains the string URL to redirect to
+                    window.location.href = json.redirect;
+                    return;
+                }
                 //Create table header
 
                 var ccalib_str = "<table class='pure-table'><thead> <tr> <th>Channel</th> <th>Bias On</th>";

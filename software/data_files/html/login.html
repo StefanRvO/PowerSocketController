@@ -1,0 +1,52 @@
+
+<!--#include file="ssi/header.html"-->
+
+<div id="main">
+    <div class="header">
+        <h1>Login</h1>
+        <h2>Here you can log in to the device</h2>
+    </div>
+    <div class="content">
+
+    <form method="POST" class="pure-form pure-form-stacked" id="formLogin">
+        <fieldset>
+            <div class="pure-control-group">
+
+            <label for="login[user]">Username</label>
+            <input id="login[user]" name="login[user]" type="username"  placeholder="User">
+        </div>
+        <div class="pure-control-group">
+
+            <label for="login[passwd]">Password</label>
+            <input id="login[passwd]" name="login[passwd]" type="password" placeholder="Password">
+        </div>
+
+        <div class="pure-controls">
+            <button type="submit" class="pure-button pure-button-primary">Sign in</button>
+        </div>
+        </fieldset>
+    </form>
+
+    <!--#include file="ssi/com_js.html"-->
+
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function() {
+            // Submit login form
+            $('form#formLogin').submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/api/v1/login/login',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType:"application/json; charset=utf-8",
+                    data: $('form#formLogin').serializeJSON(),
+                    success: function() {
+                        window.location.href = "/index.html";
+
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!--#include file="ssi/footer.html"-->

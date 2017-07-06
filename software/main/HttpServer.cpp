@@ -9,7 +9,6 @@ extern "C"
 {
     #include "ota_protocol.h"
 }
-
 __attribute__((unused)) static const char *TAG = "HTTP_SERVER";
 /*We define this here as we need to access cpp functions from it.
 **Other relevant LWS structs are defined in lws_server_structs.c

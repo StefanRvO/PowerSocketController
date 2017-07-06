@@ -176,15 +176,21 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
     unsigned char buffer[1024 + LWS_PRE];
     unsigned char *p, *end;
     int json_result;
-	char b64[64];
-	struct timeval tv;
-
+    HttpServer *server = (HttpServer *)lws_context_user(lws_get_context(wsi));
     get_api_session_data *session_data = (get_api_session_data *)user;
 	switch (reason) {
     	case LWS_CALLBACK_HTTP:
         {
-    	   dump_handshake_info(wsi);
-           ((HttpServer *)lws_context_user(lws_get_context(wsi)))->read_session(wsi, &session_data->session_token);
+            switch(server->check_session_access(wsi, &session_data->session_token))
+            {
+                case 0:
+                    break;
+                case 1:
+                    goto try_to_reuse;
+                case 2:
+                default:
+                    return -1;
+            }
             p = buffer + LWS_PRE;
             end = p + sizeof(buffer) - LWS_PRE;
             ESP_LOGD(TAG, "get_callback: line %d\n", __LINE__);
@@ -212,14 +218,6 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
                     WSI_TOKEN_HTTP_CONTENT_TYPE, (unsigned char *)"text/json",
                     9, &p, end))
                 goto header_failure;
-
-
-                n = sprintf(b64, "PS_sid=ewef142esc23r2_sid_COOKIE;Max-Age=360000");
-            if( lws_add_http_header_by_name(wsi,
-                (unsigned char *)"set-cookie:",
-                (unsigned char *)b64, n, &p,
-                (unsigned char *)buffer + sizeof(buffer) - LWS_PRE))
-            goto header_failure;
 
             if (lws_add_http_header_content_length(wsi,
                                    session_data->len, &p,

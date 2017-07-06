@@ -51,6 +51,9 @@ class HttpServer
         static int login_callback(struct lws *wsi, enum lws_callback_reasons reason,
         		    void *user, void *in, size_t len);
         int create_get_callback_reply(get_api_session_data *session_data, char *request_uri);
+        void print_all_sessions() {this->login_manager->print_all_sessions();}
+        int check_session_access(struct lws *wsi, session_key *session_token);
+
     private:
         SettingsHandler *s_handler = nullptr;
         SwitchHandler *switch_handler = nullptr;

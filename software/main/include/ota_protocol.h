@@ -4,7 +4,7 @@
 
 int callback_esplws_ota(struct lws *wsi, enum lws_callback_reasons reason,
 		    void *user, void *in, size_t len);
-            
+
 struct per_session_data__esplws_ota {
 	struct lws_spa *spa;
 	char filename[32];
