@@ -16,6 +16,9 @@ CFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
 CXXFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
 GENCERTS = 0
 
+HOST = 192.168.0.1
+
+
 romfs_prepare:
 	echo "Resolving server side includes"
 	cp -R -T data_files ${BUILD_DIR_BASE}/data_files/
@@ -36,3 +39,9 @@ release: all
 	mkdir -p ${BUILD_DIR_BASE}/release
 	cp ${BUILD_DIR_BASE}/partitions.bin ${BUILD_DIR_BASE}/software.bin ${BUILD_DIR_BASE}/release/
 	tar -zcvf ${BUILD_DIR_BASE}/release.tar.gz -C ${BUILD_DIR_BASE}/release .
+
+ota_flash: all
+	echo "+------------------------+"                     
+	echo "| Flashing Over The Air! |"                     
+	echo "+------------------------+"
+	$(PROJECT_PATH)/OTAUoploader.py -f  ${BUILD_DIR_BASE}/software.bin -ht ${HOST}
