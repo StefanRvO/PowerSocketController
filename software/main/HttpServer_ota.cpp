@@ -23,8 +23,7 @@
 #include <esp_partition.h>
 #include <esp_ota_ops.h>
 #include <nvs.h>
-#include "ota_protocol.h"
-
+#include "HttpServer.h"
 
 struct per_vhost_data__esplws_ota {
 	struct lws_context *context;
@@ -81,8 +80,8 @@ static int
 ota_file_upload_cb(void *data, const char *name, const char *filename,
 	       char *buf, int len, enum lws_spa_fileupload_states state)
 {
-	struct per_session_data__esplws_ota *pss =
-			(struct per_session_data__esplws_ota *)data;
+	struct per_session_data_ota *pss =
+			(struct per_session_data_ota *)data;
 
 	switch (state) {
 	case LWS_UFS_OPEN:
@@ -139,23 +138,24 @@ ota_file_upload_cb(void *data, const char *name, const char *filename,
 }
 
 int
-callback_esplws_ota(struct lws *wsi, enum lws_callback_reasons reason,
+HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
 		    void *user, void *in, size_t len)
 {
-	struct per_session_data__esplws_ota *pss =
-			(struct per_session_data__esplws_ota *)user;
+	struct per_session_data_ota *pss =
+			(struct per_session_data_ota *)user;
 	struct per_vhost_data__esplws_ota *vhd =
 			(struct per_vhost_data__esplws_ota *)
 			lws_protocol_vh_priv_get(lws_get_vhost(wsi),
 					lws_get_protocol(wsi));
 	unsigned char buf[LWS_PRE + 384], *start = buf + LWS_PRE - 1, *p = start,
 	     *end = buf + sizeof(buf) - 1;
-	int n;
+	int n, login_result;
+    HttpServer *server = (HttpServer *)lws_context_user(lws_get_context(wsi));
 
 	switch (reason) {
 
 	case LWS_CALLBACK_PROTOCOL_INIT:
-		vhd = lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi),
+		vhd = (per_vhost_data__esplws_ota *)lws_protocol_vh_priv_zalloc(lws_get_vhost(wsi),
 				lws_get_protocol(wsi),
 				sizeof(struct per_vhost_data__esplws_ota));
 		vhd->context = lws_get_context(wsi);
@@ -169,11 +169,28 @@ callback_esplws_ota(struct lws *wsi, enum lws_callback_reasons reason,
 		break;
 
 	/* OTA POST handling */
+    case LWS_CALLBACK_HTTP:
+        printf("LWS_CALLBACK_HTTP\n");
+        strncpy(pss->post_uri, (const char*)in, sizeof(pss->post_uri));
+        login_result = server->check_session_access(wsi, &pss->session_token);
+        printf("%d\n", login_result);
+        switch(server->check_session_access(wsi, &pss->session_token))
+        {
+            case 0:
+                pss->allowed_to_flash = true;
+                break;
+            case 1:
+            case 2:
+            default:
+                pss->allowed_to_flash = false;
+        }
+        break;
 
 	case LWS_CALLBACK_HTTP_BODY:
 		/* create the POST argument parser if not already existing */
-		//lwsl_notice("LWS_CALLBACK_HTTP_BODY (ota) %d %d %p\n", (int)pss->file_length, (int)len, pss->spa);
-		if (!pss->spa) {
+        if(!pss->allowed_to_flash == true) break;
+        lwsl_notice("LWS_CALLBACK_HTTP_BODY (ota) %d %d %p\n", (int)pss->file_length, (int)len, pss->spa);
+        if (!pss->spa) {
 			pss->spa = lws_spa_create(wsi, ota_param_names,
 					ARRAY_SIZE(ota_param_names), 4096,
 					ota_file_upload_cb, pss);
@@ -185,12 +202,20 @@ callback_esplws_ota(struct lws *wsi, enum lws_callback_reasons reason,
 		}
 
 		/* let it parse the POST data */
-		if (lws_spa_process(pss->spa, in, len))
+		if (lws_spa_process(pss->spa, (const char*)in, len))
 			return -1;
 		break;
 
 	case LWS_CALLBACK_HTTP_BODY_COMPLETION:
 		lwsl_notice("LWS_CALLBACK_HTTP_BODY_COMPLETION (ota)\n");
+        if(!pss->allowed_to_flash == true)
+        {
+            if (lws_return_http_status(wsi, 401, "You need to log in!"))
+                goto bail;
+
+            goto try_to_reuse;
+            break;
+        }
 		/* call to inform no more payload data coming */
 		lws_spa_finalize(pss->spa);
 
@@ -241,6 +266,10 @@ callback_esplws_ota(struct lws *wsi, enum lws_callback_reasons reason,
 	}
 
 	return 0;
+try_to_reuse:
+	if (lws_http_transaction_completed(wsi))
+		return -1;
+    return 0;
 
 bail:
 	return 1;

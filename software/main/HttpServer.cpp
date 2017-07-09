@@ -5,10 +5,7 @@
 #include "lws_server_structs.h"
 #include "cJSON.h"
 #include <arpa/inet.h>
-extern "C"
-{
-    #include "ota_protocol.h"
-}
+
 __attribute__((unused)) static const char *TAG = "HTTP_SERVER";
 /*We define this here as we need to access cpp functions from it.
 **Other relevant LWS structs are defined in lws_server_structs.c
@@ -36,8 +33,8 @@ static const struct lws_protocols __protocols[] = {
     },
     { \
         "ota", \
-        callback_esplws_ota, \
-        sizeof(struct per_session_data__esplws_ota), \
+        HttpServer::ota_callback, \
+        sizeof(per_session_data_ota), \
         4096, 0, NULL, 900 \
     },
     { \

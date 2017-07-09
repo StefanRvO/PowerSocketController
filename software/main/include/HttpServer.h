@@ -31,6 +31,21 @@ struct post_api_session_data {
     session_key session_token;
 };
 
+struct per_session_data_ota {
+    session_key session_token;
+    bool allowed_to_flash;
+    char post_uri[40];
+	struct lws_spa *spa;
+	char filename[32];
+	char result[LWS_PRE + 512];
+	int result_len;
+	int filename_length;
+	esp_ota_handle_t otahandle;
+	const esp_partition_t *part;
+	long file_length;
+	nvs_handle nvh;
+};
+
 
 class HttpServer
 {
@@ -50,6 +65,9 @@ class HttpServer
         		    void *user, void *in, size_t len);
         static int login_callback(struct lws *wsi, enum lws_callback_reasons reason,
         		    void *user, void *in, size_t len);
+        static int ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
+        		    void *user, void *in, size_t len);
+
         int create_get_callback_reply(get_api_session_data *session_data, char *request_uri);
         void print_all_sessions() {this->login_manager->print_all_sessions();}
         int check_session_access(struct lws *wsi, session_key *session_token);

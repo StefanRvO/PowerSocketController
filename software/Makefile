@@ -44,4 +44,4 @@ ota_flash: all
 	echo "+------------------------+"                     
 	echo "| Flashing Over The Air! |"                     
 	echo "+------------------------+"
-	$(PROJECT_PATH)/OTAUoploader.py -f  ${BUILD_DIR_BASE}/software.bin -ht ${HOST}
+	$(PROJECT_PATH)/OTAUploader.py -f  ${BUILD_DIR_BASE}/software.bin -ht ${HOST}
