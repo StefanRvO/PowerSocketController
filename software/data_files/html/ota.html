@@ -35,7 +35,7 @@ filter: alpha(opacity=0);
                     <input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
                     <div class="fileUpload pure-button pure-button-primary">
                     <span>Select File</span>
-                    <input id="ota" type="file" name="file" class="upload" />
+                    <input id="ota" type="file" name="ota" class="upload" />
                     </div>
                     <br>
                     <br>
@@ -76,12 +76,21 @@ filter: alpha(opacity=0);
         }, false);
 
         xhr.onreadystatechange = function(e) {
-            console.log("rs" + xhr.readyState + " status " + xhr.status);
+                console.log("rs" + xhr.readyState + " status " + xhr.status);
             if (xhr.readyState == 4) {
-                document.getElementById("progr").class = "progr-ok";
-                setTimeout(function() {
-                    window.location.href = location.origin + "/";
-                }, 1000);
+                if(xhr.status == 200)
+                {
+                    setTimeout(function() {
+                        window.location.href = location.origin + "/success.html";
+                    }, 500);
+                }
+                else if(xhr.status == 401)
+                {
+                    setTimeout(function() {
+                        window.location.href = location.origin + "/login.html";
+                    }, 500);
+                }
+
             }
         };
 

@@ -83,6 +83,7 @@ ota_file_upload_cb(void *data, const char *name, const char *filename,
 	struct per_session_data_ota *pss =
 			(struct per_session_data_ota *)data;
 
+    printf("ota_file_upload, state: %d\n", state);
 	switch (state) {
 	case LWS_UFS_OPEN:
 		lwsl_notice("LWS_UFS_OPEN Filename %s\n", filename);
@@ -93,7 +94,6 @@ ota_file_upload_cb(void *data, const char *name, const char *filename,
 		pss->part = ota_choose_part();
 		if (!pss->part)
 			return 1;
-
 		if (esp_ota_begin(pss->part, (long)-1, &pss->otahandle) != ESP_OK) {
 			lwsl_err("OTA: Failed to begin\n");
 			return 1;
@@ -104,6 +104,11 @@ ota_file_upload_cb(void *data, const char *name, const char *filename,
 
 	case LWS_UFS_FINAL_CONTENT:
 	case LWS_UFS_CONTENT:
+        if(pss->part == nullptr)
+        {
+            lwsl_err("OTA: Partition error, maybe wrong attribute name?\n");
+			return 1;
+        }
 		if (pss->file_length + len > pss->part->size) {
 			lwsl_err("OTA: incoming file too large\n");
 			return 1;
@@ -173,7 +178,6 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
         printf("LWS_CALLBACK_HTTP\n");
         strncpy(pss->post_uri, (const char*)in, sizeof(pss->post_uri));
         login_result = server->check_session_access(wsi, &pss->session_token);
-        printf("%d\n", login_result);
         switch(server->check_session_access(wsi, &pss->session_token))
         {
             case 0:
@@ -183,12 +187,14 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
             case 2:
             default:
                 pss->allowed_to_flash = false;
+                break;
         }
         break;
 
 	case LWS_CALLBACK_HTTP_BODY:
 		/* create the POST argument parser if not already existing */
-        if(!pss->allowed_to_flash == true) break;
+        printf(" allowed %d\n", pss->allowed_to_flash);
+        if(pss->allowed_to_flash == false) break;
         lwsl_notice("LWS_CALLBACK_HTTP_BODY (ota) %d %d %p\n", (int)pss->file_length, (int)len, pss->spa);
         if (!pss->spa) {
 			pss->spa = lws_spa_create(wsi, ota_param_names,
@@ -202,13 +208,14 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
 		}
 
 		/* let it parse the POST data */
+        printf("%p, %p, %p, %d\n", pss->spa, pss, in, len);
 		if (lws_spa_process(pss->spa, (const char*)in, len))
 			return -1;
 		break;
 
 	case LWS_CALLBACK_HTTP_BODY_COMPLETION:
 		lwsl_notice("LWS_CALLBACK_HTTP_BODY_COMPLETION (ota)\n");
-        if(!pss->allowed_to_flash == true)
+        if(pss->allowed_to_flash == false)
         {
             if (lws_return_http_status(wsi, 401, "You need to log in!"))
                 goto bail;
