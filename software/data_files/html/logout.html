@@ -26,11 +26,12 @@
             $.ajax({
                 url: '/api/v1/login/logout',
                 type: 'POST',
-                dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 data: $('form#formLogout').serializeJSON(),
                 success: function() {
-                    window.location.href = "/login.html";
+                    var t = new Toast();
+                    t.snackShow('Logout Successfull', 'info');
+                    window.location.replace("/login.html");
                 }
             });
         });

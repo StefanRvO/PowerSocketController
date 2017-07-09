@@ -37,11 +37,11 @@
             $.ajax({
                 url: '/api/v1/post/reset',
                 type: 'POST',
-                dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 data: $('form#formReset').serializeJSON(),
                 success: function() {
-                    console.log("Success");
+                    var t = new Toast();
+                    t.snackShow('Device settings have been reset', 'info');
                 }
             });
         });
@@ -52,11 +52,11 @@
             $.ajax({
                 url: '/api/v1/post/reboot',
                 type: 'POST',
-                dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 data: $('form#formReboot').serializeJSON(),
                 success: function() {
-                    console.log("Success");
+                    var t = new Toast();
+                    t.snackShow('Device is rebooting', 'info');
                 }
             });
         });

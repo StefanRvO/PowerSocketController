@@ -154,7 +154,7 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
 					lws_get_protocol(wsi));
 	unsigned char buf[LWS_PRE + 384], *start = buf + LWS_PRE - 1, *p = start,
 	     *end = buf + sizeof(buf) - 1;
-	int n, login_result;
+	int n;
     HttpServer *server = (HttpServer *)lws_context_user(lws_get_context(wsi));
 
 	switch (reason) {
@@ -177,7 +177,6 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
     case LWS_CALLBACK_HTTP:
         printf("LWS_CALLBACK_HTTP\n");
         strncpy(pss->post_uri, (const char*)in, sizeof(pss->post_uri));
-        login_result = server->check_session_access(wsi, &pss->session_token);
         switch(server->check_session_access(wsi, &pss->session_token))
         {
             case 0:

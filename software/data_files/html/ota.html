@@ -80,8 +80,10 @@ filter: alpha(opacity=0);
             if (xhr.readyState == 4) {
                 if(xhr.status == 200)
                 {
+                    var t = new Toast();
+                    t.snackShow('OTA Upload Successfull', 'success');
                     setTimeout(function() {
-                        window.location.href = location.origin + "/success.html";
+                        window.location.replace(location.origin + "/success.html");
                     }, 500);
                 }
                 else if(xhr.status == 401)

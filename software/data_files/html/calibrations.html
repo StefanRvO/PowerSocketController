@@ -64,7 +64,6 @@
             $.ajax({
                 url: '/api/v1/post/recalib_current',
                 type: 'POST',
-                dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 data: $('form#formRecalibrate').serializeJSON(),
                 success: function() {

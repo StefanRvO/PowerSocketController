@@ -86,11 +86,11 @@
                     $.ajax({
                         url: '/api/v1/post/STA_SSID',
                         type: 'POST',
-                        dataType: 'json',
                         contentType:"application/json; charset=utf-8",
                         data: $('form#FormSTASettings').serializeJSON(),
                         success: function() {
-                            			console.log("Success");
+                            var t = new Toast();
+                            t.snackShow('Station settings changed', 'info');
                         }
                     });
                 });
@@ -101,11 +101,11 @@
                     $.ajax({
                         url: '/api/v1/post/AP_SSID',
                         type: 'POST',
-                        dataType: 'json',
                         contentType:"application/json; charset=utf-8",
                         data: $('form#FormAPSettings').serializeJSON(),
                         success: function() {
-                            			console.log("Success");
+                            var t = new Toast();
+                            t.snackShow('AP settings changed', 'info');
                         }
                     });
                 });

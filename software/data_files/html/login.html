@@ -37,12 +37,12 @@
                 $.ajax({
                     url: '/api/v1/login/login',
                     type: 'POST',
-                    dataType: 'json',
                     contentType:"application/json; charset=utf-8",
                     data: $('form#formLogin').serializeJSON(),
                     success: function() {
-                        window.location.href = "/index.html";
-
+                        var t = new Toast();
+                        t.snackShow('Login Successfull', 'success');
+                        window.location.replace("/users.html");
                     }
                 });
             });

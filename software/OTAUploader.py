@@ -38,6 +38,7 @@ class OTAUploader:
             return request.cookies[COOKIE_NAME]
         except:
             return None
+
     def upload(self, upload_url, cookie):
         with open(self.filename, 'rb') as f:
             e = MultipartEncoder(
@@ -45,6 +46,7 @@ class OTAUploader:
                 )
             m = MultipartEncoderMonitor(e, self.progress_callback)
             request = requests.post(upload_url, data=m, cookies= {COOKIE_NAME : cookie}, headers={'Content-Type': e.content_type} )
+            print()
             if request.status_code == 200:
                 return 0
             else:
