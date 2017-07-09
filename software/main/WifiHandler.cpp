@@ -101,7 +101,7 @@ void WifiHandler::update_wifi_mode()
 {
     wifi_mode_t mode;
     ESP_ERROR_CHECK( this->s_handler->nvs_get("WIFI_MODE", (uint32_t *)(&mode)));
-    ESP_ERROR_CHECK( esp_wifi_set_mode(mode) ); //Configure as both accesspoint and station
+    ESP_ERROR_CHECK( esp_wifi_set_mode(mode) );
 }
 
 void WifiHandler::print_ap_settings()
@@ -189,7 +189,7 @@ void WifiHandler::reconnect_thread(void *PvParameters)
     {
         EventBits_t bits = xEventGroupWaitBits(handler->wifi_event_group, BIT0, pdFALSE,pdTRUE, portMAX_DELAY);
 
-        if ((bits & BIT0)) 
+        if ((bits & BIT0))
         {   //Try to reconnect in 15 seconds after disconnect
             vTaskDelay(15000 / portTICK_PERIOD_MS);
             esp_wifi_connect();

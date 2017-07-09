@@ -21,6 +21,9 @@ int HttpServer::post_set_sta(post_api_session_data *session_data)
     if(!item || item->type != cJSON_String ) goto post_set_sta_failure;
     ESP_ERROR_CHECK( this->s_handler->nvs_set("STA_PASSWORD", item->valuestring));
     cJSON_Delete(root);
+    this->wifi_handler->update_station_config();
+    esp_wifi_disconnect();
+    esp_wifi_connect();
 
     return 0;
 
@@ -67,6 +70,8 @@ int HttpServer::post_set_ap(post_api_session_data *session_data)
     if(!inet_aton(item->valuestring, &tmp)) goto post_set_ap_failure;
     ESP_ERROR_CHECK( this->s_handler->nvs_set("AP_NETMASK", tmp));
     cJSON_Delete(root);
+    this->wifi_handler->update_wifi_mode();
+    this->wifi_handler->update_ap_config();
 
     return 0;
     post_set_ap_failure:

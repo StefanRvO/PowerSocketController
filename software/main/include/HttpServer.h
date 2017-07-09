@@ -78,6 +78,7 @@ class HttpServer
         CurrentMeasurer *cur_measurer = nullptr;
         TimeKeeper *t_keeper = nullptr;
         LoginManager *login_manager = nullptr;
+        WifiHandler *wifi_handler = nullptr;
 
         struct lws_context *context;
         struct lws_context_creation_info info;

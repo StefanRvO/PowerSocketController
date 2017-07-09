@@ -51,7 +51,8 @@ static const struct lws_protocols __protocols[] = {
 HttpServer::HttpServer(const char *_port, bool _use_ssl) :
 port(_port), use_ssl(_use_ssl), s_handler(SettingsHandler::get_instance()),
 switch_handler(SwitchHandler::get_instance()), t_keeper(TimeKeeper::get_instance()),
-cur_measurer(CurrentMeasurer::get_instance()), login_manager(LoginManager::get_instance())
+cur_measurer(CurrentMeasurer::get_instance()), login_manager(LoginManager::get_instance()),
+wifi_handler((WifiHandler::get_instance()))
 {
     memset(&this->info, 0, sizeof(this->info));
     return;
