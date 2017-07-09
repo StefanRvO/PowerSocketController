@@ -1,35 +1,24 @@
 <!--#include file="ssi/header.html"-->
-<style type="text/css">
-    .progr {
-        width: 100%;
-        height: 32px;
-        background-color: rgba(240, 240, 24, 0.6);
-        color: #c0c0c0;
-    }
+<link href="css/css-circular-prog-bar.css" rel="stylesheet">
+<style>
+.fileUpload {
+position: relative;
+overflow: hidden;
+margin: 10px;
+}
 
-    .progr-ok {
-        width: 100%;
-        height: 32px;
-        background-color: rgba(240, 240, 24, 1.0);
-        color: #e0e060;
-    }
-
-    .progr-fail {
-        width: 100%;
-        height: 32px;
-        background-color: rgba(240, 240, 24, 1.0);
-        color: #c00000;
-    }
-
-    .progr-done {
-        width: 100%;
-        height: 32px;
-        background-color: rgba(240, 240, 24, 1.0);
-        color: #00c000;
-    }
-
+.fileUpload input.upload {
+position: absolute;
+top: 0;
+right: 0;
+margin: 0;
+padding: 0;
+font-size: 20px;
+cursor: pointer;
+opacity: 0;
+filter: alpha(opacity=0);
+}
 </style>
-
 
 <div id="main">
     <div class="header">
@@ -42,46 +31,44 @@
             Select a firmware file you want flashed to the device.
 
             <form name=multipart action="/api/v1/ota/" method="post" enctype="multipart/form-data" onsubmit="do_upload(this); return false;">
-                <table>
-                    <tr>
-                        <td>
-                            <input type="file" name="ota" id="ota" size="20" accept=".bin" onchange="file_change();" style="font-size: 12pt">
-                        </td>
-                        <td colspan=2>
-                            <span id=file_info style="font-size:12pt;"></span></td>
-                    </tr>
-                    <tr>
-                        <td colspan=3>
-                            <input type="submit" id="update" name="upload" disabled value="Upload" style="font-size: 18pt">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan=3>
-                            <progress id=progr value=0 max=100 class=progr>Upload Progress</progress>
-                        </td>
-                    </tr>
-                </table>
-                </td>
-                </tr>
-                </table>
-            </form>
-    </div>
-</div>
+                <div class="file_input_div">
+                    <input id="ota_upload_file" placeholder="Choose File" disabled="disabled" />
+                    <div class="fileUpload pure-button pure-button-primary">
+                    <span>Select File</span>
+                    <input id="ota" type="file" name="file" class="upload" />
+                    </div>
+                    <br>
+                    <br>
+                    <input type="submit" disabled value="Upload" id="update" name="upload" class="pure-button button-warning">
+                    <div class="progress-circle p0" id="progr-circle">
+                       <span id="progr">0%</span>
+                       <div class="left-half-clipper">
+                          <div class="first50-bar"></div>
+                          <div class="value-bar"></div>
+                       </div>
+                    </div>
+                <br>
 
+            </form>
+
+
+    </div>
 </div>
 
 <!--#include file="ssi/com_js.html"-->
 
-<script>
+ <script>
 
     function do_upload(f) {
         var xhr = new XMLHttpRequest();
 
-        document.getElementById('update').disabled = 1;
-        document.getElementById("progr").class = "progr-ok";
 
         xhr.upload.addEventListener("progress", function(e) {
-            document.getElementById("progr").value = parseInt(e.loaded / e.total * 100);
+            $('#progr').html(parseInt(e.loaded / e.total * 100) + "%");
+            if(e.loaded / e.total * 100 > 50)
+                document.getElementById("progr-circle").setAttribute("class", "progress-circle over50 p" + parseInt(e.loaded / e.total * 100));
+            else
+                document.getElementById("progr-circle").setAttribute("class", "progress-circle p" + parseInt(e.loaded / e.total * 100));
 
             if (e.loaded == e.total) {
             }
@@ -103,12 +90,11 @@
 
         return false;
     }
-
-    function file_change() {
+    document.getElementById("ota").onchange = function() {
+    	document.getElementById("ota_upload_file").value = this.value;
         document.getElementById('update').disabled = 0;
-    }
+
+    };
+
 </script>
-
-
-
-    <!--#include file="ssi/footer.html"-->
+<!--#include file="ssi/footer.html"-->
