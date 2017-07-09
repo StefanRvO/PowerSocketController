@@ -2,7 +2,7 @@ language: cpp
 dist: trusty
 before_install:
 - sudo apt-get -qq update
-- sudo apt-get install git wget make libncurses-dev flex bison gperf python python-pip
+- sudo apt-get install git wget make libncurses-dev flex bison gperf python python-pip genromfs
 - pip install pyserial
 - mkdir -p esp
 - wget https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz
