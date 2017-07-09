@@ -1,0 +1,63 @@
+
+<!--#include file="ssi/header.html"-->
+
+<div id="main">
+    <div class="header">
+        <h1>Info!</h1>
+        <h2>Information about the hardware and software of the device</h2>
+    </div>
+    <div class="content">
+        <h2 class="content-subhead"><b>Hardware</b></h2>
+                        <p> TODO </p>
+
+        <h2 class="content-subhead"><b>Software</b></h2>
+        <h3 class="content-subhead">Build Info</h4>
+
+                        <p> <b>Build host:</b> <span id="span_build_host">Loading...</span> </p>
+                        <p> <b>Build User:</b> <span id="span_build_user">Loading...</span> </p>
+                        <p> <b>Build date:</b> <span id="span_build_date">Loading...</span> </p>
+                        <p> <b>Git commit:</b> <span id="span_build_git">Loading...</span> </p>
+        <h3 class="content-subhead">RomFS Info:</h4>
+                        <p> <b>Address:</b> <span id="span_romfs_address">Loading...</span> </p>
+                        <p> <b>Size:</b> <span id="span_romfs_size">Loading...</span> </p>
+        <h3 class="content-subhead">Boot Partition Info:</h4>
+                        <p> <b>Address:</b> <span id="span_partition_address">Loading...</span> </p>
+                        <p> <b>Size:</b> <span id="span_partition_size">Loading...</span> </p>
+                        <p> <b>Label:</b> <span id="span_partition_label">Loading...</span> </p>
+                        <p> <b>Type:</b> <span id="span_partition_type">Loading...</span> </p>
+                        <p> <b>Subtype:</b> <span id="span_partition_subtype">Loading...</span> </p>
+                        <p> <b>Encrypted:</b> <span id="span_partition_encrypted">Loading...</span> </p>
+                    </div>
+                </div>
+
+    <!--#include file="ssi/com_js.html"-->
+
+    <!-- Fetch values from the server -->
+    <script language="javascript" type="text/javascript">
+        $( document ).ready(function() {
+          $.ajax({
+            url: '/api/v1/get/boot_info',
+            method: 'GET',
+            dataType: 'json',
+            data: {},
+            success: function(json) {
+              $('#span_build_host').html(json.build.builder);
+              $('#span_build_user').html(json.build.user);
+              $('#span_build_date').html(json.build.date);
+              $('#span_build_git').html(json.build.git);
+
+              $('#span_romfs_address').html('0x' + json.romfs.address.toString(16));
+              $('#span_romfs_size').html('0x' + json.romfs.size.toString(16));
+
+              $('#span_partition_address').html('0x' + json.partition.address.toString(16));
+              $('#span_partition_size').html('0x' + json.partition.size.toString(16));
+              $('#span_partition_label').html(json.partition.label);
+              $('#span_partition_type').html(json.partition.type);
+              $('#span_partition_subtype').html(json.partition.subtype);
+              $('#span_partition_encrypted').html(json.partition.encrypted.toString());
+            }
+          });
+      });
+    </script>
+
+    <!--#include file="ssi/footer.html"-->
