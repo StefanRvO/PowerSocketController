@@ -22,6 +22,8 @@ int HttpServer::post_set_sta(post_api_session_data *session_data)
     ESP_ERROR_CHECK( this->s_handler->nvs_set("STA_PASSWORD", item->valuestring));
     cJSON_Delete(root);
 
+    return 0;
+
     post_set_sta_failure:
         cJSON_Delete(root);
         return -1;

@@ -16,7 +16,7 @@ CFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
 CXXFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
 GENCERTS = 0
 
-HOST = 192.168.0.1
+HOST = 192.168.200.90
 
 
 romfs_prepare:

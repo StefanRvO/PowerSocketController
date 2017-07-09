@@ -65,6 +65,37 @@ int HttpServer::handle_get_uptime(get_api_session_data *session_data, char *requ
     return 0;
 }
 
+int HttpServer::handle_get_bootinfo(get_api_session_data *session_data, char *request_uri)
+{
+    cJSON *root = cJSON_CreateObject();
+
+    char buf[512];
+    const esp_partition_t *part = lws_esp_ota_get_boot_partition();
+    struct lws_esp32_image i;
+    lws_esp32_get_image_info(part, &i, buf, sizeof(buf) - 1);
+    uint32_t switch_num;
+    cJSON *build = cJSON_Parse(buf);
+
+    cJSON *partition = cJSON_CreateObject();
+    cJSON_AddNumberToObject(partition, "address", part->address);
+    cJSON_AddNumberToObject(partition, "size", part->size);
+    cJSON_AddStringToObject(partition, "label", part->label);
+    cJSON_AddNumberToObject(partition, "type", part->type);
+    cJSON_AddNumberToObject(partition, "subtype", part->subtype);
+    cJSON_AddBoolToObject(partition, "encrypted", part->encrypted);
+    cJSON *romfs = cJSON_CreateObject();
+    cJSON_AddNumberToObject(romfs, "address", i.romfs);
+    cJSON_AddNumberToObject(romfs, "size", i.romfs_len);
+
+    cJSON_AddItemToObject(root, "build", build);
+    cJSON_AddItemToObject(root, "romfs", romfs);
+    cJSON_AddItemToObject(root, "partition", partition);
+    session_data->json_str = (unsigned char *)cJSON_PrintBuffered(root,  512, 1);
+    cJSON_Delete(root);
+
+    return 0;
+}
+
 
 int HttpServer::handle_get_calibrations(get_api_session_data *session_data, char *request_uri)
 {
@@ -162,6 +193,9 @@ int HttpServer::create_get_callback_reply(get_api_session_data *session_data, ch
         return handle_get_ip_info(session_data, request_uri, TCPIP_ADAPTER_IF_AP);
     if(strcmp(request_uri, "/uptime") == 0)
         return handle_get_uptime(session_data, request_uri);
+    if(strcmp(request_uri, "/boot_info") == 0)
+        return handle_get_bootinfo(session_data, request_uri);
+
     return 2; //This results in a 404 being sent
 }
 

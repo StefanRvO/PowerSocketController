@@ -71,6 +71,8 @@ class HttpServer
         int handle_get_ip_info(get_api_session_data *session_data, char *request_uri, tcpip_adapter_if_t adapter);
         int handle_get_uptime(get_api_session_data *session_data, char *request_uri);
         int handle_get_calibrations(get_api_session_data *session_data, char *request_uri);
+        int handle_get_bootinfo(get_api_session_data *session_data, char *request_uri);
+
         int post_set_ap(post_api_session_data *session_data);
         int post_set_sta(post_api_session_data *session_data);
         int post_set_switch_state(post_api_session_data *session_data);
