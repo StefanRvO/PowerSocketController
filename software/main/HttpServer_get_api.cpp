@@ -65,6 +65,27 @@ int HttpServer::handle_get_uptime(get_api_session_data *session_data, char *requ
     return 0;
 }
 
+int HttpServer::handle_get_user_info(get_api_session_data *session_data, char *request_uri)
+{
+    Session session;
+    uint64_t cur_time = this->t_keeper->get_uptime_milliseconds();
+    if(this->login_manager->get_session_info(&session_data->session_token, &session))
+        return 1;
+
+	cJSON *root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root, "username", session.username);
+    cJSON_AddNumberToObject(root, "type", session.u_type);
+    cJSON_AddNumberToObject(root, "session_created", session.created);
+    cJSON_AddNumberToObject(root, "session_lastuse", session.last_used);
+    cJSON_AddNumberToObject(root, "session_expire", this->login_manager->get_expire_time(&session));
+    cJSON_AddNumberToObject(root, "cur_time", cur_time);
+
+
+    session_data->json_str = (unsigned char *)cJSON_PrintBuffered(root,  60, 1);
+    cJSON_Delete(root);
+    return 0;
+}
+
 int HttpServer::handle_get_bootinfo(get_api_session_data *session_data, char *request_uri)
 {
     cJSON *root = cJSON_CreateObject();
@@ -73,7 +94,6 @@ int HttpServer::handle_get_bootinfo(get_api_session_data *session_data, char *re
     const esp_partition_t *part = lws_esp_ota_get_boot_partition();
     struct lws_esp32_image i;
     lws_esp32_get_image_info(part, &i, buf, sizeof(buf) - 1);
-    uint32_t switch_num;
     cJSON *build = cJSON_Parse(buf);
 
     cJSON *partition = cJSON_CreateObject();
@@ -195,6 +215,11 @@ int HttpServer::create_get_callback_reply(get_api_session_data *session_data, ch
         return handle_get_uptime(session_data, request_uri);
     if(strcmp(request_uri, "/boot_info") == 0)
         return handle_get_bootinfo(session_data, request_uri);
+    if(strcmp(request_uri, "/user_info") == 0)
+        return handle_get_user_info(session_data, request_uri);
+    /*if(strcmp(request_uri, "/user_list") == 0)
+        return handle_get_bootinfo(session_data, request_uri);*/
+
 
     return 2; //This results in a 404 being sent
 }
@@ -223,7 +248,7 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
                     goto try_to_reuse;
                 case 2:
                 default:
-                    return -1;
+                    return 1;
             }
             p = buffer + LWS_PRE;
             end = p + sizeof(buffer) - LWS_PRE;
@@ -278,7 +303,7 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
     				      LWS_WRITE_HTTP_HEADERS);
     			if (n < 0) {
                     if(session_data->json_str) free(session_data->json_str);
-    				return -1;
+    				return 1;
     			}
                 /*Transfer the malloced json string to the buffered one.
                  *This means that we can free the memory op fairly quickly, and not worry anymore.*/
@@ -341,7 +366,7 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
             ESP_LOGI(TAG, "LWS WRITE FAILED, BAILING\n")
 
             if(session_data->json_str) free(session_data->json_str);
-    		return -1;
+    		return 1;
 
             case LWS_CALLBACK_FILTER_NETWORK_CONNECTION:
         		/* if we returned non-zero from here, we kill the connection */
@@ -367,7 +392,7 @@ HttpServer::get_callback(struct lws *wsi, enum lws_callback_reasons reason,
             return 1;
     try_to_reuse:
     	if (lws_http_transaction_completed(wsi))
-    		return -1;
+    		return 1;
 
 	return 0;
 }

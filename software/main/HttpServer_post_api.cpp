@@ -103,8 +103,39 @@ int HttpServer::post_set_switch_state(post_api_session_data *session_data)
     return 0;
 }
 
+int HttpServer::post_change_password(struct lws *wsi, post_api_session_data *session_data)
+{
+    cJSON *root, *fmt, *new_pass, *old_pass;
+    login_error result;
+    root = cJSON_Parse(session_data->post_data);
+    if(!root) return -1;
+    fmt = cJSON_GetObjectItem(root, "password");
+    old_pass = cJSON_GetObjectItem(fmt, "old_password");
+    if(!old_pass || old_pass->type != cJSON_String) goto post_change_password_failure;
 
-int HttpServer::handle_post_data(post_api_session_data *session_data)
+    new_pass = cJSON_GetObjectItem(fmt, "new_password");
+    if(!new_pass || new_pass->type != cJSON_String) goto post_change_password_failure;
+
+    result = this->login_manager->change_passwd(&session_data->session_token,
+        old_pass->valuestring, new_pass->valuestring);
+    cJSON_Delete(root);
+    if(result == invalid_password)
+    {
+        lws_return_http_status(wsi, 403, "Old password validation failed!");
+        return 1;
+    }
+    if(result)
+        return -1;
+    return 0;
+
+    post_change_password_failure:
+        cJSON_Delete(root);
+        return -1;
+
+}
+
+
+int HttpServer::handle_post_data(struct lws *wsi, post_api_session_data *session_data)
 {
     session_data->post_data[session_data->total_post_length] = '\0'; //Make sure to zero terminate the string
     printf("URI: %.*s\n", sizeof(session_data->post_uri), session_data->post_uri);
@@ -120,6 +151,8 @@ int HttpServer::handle_post_data(post_api_session_data *session_data)
         this->s_handler->reset_settings();
     else if(strcmp(session_data->post_uri, "/toggle_switch") == 0)
         return post_set_switch_state(session_data);
+    else if(strcmp(session_data->post_uri, "/change_password") == 0)
+        return post_change_password(wsi, session_data);
 
     return 0;
 }
@@ -145,7 +178,7 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
                 goto try_to_reuse;
             case 2:
             default:
-                return -1;
+                return 1;
         }
         break;
 	case LWS_CALLBACK_HTTP_BODY:
@@ -153,7 +186,7 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
 
 		/* let it parse the POST data */
         if(sizeof(session_data->post_data) - 1 - session_data->total_post_length < len) //We substract 1 to make space for zero termination
-            return -1;
+            return 1;
         memcpy(session_data->post_data + session_data->total_post_length, in, len);
         session_data->total_post_length += len;
 		break;
@@ -161,7 +194,7 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
 	case LWS_CALLBACK_HTTP_BODY_COMPLETION:
 		printf("LWS_CALLBACK_HTTP_BODY_COMPLETION\n");
         if(sizeof(session_data->post_data) - session_data->total_post_length < len)
-            return -1;
+            return 1;
         memcpy(session_data->post_data + session_data->total_post_length, in, len);
         session_data->total_post_length += len;
 
@@ -170,14 +203,19 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
 
 	case LWS_CALLBACK_HTTP_WRITEABLE:
 		printf("LWS_CALLBACK_HTTP_WRITEABLE\n");
-        post_result = server->handle_post_data(session_data);
+        post_result = server->handle_post_data(wsi, session_data);
+        printf("post_result: %d\n", post_result);
         if(post_result == 0)
         {
             lws_return_http_status(wsi, HTTP_STATUS_OK, NULL);
 		    goto try_to_reuse;
         }
+        else if(post_result == 1)
+        {
+            goto try_to_reuse;
+        }
         else
-            return -1;
+            return 1;
 
 	case LWS_CALLBACK_HTTP_DROP_PROTOCOL:
 		break;
@@ -189,7 +227,7 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
 	return 0;
 try_to_reuse:
 	if (lws_http_transaction_completed(wsi))
-		return -1;
+		return 1;
 
 	return 0;
 }

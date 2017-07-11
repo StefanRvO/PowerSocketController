@@ -5,14 +5,117 @@
     <div class="header">
         <h1>Users</h1>
         <h2>Here you can see user information</h2>
+    </div>
+    <div class="content">
+
         <h2 class="content-subhead"><b>Current User</b></h2>
             <p> <b>Username:</b> <span id="span_user_username">Loading...</span> </p>
             <p> <b>Session Creation:</b> <span id="span_session_creation">Loading...</span> </p>
             <p> <b>Session Expiration:</b> <span id="span_session_expiration">Loading...</span> </p>
             <p> <b>Type:</b> <span id="span_user_type">Loading...</span> </p>
+
+        <h2 class="content-subhead"><b>Change Password</b></h2>
+        <form method="POST" class="pure-form pure-form-stacked" id="FormChangePassword">
+            <fieldset>
+                <div class="pure-control-group">
+                    <label for="old_password">Current password:</label>
+                    <input type="password" name="password[old_password]" id="old_password" value="">
+                </div>
+                <div class="pure-control-group">
+
+                    <label for="new_password">New password</label>
+                    <input type="password" name="password[new_password]" id="new_password">
+                </div>
+
+                <div class="pure-control-group">
+
+                    <label for="repeat">Repeat new password</label>
+                    <input type="password" name="password[repeat]" id="repeat">
+                </div>
+
+                <div  id="passwordMatchMessage">
+            </div>
+
+                <div class="pure-controls">
+                    <label for="submit"></label>
+                    <button id="submit" name="submit" class="pure-button" disabled = '1' >Submit</button>
+                </div>
+            </fieldset>
+
+        </form>
+
     </div>
 </div>
 
     <!--#include file="ssi/com_js.html"-->
+
+
+    <script language="javascript" type="text/javascript">
+
+    function checkPasswordMatch() {
+        var password = $("#new_password").val();
+        var confirmPassword = $("#repeat").val();
+        if(password.length < 3)
+        {
+            document.getElementById('submit').disabled = 1;
+            $("#passwordMatchMessage").html("<font color='red'>You probably don't want a password this short!</font>");
+
+        }
+        else if (password != confirmPassword)
+        {
+            document.getElementById('submit').disabled = 1;
+            $("#passwordMatchMessage").html("<font color='red'>Passwords do not match!</font>");
+        }
+        else
+        {
+            document.getElementById('submit').disabled = 0;
+            $("#passwordMatchMessage").html("");
+        }
+    }
+
+        $(document).ready(function () {
+       $("#new_password, #repeat").keyup(checkPasswordMatch);
+    });
+
+        $( document ).ready(function() {
+          $.ajax({
+            url: '/api/v1/get/user_info',
+            method: 'GET',
+            dataType: 'json',
+            data: {},
+            success: function(json) {
+              var cur_time = new Date().getTime();
+              $('#span_user_username').html(json.username);
+              $('#span_session_creation').html(new Date(cur_time + json.session_created - json.cur_time).toString());
+              $('#span_session_expiration').html(new Date(cur_time + json.session_expire - json.cur_time).toString());
+              $('#span_user_type').html(json.type);
+
+            }
+          });
+      });
+
+      // Submit password form
+      $('form#FormChangePassword').submit(function(e) {
+          e.preventDefault();
+          $.ajax({
+              url: '/api/v1/post/change_password',
+              type: 'POST',
+              contentType:"application/json; charset=utf-8",
+              data: $('form#FormChangePassword').serializeJSON(),
+              success: function() {
+                  var t = new Toast();
+                  t.snackShow('Password updated successfully', 'success');
+              },
+              error: function(jqXHR, exception) {
+                  if(jqXHR.status == 403)
+                  {
+                      var t = new Toast();
+                      t.snackShow('The password was incorrect', 'error');
+                  }
+              },
+          });
+      });
+
+      </script>
 
     <!--#include file="ssi/footer.html"-->

@@ -143,7 +143,7 @@ int HttpServer::login_callback(struct lws *wsi, enum lws_callback_reasons reason
 
 		/* let it parse the POST data */
         if(sizeof(session_data->post_data) - 1 - session_data->total_post_length < len) //We substract 1 to make space for zero termination
-            return -1;
+            return 1;
         memcpy(session_data->post_data + session_data->total_post_length, in, len);
         session_data->total_post_length += len;
 		break;
@@ -152,7 +152,7 @@ int HttpServer::login_callback(struct lws *wsi, enum lws_callback_reasons reason
         ESP_LOGI(TAG, "LWS_CALLBACK_HTTP_BODY_COMPLETION");
 
         if(sizeof(session_data->post_data) - session_data->total_post_length < len)
-            return -1;
+            return 1;
         memcpy(session_data->post_data + session_data->total_post_length, in, len);
         session_data->total_post_length += len;
 
@@ -222,7 +222,7 @@ int HttpServer::login_callback(struct lws *wsi, enum lws_callback_reasons reason
                 goto try_to_reuse;
         }
         ESP_LOGI(TAG, "%d", __LINE__);
-        return -1;
+        return 1;
 
 	case LWS_CALLBACK_HTTP_DROP_PROTOCOL:
         ESP_LOGI(TAG, "%d", __LINE__);
@@ -235,7 +235,7 @@ int HttpServer::login_callback(struct lws *wsi, enum lws_callback_reasons reason
 
 try_to_reuse:
 	if (lws_http_transaction_completed(wsi))
-		return -1;
+		return 1;
     ESP_LOGI(TAG, "%d", __LINE__);
 
 	return 0;

@@ -85,16 +85,17 @@ class HttpServer
         volatile bool running;
         bool use_ssl;
         int do_reboot = 0;
-        int handle_post_data(post_api_session_data *session_data);
+        int handle_post_data(struct lws *wsi, post_api_session_data *session_data);
         int handle_get_switch_state(get_api_session_data *session_data, char *request_uri);
         int handle_get_ip_info(get_api_session_data *session_data, char *request_uri, tcpip_adapter_if_t adapter);
         int handle_get_uptime(get_api_session_data *session_data, char *request_uri);
         int handle_get_calibrations(get_api_session_data *session_data, char *request_uri);
         int handle_get_bootinfo(get_api_session_data *session_data, char *request_uri);
-
+        int handle_get_user_info(get_api_session_data *session_data, char *request_uri);
         int post_set_ap(post_api_session_data *session_data);
         int post_set_sta(post_api_session_data *session_data);
         int post_set_switch_state(post_api_session_data *session_data);
+        int post_change_password(struct lws *wsi, post_api_session_data *session_data);
         login_error handle_login(post_api_session_data *session_data);
         login_error handle_try_login(post_api_session_data *session_data);
         void read_session(struct lws *wsi, session_key *dest); //NEED TO BE CALLED DURING LWS_CALLBACK_HTTP

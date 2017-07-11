@@ -116,7 +116,6 @@ login_error LoginManager::logout(char *username)
 login_error LoginManager::get_user_type(session_key *session_id, user_type *type)
 {
     bool found = false;
-    this->print_all_sessions();
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
     Session *session = this->get_session(session_id);
     if(session != nullptr)
@@ -125,6 +124,21 @@ login_error LoginManager::get_user_type(session_key *session_id, user_type *type
         found = true;
     }
     else *type = no_access;
+    xSemaphoreGive(this->session_lock);
+    if(!found) return session_invalid;
+    return no_error;
+}
+
+login_error LoginManager::get_session_info(session_key *session_id, Session *dest)
+{
+    bool found = false;
+    xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
+    Session *session = this->get_session(session_id);
+    if(session != nullptr)
+    {
+        memcpy(dest, session, sizeof(Session));
+        found = true;
+    }
     xSemaphoreGive(this->session_lock);
     if(!found) return session_invalid;
     return no_error;
@@ -147,29 +161,72 @@ login_error LoginManager::get_username(char *username, session_key *session_id)
     return session_invalid;
 }
 
-login_error LoginManager::perform_login(char *username, char *passwd, session_key *session)
+login_error LoginManager::perform_login(char *username, char *passwd, session_key *session, bool create_session)
 {
     size_t len = 0;
     if(!username or !passwd or !session) return fatal_error;
     esp_err_t err = nvs_get_blob(this->nvs_login_handle, username, (char *)nullptr, &len);
     if(err != ESP_OK) return invalid_username;
-    User *loaded_user = (User *)malloc(sizeof(User));
+    User loaded_user;
+    uint8_t hash[sizeof(loaded_user.hash)];
     len = sizeof(User);
-    err = nvs_get_blob(this->nvs_login_handle, username, (char *)loaded_user, &len);
+    err = nvs_get_blob(this->nvs_login_handle, username, (char *)&loaded_user, &len);
     if(err != ESP_OK)
-    {
-        free(loaded_user);
         return fatal_error;
-    }
-    uint8_t *hash = (uint8_t*)malloc(sizeof(User::hash));
-    this->get_hash(passwd, loaded_user->salt, hash, sizeof(User::hash));
-    int cmp_result = memcmp(hash, loaded_user->hash, sizeof(User::hash));
-    free(loaded_user);
-    free(hash);
+    this->get_hash(passwd, loaded_user.salt, hash, sizeof(User::hash));
+    int cmp_result = memcmp(hash, loaded_user.hash, sizeof(User::hash));
     if(cmp_result != 0) return invalid_password;
+    if(create_session == false) return no_error;
     return this->create_session(username, admin, session, this->time_keeper->get_uptime_milliseconds());
-
 }
+
+login_error LoginManager::change_passwd(session_key *session_id, char *old_pass, char *new_pass)
+{
+    bool found = false;
+    xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
+    Session *session = this->get_session(session_id);
+    login_error error = no_error;
+    while(session) //We do this in a while loop so we can use break.. Kind of hacky but whatever..
+    {
+        found = true;
+        //Verify current password
+        size_t len = 0;
+        if(!session->username or !old_pass or !session) return fatal_error;
+        esp_err_t err = nvs_get_blob(this->nvs_login_handle, session->username, (char *)nullptr, &len);
+        if(err != ESP_OK)
+        {
+            error = invalid_username;
+            break;
+        }
+        User loaded_user;
+        uint8_t hash[sizeof(loaded_user.hash)];
+        len = sizeof(User);
+        err = nvs_get_blob(this->nvs_login_handle, session->username, (char *)&loaded_user, &len);
+        if(err != ESP_OK)
+        {
+            error = fatal_error;
+            break;
+        }
+        this->get_hash(old_pass, loaded_user.salt, hash, sizeof(User::hash));
+        int cmp_result = memcmp(hash, loaded_user.hash, sizeof(User::hash));
+        if(cmp_result != 0)
+        {
+            error = invalid_password;
+            break;
+        }
+
+        loaded_user.salt = this->generate_salt();
+        this->get_hash(new_pass, loaded_user.salt, loaded_user.hash, sizeof(User::hash));
+        ESP_ERROR_CHECK( nvs_set_blob(this->nvs_login_handle, session->username, (uint8_t *)&loaded_user, sizeof(User)) );
+        ESP_ERROR_CHECK( nvs_commit(this->nvs_login_handle));
+        break;
+    }
+
+    xSemaphoreGive(this->session_lock);
+    if(found) return error;
+    return session_invalid;
+}
+
 login_error LoginManager::is_valid(session_key *session_id)
 {
     bool valid = false;
@@ -226,6 +283,7 @@ login_error LoginManager::add_user(char *username, char *password)
 {
     size_t len = 0;
     esp_err_t err = nvs_get_blob(this->nvs_login_handle, username, (char *)nullptr, &len);
+    if(err == ESP_ERR_NVS_INVALID_NAME) return login_error::invalid_username;
     if(err == ESP_OK) return login_error::user_already_exist;
     User *new_user = (User *)malloc(sizeof(User));
     new_user->salt = this->generate_salt();
@@ -274,6 +332,7 @@ void LoginManager::update_session(Session *session, uint64_t cur_time)
     if(session->valid)
     {
         session->valid = this->get_expire_time(session) > cur_time;
+        session->last_used = this->time_keeper->get_uptime_milliseconds();
     }
 }
 
@@ -281,7 +340,7 @@ uint64_t LoginManager::get_expire_time(Session *session)
 {
     uint64_t expire_inactive = session->last_used + EXPIRE_INACTIVE;
     uint64_t expire_max = session->last_used + EXPIRE_MAX;
-    return std::max(expire_inactive, expire_max);
+    return std::min(expire_inactive, expire_max);
 }
 
 uint64_t LoginManager::LoginManager::generate_salt()

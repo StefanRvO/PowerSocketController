@@ -207,9 +207,8 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
 		}
 
 		/* let it parse the POST data */
-        printf("%p, %p, %p, %d\n", pss->spa, pss, in, len);
 		if (lws_spa_process(pss->spa, (const char*)in, len))
-			return -1;
+			return 1;
 		break;
 
 	case LWS_CALLBACK_HTTP_BODY_COMPLETION:
@@ -274,7 +273,7 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
 	return 0;
 try_to_reuse:
 	if (lws_http_transaction_completed(wsi))
-		return -1;
+		return 1;
     return 0;
 
 bail:
