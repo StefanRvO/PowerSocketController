@@ -38,6 +38,7 @@ enum login_error
     fatal_error,
     session_invalid,
     logout,
+    not_allowed,
 };
 
 enum user_type: uint8_t
@@ -55,7 +56,7 @@ struct User
 
 struct Session
 {
-    Session(char *_username, user_type _type, uint64_t current_time);
+    Session(const char *_username, user_type _type, uint64_t current_time);
     Session() {};
     session_key session_id; //Session id for this instance. Must be unique
     char username[MAX_USERNAMELEN];
@@ -70,12 +71,12 @@ class LoginManager
     public:
         static LoginManager *get_instance();
         ~LoginManager() {};
-        login_error add_user(char *username, char *passwd); //done
-        login_error remove_user(char *username); //done
+        login_error add_user(const char *username, const char *passwd); //done
+        login_error remove_user(const char *username); //done
         login_error change_passwd(session_key *session_id, char *oldpasswd, char *newpasswd); //not done.
-        login_error get_username(char *username, session_key *session_id); //done
-        login_error perform_login(char *username, char *passwd, session_key *session_id, bool create_session = true); //done
-        login_error logout(char *username); //done
+        login_error get_username(const char *username, session_key *session_id); //done
+        login_error perform_login(const char *username, const char *passwd, session_key *session_id, bool create_session = true); //done
+        login_error logout(const char *username); //done
         login_error logout(session_key *session_id); //done
         login_error is_valid(session_key *session_id); //done
         login_error get_user_type(session_key *session_id, user_type *type); //done
@@ -87,8 +88,8 @@ class LoginManager
 
     private:
         static Session sessions[MAX_SESSIONS]; //Max ten active sessions at a time
-        login_error create_session(char *username, user_type type, session_key *session, uint64_t);
-        Session *get_session(char *username);
+        login_error create_session(const char *username, user_type type, session_key *session, uint64_t);
+        Session *get_session(const char *username);
         Session *get_session(session_key *session);
         void update_session(Session *session, uint64_t cur_time);
         TimeKeeper *time_keeper;
@@ -98,5 +99,5 @@ class LoginManager
         nvs_handle nvs_login_handle;
         SemaphoreHandle_t session_lock; //Lock for modifying the sessions
         uint64_t generate_salt();
-        void get_hash(char *password, uint64_t salt, uint8_t *hash_buff, size_t hash_len);
+        void get_hash(const char *password, uint64_t salt, uint8_t *hash_buff, size_t hash_len);
 };

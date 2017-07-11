@@ -37,12 +37,57 @@
             </div>
 
                 <div class="pure-controls">
-                    <label for="submit"></label>
-                    <button id="submit" name="submit" class="pure-button" disabled = '1' >Submit</button>
+                    <label for="submit_change_password"></label>
+                    <button id="submit_change_password" name="submit" class="pure-button" disabled = '1' >Submit</button>
                 </div>
             </fieldset>
 
         </form>
+    <h2 class="content-subhead"><b>Create User</b></h2>
+    <form method="POST" class="pure-form pure-form-stacked" id="FormAddUser">
+        <fieldset>
+            <div class="pure-control-group">
+                <label for="new_user_username">New Username:</label>
+                <input type="text" name="new_user[username]" id="new_user_username" value="">
+            </div>
+            <div class="pure-control-group">
+
+                <label for="new_password">Password</label>
+                <input type="password" name="new_user[password]" id="new_user_password">
+            </div>
+
+            <div class="pure-control-group">
+
+                <label for="repeat">Repeat password</label>
+                <input type="password" name="new_user[repeat]" id="new_user_repeat">
+            </div>
+
+            <div  id="new_user_passwordMatchMessage">
+        </div>
+
+            <div class="pure-controls">
+                <label for="submit_new_user"></label>
+                <button id="submit_new_user" name="submit" class="pure-button" disabled = '1' >Submit</button>
+            </div>
+        </fieldset>
+
+    </form>
+
+    <h2 class="content-subhead"><b>Delete User</b></h2>
+    <form method="POST" class="pure-form pure-form-stacked" id="formDeleteUser">
+        <fieldset>
+            <div class="pure-control-group">
+                <label for="new_user_username">User to delete:</label>
+                <input type="text" name="deleted_user[username]" id="new_user_username" value="">
+            </div>
+
+            <div class="pure-controls">
+                <label for="submit_delete_user"></label>
+                <button id="submit_delete_user" name="submit" class="pure-button button-warning">Submit</button>
+            </div>
+        </fieldset>
+
+    </form>
 
     </div>
 </div>
@@ -51,30 +96,41 @@
 
 
     <script language="javascript" type="text/javascript">
+    function add_user_checkPasswordMatch()
+    {
+        checkPasswordMatch("#new_user_password", "#new_user_repeat", "#new_user_passwordMatchMessage", "submit_new_user");
+    }
 
-    function checkPasswordMatch() {
-        var password = $("#new_password").val();
-        var confirmPassword = $("#repeat").val();
+    function change_password_checkPasswordMatch()
+    {
+        checkPasswordMatch("#new_password", "#repeat", "#passwordMatchMessage", "submit_change_password");
+    }
+
+    function checkPasswordMatch(password_field, repeat_field, match_field, submit_field) {
+        var password = $(password_field).val();
+        var confirmPassword = $(repeat_field).val();
+
         if(password.length < 3)
         {
-            document.getElementById('submit').disabled = 1;
-            $("#passwordMatchMessage").html("<font color='red'>You probably don't want a password this short!</font>");
+            document.getElementById(submit_field).disabled = 1;
+            $(match_field).html("<font color='red'>You probably don't want a password this short!</font>");
 
         }
         else if (password != confirmPassword)
         {
-            document.getElementById('submit').disabled = 1;
-            $("#passwordMatchMessage").html("<font color='red'>Passwords do not match!</font>");
+            document.getElementById(submit_field).disabled = 1;
+            $(match_field).html("<font color='red'>Passwords do not match!</font>");
         }
         else
         {
-            document.getElementById('submit').disabled = 0;
-            $("#passwordMatchMessage").html("");
+            document.getElementById(submit_field).disabled = 0;
+            $(match_field).html("");
         }
     }
 
         $(document).ready(function () {
-       $("#new_password, #repeat").keyup(checkPasswordMatch);
+       $("#new_password, #repeat").keyup(change_password_checkPasswordMatch);
+       $("#new_user_password, #new_user_repeat").keyup(add_user_checkPasswordMatch);
     });
 
         $( document ).ready(function() {
@@ -111,6 +167,48 @@
                   {
                       var t = new Toast();
                       t.snackShow('The password was incorrect', 'error');
+                  }
+              },
+          });
+      });
+
+      $('form#FormAddUser').submit(function(e) {
+          e.preventDefault();
+          $.ajax({
+              url: '/api/v1/post/add_user',
+              type: 'POST',
+              contentType:"application/json; charset=utf-8",
+              data: $('form#FormAddUser').serializeJSON(),
+              success: function() {
+                  var t = new Toast();
+                  t.snackShow('User added successfully.', 'success');
+              },
+              error: function(jqXHR, exception) {
+                  if(jqXHR.status == 403)
+                  {
+                      var t = new Toast();
+                      t.snackShow('<html><body>' + jqXHR.responseText.slice(24), 'error');
+                  }
+              },
+          });
+      });
+
+      $('form#formDeleteUser').submit(function(e) {
+          e.preventDefault();
+          $.ajax({
+              url: '/api/v1/post/remove_user',
+              type: 'POST',
+              contentType:"application/json; charset=utf-8",
+              data: $('form#formDeleteUser').serializeJSON(),
+              success: function() {
+                  var t = new Toast();
+                  t.snackShow('User removed sucessfully.', 'success');
+              },
+              error: function(jqXHR, exception) {
+                  if(jqXHR.status == 403)
+                  {
+                      var t = new Toast();
+                      t.snackShow('<html><body>' + jqXHR.responseText.slice(24), 'error');
                   }
               },
           });

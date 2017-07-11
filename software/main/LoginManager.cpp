@@ -12,10 +12,11 @@ Session LoginManager::sessions[MAX_SESSIONS];
 #define DEFAULT_USER "admin"
 #define DEFAULT_USER_PASSWD "password"
 
-Session::Session(char *_username, user_type _type, uint64_t current_time)
+Session::Session(const char *_username, user_type _type, uint64_t current_time)
 :valid(true), created(current_time), last_used(current_time), u_type(_type)
 {
     strncpy(this->username, _username, MAX_USERNAMELEN);
+    this->username[MAX_USERNAMELEN - 1] = '\0';
     *( ((uint32_t *)this->session_id.key) + 0 ) = esp_random();
     *( ((uint32_t *)this->session_id.key) + 1 ) = esp_random();
     *( ((uint32_t *)this->session_id.key) + 2 ) = esp_random();
@@ -60,7 +61,7 @@ LoginManager *LoginManager::get_instance()
 
 }
 
-Session *LoginManager::get_session(char *username)
+Session *LoginManager::get_session(const char *username)
 {
     for(uint8_t i = 0; i < MAX_SESSIONS; i++)
     {
@@ -85,7 +86,7 @@ Session *LoginManager::get_session(session_key *session)
     return nullptr;
 }
 
-login_error LoginManager::remove_user(char *username)
+login_error LoginManager::remove_user(const char *username)
 {
     size_t len = 0;
     esp_err_t err = nvs_get_blob(this->nvs_login_handle, username, (char *)nullptr, &len);
@@ -98,7 +99,7 @@ login_error LoginManager::remove_user(char *username)
     return user_do_not_exist;
 }
 
-login_error LoginManager::logout(char *username)
+login_error LoginManager::logout(const char *username)
 {
     bool found = false;
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
@@ -146,14 +147,14 @@ login_error LoginManager::get_session_info(session_key *session_id, Session *des
 
 
 
-login_error LoginManager::get_username(char *username, session_key *session_id)
+login_error LoginManager::get_username(const char *username, session_key *session_id)
 {
     bool found = false;
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
     Session *session = this->get_session(session_id);
     if(session != nullptr)
     {
-        memcpy(username, session->username, MAX_USERNAMELEN);
+        memcpy((void *)username, (void *)session->username, MAX_USERNAMELEN);
         found = true;
     }
     xSemaphoreGive(this->session_lock);
@@ -161,7 +162,7 @@ login_error LoginManager::get_username(char *username, session_key *session_id)
     return session_invalid;
 }
 
-login_error LoginManager::perform_login(char *username, char *passwd, session_key *session, bool create_session)
+login_error LoginManager::perform_login(const char *username, const char *passwd, session_key *session, bool create_session)
 {
     size_t len = 0;
     if(!username or !passwd or !session) return fatal_error;
@@ -279,21 +280,22 @@ LoginManager::LoginManager()
     }
 }
 
-login_error LoginManager::add_user(char *username, char *password)
+login_error LoginManager::add_user(const char *username, const char *password)
 {
+    User new_user;
     size_t len = 0;
     esp_err_t err = nvs_get_blob(this->nvs_login_handle, username, (char *)nullptr, &len);
-    if(err == ESP_ERR_NVS_INVALID_NAME) return login_error::invalid_username;
+    if(err == ESP_ERR_NVS_INVALID_NAME || strlen(username) > MAX_USERNAMELEN - 1) return login_error::invalid_username;
     if(err == ESP_OK) return login_error::user_already_exist;
-    User *new_user = (User *)malloc(sizeof(User));
-    new_user->salt = this->generate_salt();
-    this->get_hash(password, new_user->salt, new_user->hash, sizeof(User::hash));
-    ESP_ERROR_CHECK( nvs_set_blob(this->nvs_login_handle, username, (uint8_t *)new_user, sizeof(User)) );
-    ESP_ERROR_CHECK( nvs_commit(this->nvs_login_handle)    );
-    free(new_user);
+    printf("ERROR: %d\n", err);
+    new_user.salt = this->generate_salt();
+    this->get_hash(password, new_user.salt, new_user.hash, sizeof(User::hash));
+    ESP_ERROR_CHECK( nvs_set_blob(this->nvs_login_handle, username, (uint8_t *)&new_user, sizeof(User)) );
+    ESP_ERROR_CHECK( nvs_commit(this->nvs_login_handle));
     return no_error;
 }
-login_error LoginManager::create_session(char *username, user_type type, session_key *session, uint64_t _time)
+
+login_error LoginManager::create_session(const char *username, user_type type, session_key *session, uint64_t _time)
 {
     //Find the session to replace
     xSemaphoreTake(this->session_lock, 100000 / portTICK_RATE_MS);
@@ -350,7 +352,7 @@ uint64_t LoginManager::LoginManager::generate_salt()
     return salt;
 }
 
-void LoginManager::get_hash(char *password, uint64_t salt, uint8_t *hash_buff, size_t hash_len)
+void LoginManager::get_hash(const char *password, uint64_t salt, uint8_t *hash_buff, size_t hash_len)
 {
     size_t passwd_len = strlen(password);
     const mbedtls_md_info_t *info_sha1;

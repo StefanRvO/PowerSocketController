@@ -131,9 +131,80 @@ int HttpServer::post_change_password(struct lws *wsi, post_api_session_data *ses
     post_change_password_failure:
         cJSON_Delete(root);
         return -1;
-
 }
 
+int HttpServer::post_add_user(struct lws *wsi, post_api_session_data *session_data)
+{
+    cJSON *root, *fmt, *password, *username;
+    login_error result;
+    root = cJSON_Parse(session_data->post_data);
+    if(!root) return -1;
+    fmt = cJSON_GetObjectItem(root, "new_user");
+    password = cJSON_GetObjectItem(fmt, "password");
+    if(!password || password->type != cJSON_String) goto post_add_user_failure;
+
+    username = cJSON_GetObjectItem(fmt, "username");
+    if(!username || username->type != cJSON_String) goto post_add_user_failure;
+
+    result = this->login_manager->add_user(username->valuestring, password->valuestring);
+    cJSON_Delete(root);
+    if(result == invalid_username)
+    {
+        lws_return_http_status(wsi, 403, "Username is not valid, max length is 15!");
+        return 1;
+    }
+    if(result == user_already_exist)
+    {
+        lws_return_http_status(wsi, 403, "That user already exists!");
+        return 1;
+    }
+    if(result)
+        return -1;
+    return 0;
+
+    post_add_user_failure:
+        cJSON_Delete(root);
+        return -1;
+}
+
+int HttpServer::post_remove_user(struct lws *wsi, post_api_session_data *session_data)
+{
+    cJSON *root, *fmt, *username;
+    login_error result = not_allowed;
+    Session session;
+    if(this->login_manager->get_session_info(&session_data->session_token, &session))
+        return -1;
+
+    root = cJSON_Parse(session_data->post_data);
+    if(!root) return -1;
+    fmt = cJSON_GetObjectItem(root, "deleted_user");
+    if(!fmt) return -1;
+    username = cJSON_GetObjectItem(fmt, "username");
+    if(!username || username->type != cJSON_String) goto post_remove_user_failure;
+    //We can't remove the currently logged in user.
+    if( strncmp(session.username, username->valuestring, MAX_USERNAMELEN))
+    {
+        result = this->login_manager->remove_user(username->valuestring);
+    }
+    cJSON_Delete(root);
+    if(result == user_do_not_exist)
+    {
+        lws_return_http_status(wsi, 403, "That user does not exist!");
+        return 1;
+    }
+    else if(result == not_allowed)
+    {
+        lws_return_http_status(wsi, 403, "You can not deleted the currently logged in user!");
+        return 1;
+    }
+    if(result)
+        return -1;
+    return 0;
+
+    post_remove_user_failure:
+        cJSON_Delete(root);
+        return -1;
+}
 
 int HttpServer::handle_post_data(struct lws *wsi, post_api_session_data *session_data)
 {
@@ -153,6 +224,10 @@ int HttpServer::handle_post_data(struct lws *wsi, post_api_session_data *session
         return post_set_switch_state(session_data);
     else if(strcmp(session_data->post_uri, "/change_password") == 0)
         return post_change_password(wsi, session_data);
+    else if(strcmp(session_data->post_uri, "/add_user") == 0)
+        return post_add_user(wsi, session_data);
+    else if(strcmp(session_data->post_uri, "/remove_user") == 0)
+        return post_remove_user(wsi, session_data);
 
     return 0;
 }
@@ -170,6 +245,7 @@ HttpServer::post_callback(struct lws *wsi, enum lws_callback_reasons reason,
     case LWS_CALLBACK_HTTP:
         printf("LWS_CALLBACK_HTTP\n");
         strncpy(session_data->post_uri, (const char*)in, sizeof(session_data->post_uri));
+        session_data->post_uri[sizeof(session_data->post_uri) - 1] = '\0';
         switch(server->check_session_access(wsi, &session_data->session_token))
         {
             case 0:

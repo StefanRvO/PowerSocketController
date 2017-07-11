@@ -88,6 +88,7 @@ ota_file_upload_cb(void *data, const char *name, const char *filename,
 	case LWS_UFS_OPEN:
 		lwsl_notice("LWS_UFS_OPEN Filename %s\n", filename);
 		strncpy(pss->filename, filename, sizeof(pss->filename) - 1);
+        pss->filename[sizeof(pss->filename) - 1] = '\0';
 		if (strcmp(name, "ota"))
 			return 1;
 
@@ -177,6 +178,7 @@ HttpServer::ota_callback(struct lws *wsi, enum lws_callback_reasons reason,
     case LWS_CALLBACK_HTTP:
         printf("LWS_CALLBACK_HTTP\n");
         strncpy(pss->post_uri, (const char*)in, sizeof(pss->post_uri));
+        pss->post_uri[sizeof(pss->post_uri) - 1] = '\0';
         switch(server->check_session_access(wsi, &pss->session_token))
         {
             case 0:

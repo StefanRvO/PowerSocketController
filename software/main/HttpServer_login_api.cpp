@@ -136,6 +136,7 @@ int HttpServer::login_callback(struct lws *wsi, enum lws_callback_reasons reason
     case LWS_CALLBACK_HTTP:
         ESP_LOGI(TAG, "LWS_CALLBACK_HTTP");
         strncpy(session_data->post_uri, (const char*)in, sizeof(session_data->post_uri));
+        session_data->post_uri[sizeof(session_data->post_uri) - 1] = '\0';
         server->read_session(wsi, &session_data->session_token);
         break;
 	case LWS_CALLBACK_HTTP_BODY:

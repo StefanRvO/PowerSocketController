@@ -96,6 +96,8 @@ class HttpServer
         int post_set_sta(post_api_session_data *session_data);
         int post_set_switch_state(post_api_session_data *session_data);
         int post_change_password(struct lws *wsi, post_api_session_data *session_data);
+        int post_remove_user(struct lws *wsi, post_api_session_data *session_data);
+        int post_add_user(struct lws *wsi, post_api_session_data *session_data);
         login_error handle_login(post_api_session_data *session_data);
         login_error handle_try_login(post_api_session_data *session_data);
         void read_session(struct lws *wsi, session_key *dest); //NEED TO BE CALLED DURING LWS_CALLBACK_HTTP
