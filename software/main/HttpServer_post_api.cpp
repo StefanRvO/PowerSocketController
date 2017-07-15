@@ -214,8 +214,6 @@ int HttpServer::handle_post_data(struct lws *wsi, post_api_session_data *session
         return this->post_set_sta(session_data);
     else if(strcmp(session_data->post_uri, "/AP_SSID") == 0)
         return this->post_set_ap(session_data);
-    else if(strcmp(session_data->post_uri, "/recalib_current") == 0)
-        this->cur_measurer->recalib_current_sensors();
     else if(strcmp(session_data->post_uri, "/reboot") == 0)
         this->do_reboot = 1;
     else if(strcmp(session_data->post_uri, "/reset") == 0)

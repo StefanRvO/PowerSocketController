@@ -13,13 +13,12 @@ extern "C"
 
 #include "HttpServer.h"
 #include "FilesystemHandler.h"
-#include "StartupTest.h"
 #include "WifiHandler.h"
 #include "SettingsHandler.h"
 #include "SwitchHandler.h"
-#include "CurrentMeasurer.h"
 #include "TimeKeeper.h"
 #include "mDNSServer.h"
+#include "PCF8574_Handler.h"
 
 __attribute__((unused)) static const char *TAG = "PowerSocket";
 
@@ -49,21 +48,7 @@ void hello_task(void *pvParameter)
 
 void cpp_main()
 {
-    const gpio_num_t relay_pins[] = {
-        GPIO_NUM_25,
-        GPIO_NUM_26,
-        GPIO_NUM_27,
-    };
-    const gpio_num_t button_leds[] = {
-        GPIO_NUM_19,
-        GPIO_NUM_5,
-        GPIO_NUM_16,
-    };
-    const gpio_num_t button_pins[] = {
-        GPIO_NUM_21,
-        GPIO_NUM_18,
-        GPIO_NUM_17,
-    };
+
     printf("Booted, now initialising tasks and subsystems!\n");
     printf("Compile info: GCC %u.%u.%u\t", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
     printf("Compile date: %s -- %s\n", __DATE__, __TIME__);
@@ -71,25 +56,51 @@ void cpp_main()
     //The initialisations of these systems ARE important!
     printf("Intialising settings handler and NVS system!\n");
     __attribute__((unused)) SettingsHandler *s_handler = SettingsHandler::get_instance();
+    printf("Initialising PCF8574 devices");
+    PCF8574 PCF8574_devices[2];
+    PCF8574 &button_control = PCF8574_devices[0];
+    button_control.address = 0x38;
+    button_control.interrupt_pin = (gpio_num_t)0;
+    PCF8574 &relay_control = PCF8574_devices[2];
+    relay_control.address = 0x39;
+    relay_control.interrupt_pin = GPIO_NUM_23;
+
+    PCF8574_Handler::get_instance(GPIO_NUM_21, GPIO_NUM_19, PCF8574_devices, 2);
+
     printf("Intialising switch handler!\n");
-    __attribute__((unused)) SwitchHandler *switch_handler = SwitchHandler::get_instance(relay_pins, button_pins, button_leds, 3);
+    const gpio_num_t button_leds[] = {
+        GPIO_NUM_19,
+        GPIO_NUM_5,
+        GPIO_NUM_16,
+    };
+    PCF8574_pin relay_pins[3];
+    PCF8574_pin button_pins[3];
+    PCF8574_pin relay_voltage_pin;
+    relay_voltage_pin.address = 0x39;
+    relay_voltage_pin.pin_num = 0;
+    relay_pins[0].address = 0x39;
+    relay_pins[1].address = 0x39;
+    relay_pins[2].address = 0x39;
+    relay_pins[0].pin_num = 3;
+    relay_pins[1].pin_num = 2;
+    relay_pins[2].pin_num = 1;
+
+    button_pins[0].address = 0x38;
+    button_pins[1].address = 0x38;
+    button_pins[2].address = 0x38;
+    button_pins[0].pin_num = 0;
+    button_pins[1].pin_num = 1;
+    button_pins[2].pin_num = 2;
+
+    SwitchHandler::get_instance(relay_pins, &relay_voltage_pin, button_pins, button_leds, 3);
 
 
     printf("Initialising Wifi!\n");
     __attribute__((unused)) WifiHandler *wifi_h = WifiHandler::get_instance();
     printf("Initialised wifi!.\n");
     wifi_h->print_ap_settings();
-    //printf("Now initialising the filesystem.\n");
-    //FilesystemHandler::register_filesystem("storage", "/data");
     xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
 
-    __attribute__((unused)) const adc1_channel_t adc_channles[] = {
-        ADC1_CHANNEL_7,
-        ADC1_CHANNEL_4,
-        ADC1_CHANNEL_5,
-    };
-
-    __attribute__((unused)) CurrentMeasurer *meas =  CurrentMeasurer::get_instance(adc_channles, sizeof(adc_channles) / sizeof(adc_channles[0]) );
     initialize_sntp();
 
     //Keep time.
@@ -100,7 +111,6 @@ void cpp_main()
     //HttpServer httpsd_server("443", true);
     //httpsd_server.start();
     __attribute__((unused)) mDNSServer *mdns_server = mDNSServer::get_instance();
-    //do_startup_test();
 
     //Enter a inifite loop which performs tasks which should happen very unfrequent
 

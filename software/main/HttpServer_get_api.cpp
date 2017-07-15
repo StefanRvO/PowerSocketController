@@ -117,33 +117,6 @@ int HttpServer::handle_get_bootinfo(get_api_session_data *session_data, char *re
 }
 
 
-int HttpServer::handle_get_calibrations(get_api_session_data *session_data, char *request_uri)
-{
-    cJSON *root,*fmt;
-	root = cJSON_CreateObject();
-    uint8_t count = this->cur_measurer->get_current_count();
-    cJSON_AddNumberToObject(root, "count", count);
-
-    for(uint8_t i = 0; i < count; i++)
-    {   //Send data for each calibration
-        char calib_name[10];
-        CurrentCalibration cur_calib;
-        this->cur_measurer->load_current_calibration(i, cur_calib);
-        snprintf(calib_name, 10, "ccalib%d", i);
-        cJSON_AddItemToObject(root, calib_name, fmt=cJSON_CreateObject());
-        cJSON_AddNumberToObject(fmt, "id", i);
-        cJSON_AddNumberToObject(fmt, "conversion",  cur_calib.conversion);
-        cJSON_AddNumberToObject(fmt, "bias_on",     cur_calib.bias_on.last.bias);
-        cJSON_AddNumberToObject(fmt, "bias_off",    cur_calib.bias_off.last.bias);
-        cJSON_AddNumberToObject(fmt, "stddev_on",   cur_calib.bias_on.last.stddev);
-        cJSON_AddNumberToObject(fmt, "stddev_off",  cur_calib.bias_off.last.stddev);
-        cJSON_AddNumberToObject(fmt, "calibrated",  cur_calib.bias_on.last.completed);
-    }
-    session_data->json_str = (unsigned char *)cJSON_PrintBuffered(root,  count * 100 + 10, 1);
-    cJSON_Delete(root);
-    return 0;
-}
-
 int HttpServer::handle_get_ip_info(get_api_session_data *session_data, char *request_uri, tcpip_adapter_if_t adapter)
 {
     if(adapter != TCPIP_ADAPTER_IF_AP and adapter != TCPIP_ADAPTER_IF_STA)
@@ -205,8 +178,6 @@ int HttpServer::create_get_callback_reply(get_api_session_data *session_data, ch
 {
     if(strcmp(request_uri, "/switch_state") == 0)
         return handle_get_switch_state(session_data, request_uri);
-    if(strcmp(request_uri, "/current_calibrations") == 0)
-        return handle_get_calibrations(session_data, request_uri);
     if(strcmp(request_uri, "/sta_info") == 0)
         return handle_get_ip_info(session_data, request_uri, TCPIP_ADAPTER_IF_STA);
     if(strcmp(request_uri, "/ap_info") == 0)

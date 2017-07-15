@@ -6,11 +6,15 @@
 
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-
-
+#include "PCF8574_Handler.h"
 #define DEBOUNCE_TIME 30 //Millisecond threshold for debouncing
 #define DOUBLECLICK_THRESHOLD 500//Threshold time for doubleclicking
 #define POLL_TIME 15
+#define LEDC_BITWIDTH LEDC_TIMER_13_BIT
+#define FADE_TIME 400
+#define TIME_5V 200 //Number of milliseconds we set the relay voltage to 5V when switching on. Half will be before the switch, and helf after
+#define TIME_5V_STEPS (TIME_5V / POLL_TIME) //Number of POLL_TIME for TIME_5V
+
 extern "C"
 {
     #include "freertos/FreeRTOS.h"
@@ -64,15 +68,15 @@ class SwitchHandler;
 class SwitchHandler
 {
     public:
-        static SwitchHandler *get_instance(const  gpio_num_t *_relay_pins, const gpio_num_t *_button_pins, const gpio_num_t *_button_leds, size_t _pin_num);
+        static SwitchHandler *get_instance(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
+                const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
+                 size_t _pin_num);
         static SwitchHandler *get_instance();
 
         ~SwitchHandler();
         void set_switch_state(uint8_t switch_num, switch_state state, bool write_to_nvs = true);
         switch_state get_switch_state(uint8_t switch_num);
         uint8_t get_switch_count();
-        void set_saved_state(uint8_t switch_num, char *buff = nullptr);  //Buffer needs to be able to hold at least 10 bytes
-                                                                        //if null is given, we will malloc the memory ourself.
 
     private:
         uint64_t blink_time = 20; //When the LED's are in blinking state, they will blink with a frequency of 1000/(2 * blink_time).
@@ -84,19 +88,28 @@ class SwitchHandler
 
         led_control_mode led_mode = output;
         static SwitchHandler *instance;
-        SwitchHandler(const  gpio_num_t *_relay_pins, const gpio_num_t *_button_pins, const gpio_num_t *_button_leds, size_t _pin_num);
-        const gpio_num_t *relay_pins;
-        const gpio_num_t *button_pins;
+        SwitchHandler(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
+                const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
+                 size_t _pin_num);
+
+        const PCF8574_pin *relay_pins;
+        const PCF8574_pin *relay_voltage_pin;
+        const PCF8574_pin *button_pins;
         const gpio_num_t *button_leds;
+        uint32_t relay_voltage_pin_timeout = TIME_5V_STEPS;
+        xSemaphoreHandle set_mux;
+
         size_t pin_num;
+
         SettingsHandler *s_handler;
         TimerHandle_t button_poll_timer = nullptr;
+        PCF8574_Handler *pcf8574;
         void setup_relay_pins();
         void setup_button_pins();
         void setup_button_leds();
         static void poll_buttons(TimerHandle_t xTimer); //poll each button individually.
                                                         //Afterwards, check for events which depends on combined states.
-        button_event poll_button(uint8_t button_num); //emit events on changes (debounced)
+        button_event poll_button(uint8_t button_num, bool raw_state); //emit events on changes (debounced)
         void handle_event(button_event the_event, uint8_t button_num);
         void handle_button_states();
         void set_led_mode(led_control_mode mode, uint64_t timeout);

@@ -7,34 +7,45 @@ extern "C"
     #include "esp_system.h"
     #include "esp_err.h"
 }
-#define LEDC_BITWIDTH LEDC_TIMER_13_BIT
-#define FADE_TIME 400
 
 __attribute__((unused)) static const char *TAG = "SwitchHandler";
 
 SwitchHandler *SwitchHandler::instance = nullptr;
 
+PCF8574_pin_state switch_state_to_PCF8574(switch_state state)
+{
+    if(state == on) return HIGH;
+    else            return LOW;
+
+}
 SwitchHandler *SwitchHandler::get_instance()
 {
     assert(SwitchHandler::instance != nullptr);
     return SwitchHandler::instance;
 }
 
-SwitchHandler *SwitchHandler::get_instance(const  gpio_num_t *_relay_pins, const gpio_num_t *_button_pins, const gpio_num_t *_button_leds, size_t _pin_num)
+SwitchHandler *SwitchHandler::get_instance(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
+        const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
+         size_t _pin_num)
 {
     if(SwitchHandler::instance == nullptr)
     {
-        SwitchHandler::instance = new SwitchHandler(_relay_pins, _button_pins, _button_leds, _pin_num);
+        SwitchHandler::instance = new SwitchHandler(_relay_pins, _button_pins, _relay_voltage_pin, _button_leds, _pin_num);
     }
     return SwitchHandler::instance;
 }
 
-SwitchHandler::SwitchHandler(const  gpio_num_t *_relay_pins, const gpio_num_t *_button_pins, const gpio_num_t *_button_leds, size_t _pin_num)
-: relay_pins(_relay_pins), button_pins(_button_pins), button_leds(_button_leds), pin_num(_pin_num),  s_handler(SettingsHandler::get_instance())
+SwitchHandler::SwitchHandler(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
+        const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
+         size_t _pin_num)
+: relay_pins(_relay_pins), relay_voltage_pin(_relay_voltage_pin),
+    button_pins(_button_pins), button_leds(_button_leds),
+    pin_num(_pin_num),  s_handler(SettingsHandler::get_instance()),
+    pcf8574(PCF8574_Handler::get_instance())
 { //Beware, GPIO34-39 can only be used as input and got not pull-up/down.
   //We should primarily use this for ADC input.
   //See https://esp-idf.readthedocs.io/en/latest/api/peripherals/gpio.html for GPIO info
-  //There needs to be at least pin_num number of pins in each of the given pin pointers
+  //There needs to be at least pin_num number of pins in each of the given pin pointers (except relay_voltage_pin)
   this->state_buff = (switch_state *)malloc(this->pin_num * sizeof(switch_state));
   this->button_states = (button_state *)malloc(this->pin_num * sizeof(button_state));
   this->led_state_buff = (switch_state *)malloc(this->pin_num * sizeof(switch_state));
@@ -54,7 +65,7 @@ SwitchHandler::SwitchHandler(const  gpio_num_t *_relay_pins, const gpio_num_t *_
   this->led_settings_lock = xSemaphoreCreateMutex();
   if(this->led_settings_lock == NULL) printf("error creating switchhandler led semaphore!\n");
 
-  this->button_poll_timer = xTimerCreate ("btn_poll_tmr", POLL_TIME / portTICK_PERIOD_MS, pdTRUE, 0, &SwitchHandler::poll_buttons);
+  this->button_poll_timer = xTimerCreate ("btn_poll_tmr", POLL_TIME / portTICK_PERIOD_MS, pdTRUE, 0, SwitchHandler::poll_buttons);
   xTimerStart(this->button_poll_timer, 100000 / portTICK_PERIOD_MS);
 }
 
@@ -70,90 +81,36 @@ void SwitchHandler::setup_relay_pins()
     //Set the pins as output, and read the settings from the settingshandler
     //If no value is set, set default as off.
 
-    gpio_config_t io_conf;
-    //disable interrupt
-    io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
-    //set as output mode
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    //bit mask of the pins that you want to set
-    io_conf.pin_bit_mask = 0;
-    //disable pull-down mode
-    io_conf.pull_down_en = (gpio_pulldown_t)0;
-    //disable pull-up mode
-    io_conf.pull_up_en = (gpio_pullup_t)0;
-    //configure GPIO with the given settings
-    for(uint8_t i = 0; i < this->pin_num; i++)
-    {
-        io_conf.pin_bit_mask += 1<< (uint64_t)(this->relay_pins[i]);
-        //ESP_ERROR_CHECK(gpio_set_direction(this->button_leds[i], GPIO_MODE_OUTPUT));
-    }
-
-    ESP_ERROR_CHECK( gpio_config(&io_conf) );
-
-    char *switch_str = (char *)malloc(10);
+    PCF8574_pin_state *states = new PCF8574_pin_state[this->pin_num];
+    PCF8574_pin_state relay_voltage_pin_state = HIGH;
+    char switch_str[10];
 
     for(uint8_t i = 0; i < this->pin_num; i++)
     {
         //Set default value if not already set
-        snprintf(switch_str, 10,  "SWITCH%d", i);
+        snprintf(switch_str, sizeof(switch_str),  "SWITCH%d", i);
         switch_state state = off;
         ESP_ERROR_CHECK( this->s_handler->set_default_value(switch_str, (uint8_t)state) );
-
         //Read the saved state
         ESP_ERROR_CHECK( this->s_handler->nvs_get(switch_str, (uint8_t *)&state) );
         //Set the state
-        this->set_switch_state(i, state, false);
+        this->state_buff[i] = state;
+        states[i] = switch_state_to_PCF8574(state);
     }
-    free(switch_str);
-
+    delete[] states;
+    this->pcf8574->set_as_output(this->relay_voltage_pin, &relay_voltage_pin_state, 1);
+    this->pcf8574->set_as_output(this->relay_pins, states, this->pin_num);
 }
 
-void SwitchHandler::set_saved_state(uint8_t switch_num, char *buff)
-{   //Read the state from nvs and output it to the pins
-    bool malloced = false;
-    if(buff == nullptr)
-    {
-        malloced = true;
-        buff = (char *)malloc(10);
-    }
-    snprintf(buff, 10,  "SWITCH%d", switch_num);
-    //Read the saved state
-    switch_state state = off;
-
-    ESP_ERROR_CHECK( this->s_handler->nvs_get(buff, (uint8_t *)&state) );
-    //Set the state
-    this->set_switch_state(switch_num, state, false);
-
-    if(malloced) free(buff);
-}
 void SwitchHandler::setup_button_pins()
-{ //Setup all the button pins. They needs to be set as input with pull-down
-
-    gpio_config_t io_conf;
-    //disable interrupt
-    io_conf.intr_type = ( gpio_int_type_t )GPIO_PIN_INTR_DISABLE;
-    //set as output mode
-    io_conf.mode = GPIO_MODE_INPUT;
-    //bit mask of the pins that you want to set
-    io_conf.pin_bit_mask = 0;
-    //enable pull-down mode
-    io_conf.pull_down_en = (gpio_pulldown_t)1;
-    //disable pull-up mode
-    io_conf.pull_up_en = (gpio_pullup_t)0;
-    //configure GPIO with the given settings
-    for(uint8_t i = 0; i < this->pin_num; i++)
-    {
-        io_conf.pin_bit_mask += 1<< (uint64_t)(this->button_pins[i]);
-    }
-    ESP_ERROR_CHECK( gpio_config(&io_conf) );
-
+{ //Setup all the button pins.
+    this->pcf8574->set_as_input(this->button_pins, this->pin_num);
 }
 
 void SwitchHandler::setup_button_leds()
 {
     //We use the LEDC driver for controlling the LED's.
     //This will make fancy stuff and animations possible..
-
     //Setup the timer
     ledc_timer_config_t ledc_timer;
     ledc_timer.bit_num = LEDC_BITWIDTH;             //set timer counter bit number
@@ -180,22 +137,31 @@ void SwitchHandler::setup_button_leds()
 
 void SwitchHandler::set_switch_state(uint8_t switch_num, switch_state state, bool write_to_nvs)
 {
-    if(switch_num >= pin_num)
+    if(switch_num >= this->pin_num)
         return; //Simply ignore if not within range.
+    xSemaphoreTake(this->set_mux, portMAX_DELAY);
+
+    if(this->relay_voltage_pin_timeout == 0)
+    {
+        PCF8574_pin_state relay_voltage_pin_state = HIGH;
+        this->pcf8574->set_output_state(this->relay_voltage_pin, &relay_voltage_pin_state, 1);
+    }
+    this->relay_voltage_pin_timeout = 200;
 
     //Set the relay state
-    ESP_ERROR_CHECK(gpio_set_level(this->relay_pins[switch_num], state));
+    PCF8574_pin_state relay_state = switch_state_to_PCF8574(state);
+    this->pcf8574->set_output_state(this->relay_pins + switch_num, &relay_state, 1);
     //Set the state in the buffer
     this->state_buff[switch_num] = state;
-
     //Write to nvs if requested
     if(write_to_nvs)
     {
-        char *switch_str = (char *)malloc(10);
+        char switch_str[10];
         snprintf(switch_str, 10,  "SWITCH%d", switch_num);
         ESP_ERROR_CHECK( this->s_handler->nvs_set(switch_str, (uint8_t)state) );
-        free(switch_str);
     }
+    xSemaphoreGive(this->set_mux);
+
 }
 switch_state SwitchHandler::get_switch_state(uint8_t switch_num)
 {   //Return the value stored in the buffer. this also means that we need to make absolutely sure that all changes of the pin
@@ -215,11 +181,21 @@ uint8_t SwitchHandler::get_switch_count()
 void SwitchHandler::poll_buttons(TimerHandle_t xTimer)
 {
     //Pool all the buttons and update their states
+    xSemaphoreTake(SwitchHandler::instance->set_mux, portMAX_DELAY);
+    if(SwitchHandler::instance->relay_voltage_pin_timeout && --SwitchHandler::instance->relay_voltage_pin_timeout == 0)
+    {
+        PCF8574_pin_state relay_voltage_pin_state = LOW;
+        SwitchHandler::instance->pcf8574->set_output_state(SwitchHandler::instance->relay_voltage_pin, &relay_voltage_pin_state, 1);
+    }
+    xSemaphoreGive(SwitchHandler::instance->set_mux);
+    PCF8574_pin_state *states = new PCF8574_pin_state[SwitchHandler::instance->pin_num];
+    SwitchHandler::instance->pcf8574->read_input_state(SwitchHandler::instance->button_pins, states, SwitchHandler::instance->pin_num); //Can only be used with pins all from the same device. Will block while reading.
     for(uint8_t i = 0; i < SwitchHandler::instance->pin_num; i++)
     {
-        button_event emitted_event = SwitchHandler::instance->poll_button(i);
+        button_event emitted_event = SwitchHandler::instance->poll_button(i, states[i]);
         SwitchHandler::instance->handle_event(emitted_event, i);
     }
+    delete[] states;
     SwitchHandler::instance->handle_button_states();
     SwitchHandler::instance->handle_leds();
 }
@@ -368,10 +344,9 @@ void SwitchHandler::set_led_blink_time(uint64_t blink_time_)
     xSemaphoreGive(this->led_settings_lock);
 }
 
-button_event SwitchHandler::poll_button(uint8_t button_num)
+button_event SwitchHandler::poll_button(uint8_t button_num, bool raw_state)
 {
     //Debouncing
-    bool raw_state = gpio_get_level(this->button_pins[button_num]);
     button_state &state = this->button_states[button_num];
     if(state.raw_state == raw_state)
     {

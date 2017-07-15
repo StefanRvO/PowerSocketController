@@ -6,7 +6,6 @@
 #include "WifiHandler.h"
 #include "SwitchHandler.h"
 #include "TimeKeeper.h"
-#include "CurrentMeasurer.h"
 #include <libwebsockets.h>
 #include "LoginManager.h"
 
@@ -75,7 +74,6 @@ class HttpServer
     private:
         SettingsHandler *s_handler = nullptr;
         SwitchHandler *switch_handler = nullptr;
-        CurrentMeasurer *cur_measurer = nullptr;
         TimeKeeper *t_keeper = nullptr;
         LoginManager *login_manager = nullptr;
         WifiHandler *wifi_handler = nullptr;
