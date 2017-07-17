@@ -30,7 +30,7 @@ SwitchHandler *SwitchHandler::get_instance(const  PCF8574_pin *_relay_pins, cons
 {
     if(SwitchHandler::instance == nullptr)
     {
-        SwitchHandler::instance = new SwitchHandler(_relay_pins, _button_pins, _relay_voltage_pin, _button_leds, _pin_num);
+        SwitchHandler::instance = new SwitchHandler(_relay_pins, _relay_voltage_pin, _button_pins, _button_leds, _pin_num);
     }
     return SwitchHandler::instance;
 }
@@ -41,7 +41,8 @@ SwitchHandler::SwitchHandler(const  PCF8574_pin *_relay_pins, const PCF8574_pin 
 : relay_pins(_relay_pins), relay_voltage_pin(_relay_voltage_pin),
     button_pins(_button_pins), button_leds(_button_leds),
     pin_num(_pin_num),  s_handler(SettingsHandler::get_instance()),
-    pcf8574(PCF8574_Handler::get_instance())
+    pcf8574(PCF8574_Handler::get_instance()), set_mux(xSemaphoreCreateMutex()),
+    led_settings_lock(xSemaphoreCreateMutex())
 { //Beware, GPIO34-39 can only be used as input and got not pull-up/down.
   //We should primarily use this for ADC input.
   //See https://esp-idf.readthedocs.io/en/latest/api/peripherals/gpio.html for GPIO info
@@ -62,7 +63,6 @@ SwitchHandler::SwitchHandler(const  PCF8574_pin *_relay_pins, const PCF8574_pin 
       state.filtered_state = false;
       state.timer = 0;
   }
-  this->led_settings_lock = xSemaphoreCreateMutex();
   if(this->led_settings_lock == NULL) printf("error creating switchhandler led semaphore!\n");
 
   this->button_poll_timer = xTimerCreate ("btn_poll_tmr", POLL_TIME / portTICK_PERIOD_MS, pdTRUE, 0, SwitchHandler::poll_buttons);
@@ -192,6 +192,7 @@ void SwitchHandler::poll_buttons(TimerHandle_t xTimer)
     SwitchHandler::instance->pcf8574->read_input_state(SwitchHandler::instance->button_pins, states, SwitchHandler::instance->pin_num); //Can only be used with pins all from the same device. Will block while reading.
     for(uint8_t i = 0; i < SwitchHandler::instance->pin_num; i++)
     {
+        printf("button%d: %d\n", i, states[i]);
         button_event emitted_event = SwitchHandler::instance->poll_button(i, states[i]);
         SwitchHandler::instance->handle_event(emitted_event, i);
     }
@@ -244,7 +245,7 @@ void SwitchHandler::handle_button_states()
         }
     }
     //printf("min_time: %llu\n", min_time);
-    if(min_time > 5000 and min_time != std::numeric_limits<uint64_t>::max())
+    /*if(min_time > 5000 and min_time != std::numeric_limits<uint64_t>::max())
     {
         //we change into blinking state, with a timout of 500 ms
         //And a delay between blinks of (20000 - min_time) / 20
@@ -258,7 +259,7 @@ void SwitchHandler::handle_button_states()
             this->s_handler->reset_settings();
             esp_restart();
         }
-    }
+    }*/
     return;
 }
 void SwitchHandler::handle_leds()

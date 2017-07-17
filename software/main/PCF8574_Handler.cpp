@@ -2,7 +2,9 @@
 #include "driver/i2c.h"
 #include <cstring>
 #define ENABLE_I2C_PULLUP GPIO_PULLUP_ENABLE
-#define I2C_CLK_FREQ 100000
+#define DISABLE_I2C_PULLUP GPIO_PULLUP_DISABLE
+
+#define I2C_CLK_FREQ 10000
 #define I2C_MASTER_RX_BUF_DISABLE 0
 #define I2C_MASTER_TX_BUF_DISABLE 0
 #define ACK_VAL 0x0
@@ -13,9 +15,9 @@ static int setup_i2c_master(gpio_num_t scl, gpio_num_t sda)
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
     conf.sda_io_num = sda;
-    conf.sda_pullup_en = ENABLE_I2C_PULLUP;
+    conf.sda_pullup_en = DISABLE_I2C_PULLUP;
     conf.scl_io_num = scl;
-    conf.scl_pullup_en = ENABLE_I2C_PULLUP;
+    conf.scl_pullup_en = DISABLE_I2C_PULLUP;
     conf.master.clk_speed = I2C_CLK_FREQ;
     ESP_ERROR_CHECK(i2c_param_config(i2c_master_port, &conf));
     ESP_ERROR_CHECK(i2c_driver_install(i2c_master_port, conf.mode,
@@ -62,27 +64,30 @@ int PCF8574_Handler::register_interrupt_notice(uint8_t address, void (*callback)
 }
 
 PCF8574_Handler::PCF8574_Handler(gpio_num_t scl, gpio_num_t sda, PCF8574 *_devices, uint8_t _device_count)
+: i2c_mux(xSemaphoreCreateMutex())
 {
-
     setup_i2c_master(scl, sda);
     this->devices = new PCF8574_State[_device_count];
     this->device_count = _device_count;
     for(uint8_t i = 0; i < _device_count; i++)
     {
-        memcpy(&this->devices[i].device, devices + i, sizeof(this->devices[0].device));
+
+        memcpy(&(this->devices[i].device), _devices + i, sizeof(*_devices));
         //Setup interrupts
         gpio_num_t &interrupt_pin = this->devices[i].device.interrupt_pin;
         if(interrupt_pin == 0) continue;
+
         gpio_config_t io_conf;
         //interrupt of falling edge
         io_conf.intr_type = GPIO_INTR_NEGEDGE;
-        io_conf.pin_bit_mask = interrupt_pin;
+        io_conf.pin_bit_mask = ((uint64_t)1) << (uint64_t)interrupt_pin;
         //set as input mode
         io_conf.mode = GPIO_MODE_INPUT;
         io_conf.pull_down_en = (gpio_pulldown_t) 0;
         //enable pull-up mode
         io_conf.pull_up_en = (gpio_pullup_t)1;
         //configure GPIO with the given settings
+
         ESP_ERROR_CHECK(gpio_config(&io_conf));
         //install gpio isr service
         ESP_ERROR_CHECK(gpio_install_isr_service(0)); //Are we allowed to do this multiple times?
@@ -107,19 +112,19 @@ int PCF8574_Handler::set_as_output(const PCF8574_pin *pins, const PCF8574_pin_st
 {
     if(pin_count == 0) return 0;
     PCF8574_State *device = this->find_device(pins->address);
+    if(device == nullptr) return 1;
     for(uint8_t i = 0; i < pin_count; i++)
     {
         device->pin_types &= ~(1 << pins[i].pin_num);
-        device->output_state |= (states[i] << pins[i].pin_num);
     }
-    this->write_state(device);
-    return 0;
+    return this->set_output_state(pins, states, pin_count);
 }
 
 int PCF8574_Handler::set_as_input(const PCF8574_pin *pins, uint8_t pin_count)
 {
     if(pin_count == 0) return 0;
     PCF8574_State *device = this->find_device(pins->address);
+    if(device == nullptr) return 1;
     for(uint8_t i = 0; i < pin_count; i++)
         device->pin_types |= (1 << pins[i].pin_num);
     this->write_state(device);
@@ -130,8 +135,14 @@ int PCF8574_Handler::set_output_state(const PCF8574_pin *pins, const PCF8574_pin
 {
     if(pin_count == 0) return 0;
     PCF8574_State *device = this->find_device(pins->address);
+    if(device == nullptr) return 1;
     for(uint8_t i = 0; i < pin_count; i++)
-        device->output_state |= (states[i] << pins[i].pin_num);
+    {
+        if(states[i] == HIGH)
+            device->output_state |= (1 << pins[i].pin_num);
+        else
+            device->output_state &= ~(1 << pins[i].pin_num);
+    }
     this->write_state(device);
     return 0;
 }
@@ -140,8 +151,10 @@ int PCF8574_Handler::read_input_state(const PCF8574_pin *pins, PCF8574_pin_state
 {
     if(pin_count == 0) return 0;
     PCF8574_State *device = this->find_device(pins->address);
+    if(device == nullptr) return 1;
     uint8_t state = 0;
     this->read_state(device, &state);
+    printf("state: %d\n", state);
     for(uint8_t i = 0; i < pin_count; i++)
     {
         states[i] = (PCF8574_pin_state) ((state >> pins[i].pin_num) & 1);
@@ -162,6 +175,7 @@ int PCF8574_Handler::read_state(PCF8574_State *device, uint8_t *state)
     esp_err_t ret = i2c_master_cmd_begin(I2C_NUM_0, cmd, 20 / portTICK_RATE_MS); //20 ms to perform this
     xSemaphoreGive(this->i2c_mux);
     i2c_cmd_link_delete(cmd);
+    printf("read ret: %d\n", ret);
     return ret;
 }
 
@@ -170,7 +184,6 @@ int PCF8574_Handler::write_state(PCF8574_State *device)
     uint8_t data = device->output_state | device->pin_types;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
-    //Send address and read command
     i2c_master_write_byte(cmd, (device->device.address << 1) | I2C_MASTER_WRITE, ACK_VAL);
     i2c_master_write_byte(cmd, data, ACK_VAL);
     i2c_master_stop(cmd);
