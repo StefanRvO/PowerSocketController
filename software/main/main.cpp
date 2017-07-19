@@ -6,23 +6,16 @@ extern "C"
     #include "freertos/task.h"
     #include "esp_system.h"
     #include "esp_log.h"
-    #include "esp_ota_ops.h"
     #include "apps/sntp/sntp.h"
-
 }
 
 #include "HttpServer.h"
 #include "FilesystemHandler.h"
 #include "WifiHandler.h"
 #include "SettingsHandler.h"
-#include "SwitchHandler.h"
 #include "TimeKeeper.h"
 #include "mDNSServer.h"
-#include "PCF8574_Handler.h"
-extern "C"
-{
-    #include "i2cscanner.h"
-}
+#include "Hardware_Initialiser.h"
 
 __attribute__((unused)) static const char *TAG = "PowerSocket";
 
@@ -42,7 +35,7 @@ void hello_task(void *pvParameter)
     while(true)
     {
         printf("HELLO!!, this is the amount of free heap: %u\t This is the minimum free heap ever: %u\n", xPortGetFreeHeapSize(), xPortGetMinimumEverFreeHeapSize());
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
     }
     printf("Restarting now.\n");
     fflush(stdout);
@@ -56,68 +49,29 @@ void cpp_main()
     printf("Booted, now initialising tasks and subsystems!\n");
     printf("Compile info: GCC %u.%u.%u\t", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
     printf("Compile date: %s -- %s\n", __DATE__, __TIME__);
-    //xTaskCreate(&task_i2cscanner, "hello_task", 2048, NULL, 5, NULL);
 
     //The initialisations of these systems ARE important!
+    //This initialises esp32 systems which should not be dependent on external hardware.
     printf("Intialising settings handler and NVS system!\n");
     __attribute__((unused)) SettingsHandler *s_handler = SettingsHandler::get_instance();
-    printf("Initialising PCF8574 devices");
-    PCF8574 PCF8574_devices[2];
-    PCF8574_devices[0].address = 0x21;
-    PCF8574_devices[0].interrupt_pin = (gpio_num_t)0;
-    PCF8574_devices[1].address = 0x20;
-    PCF8574_devices[1].interrupt_pin = GPIO_NUM_23;
-
-    PCF8574_Handler::get_instance(GPIO_NUM_21, GPIO_NUM_19, PCF8574_devices, 2);
-    xTaskCreate(&task_i2cscanner, "hello_task", 2048, NULL, 5, NULL);
-
-    printf("Intialising switch handler!\n");
-    const gpio_num_t button_leds[] = {
-        GPIO_NUM_27,
-        GPIO_NUM_26,
-        GPIO_NUM_32,
-    };
-    PCF8574_pin relay_pins[3];
-    PCF8574_pin button_pins[3];
-    PCF8574_pin relay_voltage_pin;
-    relay_voltage_pin.address = 0x20;
-    relay_voltage_pin.pin_num = 0;
-    relay_pins[0].address = 0x20;
-    relay_pins[1].address = 0x20;
-    relay_pins[2].address = 0x20;
-    relay_pins[0].pin_num = 3;
-    relay_pins[1].pin_num = 2;
-    relay_pins[2].pin_num = 1;
-
-    button_pins[0].address = 0x21;
-    button_pins[1].address = 0x21;
-    button_pins[2].address = 0x21;
-    button_pins[0].pin_num = 0;
-    button_pins[1].pin_num = 1;
-    button_pins[2].pin_num = 2;
-
-    SwitchHandler::get_instance(relay_pins, &relay_voltage_pin, button_pins, button_leds, 3);
-
-
+    xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
     printf("Initialising Wifi!\n");
     __attribute__((unused)) WifiHandler *wifi_h = WifiHandler::get_instance();
     printf("Initialised wifi!.\n");
     wifi_h->print_ap_settings();
-    xTaskCreate(&hello_task, "hello_task", 2048, NULL, 5, NULL);
-
     initialize_sntp();
-
-    //Keep time.
+    mDNSServer::get_instance();
     TimeKeeper *t_keeper = TimeKeeper::get_instance();
+    //Initialise hardware dependent on the PCB version
+    if(Hardware_Initialiser::initialise_hardware())
+    {
+        printf("Hardware_intialisation failed. This will probably cause the HTTP server to crash too\n");
+    }
     printf("Startup done\n");
     HttpServer httpd_server("80");
     httpd_server.start();
-    //HttpServer httpsd_server("443", true);
-    //httpsd_server.start();
-    __attribute__((unused)) mDNSServer *mdns_server = mDNSServer::get_instance();
 
     //Enter a inifite loop which performs tasks which should happen very unfrequent
-
     while(1)
     {
         t_keeper->do_update();

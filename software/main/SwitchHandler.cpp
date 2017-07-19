@@ -7,16 +7,24 @@ extern "C"
     #include "esp_system.h"
     #include "esp_err.h"
 }
+using namespace PCF8574_enum;
 
 __attribute__((unused)) static const char *TAG = "SwitchHandler";
 
 SwitchHandler *SwitchHandler::instance = nullptr;
 
-PCF8574_pin_state switch_state_to_PCF8574(switch_state state)
+PCF8574_pin_state SwitchHandler::switch_state_to_PCF8574(switch_state state)
 {
-    if(state == on) return HIGH;
-    else            return LOW;
-
+    if(this->relay_on_level == true)
+    {
+        if(state == on) return HIGH;
+        else            return LOW;
+    }
+    else
+    {
+        if(state == on) return LOW;
+        else            return HIGH;
+    }
 }
 SwitchHandler *SwitchHandler::get_instance()
 {
@@ -26,23 +34,24 @@ SwitchHandler *SwitchHandler::get_instance()
 
 SwitchHandler *SwitchHandler::get_instance(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
         const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
-         size_t _pin_num)
+         size_t _pin_num, bool _relay_on_level)
 {
     if(SwitchHandler::instance == nullptr)
     {
-        SwitchHandler::instance = new SwitchHandler(_relay_pins, _relay_voltage_pin, _button_pins, _button_leds, _pin_num);
+        SwitchHandler::instance = new SwitchHandler(_relay_pins, _relay_voltage_pin, _button_pins, _button_leds, _pin_num, _relay_on_level);
     }
     return SwitchHandler::instance;
 }
 
 SwitchHandler::SwitchHandler(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
         const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
-         size_t _pin_num)
+         size_t _pin_num, bool _relay_on_level)
 : relay_pins(_relay_pins), relay_voltage_pin(_relay_voltage_pin),
     button_pins(_button_pins), button_leds(_button_leds),
     pin_num(_pin_num),  s_handler(SettingsHandler::get_instance()),
     pcf8574(PCF8574_Handler::get_instance()), set_mux(xSemaphoreCreateMutex()),
-    led_settings_lock(xSemaphoreCreateMutex())
+    led_settings_lock(xSemaphoreCreateMutex()),
+    relay_on_level(_relay_on_level)
 { //Beware, GPIO34-39 can only be used as input and got not pull-up/down.
   //We should primarily use this for ADC input.
   //See https://esp-idf.readthedocs.io/en/latest/api/peripherals/gpio.html for GPIO info
@@ -95,7 +104,7 @@ void SwitchHandler::setup_relay_pins()
         ESP_ERROR_CHECK( this->s_handler->nvs_get(switch_str, (uint8_t *)&state) );
         //Set the state
         this->state_buff[i] = state;
-        states[i] = switch_state_to_PCF8574(state);
+        states[i] = this->switch_state_to_PCF8574(state);
     }
     delete[] states;
     this->pcf8574->set_as_output(this->relay_voltage_pin, &relay_voltage_pin_state, 1);
@@ -149,7 +158,7 @@ void SwitchHandler::set_switch_state(uint8_t switch_num, switch_state state, boo
     this->relay_voltage_pin_timeout = 200;
 
     //Set the relay state
-    PCF8574_pin_state relay_state = switch_state_to_PCF8574(state);
+    PCF8574_pin_state relay_state = this->switch_state_to_PCF8574(state);
     this->pcf8574->set_output_state(this->relay_pins + switch_num, &relay_state, 1);
     //Set the state in the buffer
     this->state_buff[switch_num] = state;
@@ -192,7 +201,6 @@ void SwitchHandler::poll_buttons(TimerHandle_t xTimer)
     SwitchHandler::instance->pcf8574->read_input_state(SwitchHandler::instance->button_pins, states, SwitchHandler::instance->pin_num); //Can only be used with pins all from the same device. Will block while reading.
     for(uint8_t i = 0; i < SwitchHandler::instance->pin_num; i++)
     {
-        printf("button%d: %d\n", i, states[i]);
         button_event emitted_event = SwitchHandler::instance->poll_button(i, states[i]);
         SwitchHandler::instance->handle_event(emitted_event, i);
     }

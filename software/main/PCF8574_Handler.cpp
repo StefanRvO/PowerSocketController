@@ -4,10 +4,11 @@
 #define ENABLE_I2C_PULLUP GPIO_PULLUP_ENABLE
 #define DISABLE_I2C_PULLUP GPIO_PULLUP_DISABLE
 
-#define I2C_CLK_FREQ 10000
+#define I2C_CLK_FREQ 80000
 #define I2C_MASTER_RX_BUF_DISABLE 0
 #define I2C_MASTER_TX_BUF_DISABLE 0
 #define ACK_VAL 0x0
+using namespace PCF8574_enum;
 
 static int setup_i2c_master(gpio_num_t scl, gpio_num_t sda)
 {
@@ -154,7 +155,6 @@ int PCF8574_Handler::read_input_state(const PCF8574_pin *pins, PCF8574_pin_state
     if(device == nullptr) return 1;
     uint8_t state = 0;
     this->read_state(device, &state);
-    printf("state: %d\n", state);
     for(uint8_t i = 0; i < pin_count; i++)
     {
         states[i] = (PCF8574_pin_state) ((state >> pins[i].pin_num) & 1);

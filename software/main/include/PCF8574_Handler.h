@@ -6,11 +6,13 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
-
-enum PCF8574_pin_state
+namespace PCF8574_enum
 {
-    LOW = 0,
-    HIGH = 1,
+    enum PCF8574_pin_state
+    {
+        LOW = 0,
+        HIGH = 1,
+    };
 };
 
 struct PCF8574_pin
@@ -46,11 +48,11 @@ class PCF8574_Handler
 {
     public:
         //The two below functions registers a number of pins as input or output.
-        int set_as_output(const PCF8574_pin *pins, const PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device.
+        int set_as_output(const PCF8574_pin *pins, const PCF8574_enum::PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device.
         int set_as_input(const PCF8574_pin *pins, uint8_t pin_count); //Can only be used with pins all from the same device.
 
-        int set_output_state(const PCF8574_pin *pins, const PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device.
-        int read_input_state(const PCF8574_pin *pins, PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device. Will block while reading.
+        int set_output_state(const PCF8574_pin *pins, const PCF8574_enum::PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device.
+        int read_input_state(const PCF8574_pin *pins, PCF8574_enum::PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device. Will block while reading.
 
         /*This function can be used to register an interrupt notice when the PCF8574's interrupt pin is asserted
         The registered callback function will be called from an interrupt context, so it is very important to return from

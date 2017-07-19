@@ -70,7 +70,7 @@ class SwitchHandler
     public:
         static SwitchHandler *get_instance(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
                 const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
-                 size_t _pin_num);
+                 size_t _pin_num, bool relay_active_level = false);
         static SwitchHandler *get_instance();
 
         ~SwitchHandler();
@@ -79,18 +79,20 @@ class SwitchHandler
         uint8_t get_switch_count();
 
     private:
+        PCF8574_enum::PCF8574_pin_state switch_state_to_PCF8574(switch_state state);
+
         uint64_t blink_time = 20; //When the LED's are in blinking state, they will blink with a frequency of 1000/(2 * blink_time).
                                   //The resolution of this time will be POLL_TIME
         uint64_t blink_counter = 0; //Counter for performing the blinking.
 
         uint64_t led_state_timeout = 0; //Number of milliseconds untill the LED mode will be changed to output.
                                         //To keep the LED's in some state, this will need to be continuosly set or be set to a really high timeout.
-
+        bool relay_on_level;
         led_control_mode led_mode = output;
         static SwitchHandler *instance;
         SwitchHandler(const  PCF8574_pin *_relay_pins, const PCF8574_pin *_relay_voltage_pin,
                 const PCF8574_pin *_button_pins, const gpio_num_t *_button_leds,
-                 size_t _pin_num);
+                 size_t _pin_num, bool relay_active_level);
 
         const PCF8574_pin *relay_pins;
         const PCF8574_pin *relay_voltage_pin;
