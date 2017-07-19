@@ -175,7 +175,6 @@ int PCF8574_Handler::read_state(PCF8574_State *device, uint8_t *state)
     esp_err_t ret = i2c_master_cmd_begin(I2C_NUM_0, cmd, 20 / portTICK_RATE_MS); //20 ms to perform this
     xSemaphoreGive(this->i2c_mux);
     i2c_cmd_link_delete(cmd);
-    printf("read ret: %d\n", ret);
     return ret;
 }
 

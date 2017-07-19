@@ -2,6 +2,7 @@
 #include "HardwareVersion.h"
 #include "PCF8574_Handler.h"
 #include "SwitchHandler.h"
+#include "EnergyMonitor.h"
 int Hardware_Initialiser::initialise_hardware()
 {
     HardwareVersion::read_hardware_version();
@@ -66,5 +67,13 @@ int Hardware_Initialiser::initialise_hardware_1_1()
     button_pins[1].pin_num = 1;
     button_pins[2].pin_num = 2;
     SwitchHandler::get_instance(relay_pins, &relay_voltage_pin, button_pins, button_leds, 3);
+    static gpio_num_t cs5463_slave_selects[] = {
+        GPIO_NUM_17,
+        GPIO_NUM_16,
+        GPIO_NUM_4,
+    };
+    printf("Initialisin energy monitoring\n");
+    CS5463::set_spi_pins(GPIO_NUM_18, GPIO_NUM_22, GPIO_NUM_5);
+    EnergyMonitor::get_instance(cs5463_slave_selects, 3);
     return 0;
 }

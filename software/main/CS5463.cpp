@@ -21,7 +21,7 @@ CS5463::CS5463(gpio_num_t slave_select)
         buscfg.sclk_io_num = this->clk_pin;
         buscfg.quadwp_io_num=-1;
         buscfg.quadhd_io_num=-1;
-        ret = spi_bus_initialize(HSPI_HOST, &buscfg, 1);
+        ESP_ERROR_CHECK(spi_bus_initialize(HSPI_HOST, &buscfg, 1));
         CS5463::initialised = true;
     }
     spi_device_interface_config_t devcfg;
@@ -32,7 +32,7 @@ CS5463::CS5463(gpio_num_t slave_select)
     devcfg.queue_size = 10,
     devcfg.pre_cb = nullptr;
     devcfg.command_bits = 8;
-    ret = spi_bus_add_device(HSPI_HOST, &devcfg, &this->spi);
+    ESP_ERROR_CHECK(spi_bus_add_device(HSPI_HOST, &devcfg, &this->spi));
 }
 
 void CS5463::set_spi_pins(gpio_num_t miso, gpio_num_t mosi, gpio_num_t clk)
@@ -49,6 +49,7 @@ int CS5463::do_spi_transaction(uint8_t cmd, uint8_t len, uint8_t *data_out, uint
     t.length = len;
     t.tx_buffer = data_out;
     t.rx_buffer = data_in;
+    t.command = cmd;
     esp_err_t ret;
     xSemaphoreTake(this->spi_mux, portMAX_DELAY);
     ret = spi_device_transmit(this->spi, &t);  //Transmit!
@@ -90,6 +91,7 @@ int CS5463::read_status_register(status_register *data)
     int err;
     uint8_t data_out[3];
     err = this->read_register(registers::status, data_out);
+    printf("0x%.2x%.2x%.2x\n", data_out[0], data_out[1], data_out[2]);
     data->data_ready = data_out[0] & 0x80;
     data->conversion_ready = data_out[0] & 0x10;
     data->current_out_range = data_out[0] & 0x02;
@@ -115,6 +117,6 @@ int CS5463::read_temperature(float *temp)
     uint8_t data_out[3];
     err = this->read_register(registers::status, data_out);
     *temp = (*(int8_t *)data_out);
-    *temp += (*(uint16_t *)data_out + 1);
+    *temp += (*(uint16_t *)(data_out + 1));
     return err;
 }
