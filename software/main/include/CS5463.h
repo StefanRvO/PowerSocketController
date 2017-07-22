@@ -91,6 +91,26 @@ struct mode_register
     bool afc;
 };
 
+struct config_register
+{
+    uint8_t phase_compensation;
+    bool i_gain;
+    bool ewa;
+    bool int_mode;
+    bool int_inv;
+    bool inv_cpu;
+    uint8_t clock_div;
+};
+
+struct ctrl_register
+{
+    bool stop;
+    bool int_opendrain;
+    bool no_cpu;
+    bool no_osc;
+};
+
+
 class CS5463
 {
     public:
@@ -108,7 +128,10 @@ class CS5463
         int read_status_register(status_register *data);
         int read_temperature(float *temp);
         int set_operation_mode(mode_register reg);
-        int set_computation_cycle_duration(uint32_t millis);
+        int set_computation_cycle_duration(uint32_t milliseconds);
+        int get_epsilon(float *e);
+        int set_epsilon(float e);
+        uint32_t owr = 4000;
     private:
         spi_device_handle_t spi;
         static bool initialised;

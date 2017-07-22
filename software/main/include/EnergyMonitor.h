@@ -17,4 +17,5 @@ class EnergyMonitor
         static void energy_monitor_thread_wrapper(void *user);
         void energy_monitor_thread();
         void print_status_register();
+        void cs5463_setup();
 };

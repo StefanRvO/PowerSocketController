@@ -95,6 +95,10 @@ PCF8574_Handler::PCF8574_Handler(gpio_num_t scl, gpio_num_t sda, PCF8574 *_devic
         //hook isr handler for specific gpio pin
         ESP_ERROR_CHECK(gpio_isr_handler_add(interrupt_pin, PCF8574_Handler::interrupt_handler, (void*) &this->devices[i].device));
     }
+    for(uint8_t i = 0; i < _device_count; i++)
+    {
+        printf("device: 0x%.2x, pin_types: 0x%.2x, output_state: 0x%.2x\n", this->devices[i].device.address, this->devices[i].pin_types, this->devices[i].output_state);
+    }
 }
 
 void PCF8574_Handler::interrupt_handler(void *arg)
@@ -190,6 +194,7 @@ int PCF8574_Handler::read_state(PCF8574_State *device, uint8_t *state)
 int PCF8574_Handler::write_state(PCF8574_State *device)
 {
     uint8_t data = device->output_state | device->pin_types;
+    printf("device: 0x%.2x, data: 0x%.2x\n", device->device.address, data);
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (device->device.address << 1) | I2C_MASTER_WRITE, ACK_VAL);

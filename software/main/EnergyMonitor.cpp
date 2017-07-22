@@ -45,22 +45,7 @@ void EnergyMonitor::energy_monitor_thread_wrapper(void *user)
 
 void EnergyMonitor::energy_monitor_thread()
 {
-    //Perform a hardware reset:
-    this->pcf8574->set_output_state(*reset_pin, LOW);
-    vTaskDelay(1 / portTICK_PERIOD_MS);
-    this->pcf8574->set_output_state(*reset_pin, HIGH);
-    vTaskDelay(1 / portTICK_PERIOD_MS);
-    //Perform software reset, just to be safe.. We can maybe remove this in the future if hardware reset works..
-    for(auto &device : this->devices)
-        device.software_reset();
-    vTaskDelay(1 / portTICK_PERIOD_MS);
-    //Start energy monitoring
-    for(auto &device : this->devices)
-    {
-        device.set_computation_cycle_duration(250); //250 ms per cycle
-        device.start_conversions();
-    }
-
+    this->cs5463_setup();
     while(true)
     {
         for(uint8_t j = 0; j < this->devices.size(); j++)
@@ -71,9 +56,30 @@ void EnergyMonitor::energy_monitor_thread()
             printf("temp, device %d: %f\n", j, temp);
 
         }
-        printf("\n");
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(300 / portTICK_PERIOD_MS);
     }
+}
+
+void EnergyMonitor::cs5463_setup()
+{   //Sets up the CS5463
+    //Perform a hardware reset:
+    this->pcf8574->set_output_state(*reset_pin, LOW);
+    vTaskDelay(1 / portTICK_PERIOD_MS);
+    this->pcf8574->set_output_state(*reset_pin, HIGH);
+    vTaskDelay(60 / portTICK_PERIOD_MS);
+    //Start energy monitoring
+    for(auto &device : this->devices)
+    {
+        device.start_conversions();
+
+        device.set_computation_cycle_duration(250); //250 ms per cycle
+        float e = 50. / device.owr;
+        device.set_epsilon(e);
+        float e_read;
+        device.get_epsilon(&e_read);
+        printf("epsilon set: %f, epsilon read: %f\n", e, e_read);
+    }
+
 }
 
 void EnergyMonitor::print_status_register()

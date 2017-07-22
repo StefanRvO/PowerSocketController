@@ -31,9 +31,9 @@ struct PCF8574_State
 {
     PCF8574 device;
     //Defines which pins are input and which are output.
-    uint8_t pin_types = { 1 }; //0 = output, 1 = input
+    uint8_t pin_types = 0xFF; //0 = output, 1 = input
     //Defines if the pins which are set to output should be high or low
-    uint8_t output_state = { 0 };
+    uint8_t output_state = 0;
 };
 
 struct PCF8574InterruptNotice
@@ -54,7 +54,7 @@ class PCF8574_Handler
         int set_output_state(const PCF8574_pin *pins, const PCF8574_enum::PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device.
         int read_input_state(const PCF8574_pin *pins, PCF8574_enum::PCF8574_pin_state* states, uint8_t pin_count); //Can only be used with pins all from the same device. Will block while reading.
         int set_output_state(const PCF8574_pin pin, const PCF8574_enum::PCF8574_pin_state state);
-        int read_input_state(const PCF8574_pin pin, PCF8574_enum::PCF8574_pin_state *state); 
+        int read_input_state(const PCF8574_pin pin, PCF8574_enum::PCF8574_pin_state *state);
 
         /*This function can be used to register an interrupt notice when the PCF8574's interrupt pin is asserted
         The registered callback function will be called from an interrupt context, so it is very important to return from
