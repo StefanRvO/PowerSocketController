@@ -68,8 +68,8 @@ void cpp_main()
         printf("Hardware_intialisation failed. This will probably cause the HTTP server to crash too\n");
     }
     printf("Startup done\n");
-    HttpServer httpd_server("80");
-    httpd_server.start();
+    //HttpServer httpd_server("80");
+    //httpd_server.start();
 
     //Enter a inifite loop which performs tasks which should happen very unfrequent
     while(1)

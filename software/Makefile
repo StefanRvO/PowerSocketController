@@ -15,11 +15,12 @@ include ${PWD}/components/libwebsockets/scripts/esp32.mk
 CFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
 CXXFLAGS +=-I$(PROJECT_PATH)/components/libwebsockets/plugins
 GENCERTS = 0
-
+COMPONENT_PATH := ${PROJECT_PATH}/components
 HOST = 192.168.200.90
 
 
 romfs_prepare:
+
 	echo "Resolving server side includes"
 	cp -R -T data_files ${BUILD_DIR_BASE}/data_files/
 	cd ${BUILD_DIR_BASE}/data_files/html/; bash ${PROJECT_PATH}/SSI_parser.sh

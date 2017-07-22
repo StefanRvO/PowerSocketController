@@ -78,14 +78,26 @@ struct status_register
     bool invalid_command;
 };
 
+struct mode_register
+{
+    bool e2mode;
+    bool xvdel;
+    bool xidel;
+    bool ihpf;
+    bool vhpf;
+    bool iir;
+    uint8_t e3mode;
+    bool pos;
+    bool afc;
+};
+
 class CS5463
 {
     public:
         CS5463(gpio_num_t slave_select);
-        static void set_spi_pins(gpio_num_t miso, gpio_num_t mosi, gpio_num_t clk);
+        static void init_spi(gpio_num_t miso, gpio_num_t mosi, gpio_num_t clk);
         int start_conversions(bool single_shot = false);
         int software_reset();
-        int hardware_reset(); //Not implemented yet.
         int read_register(registers the_register, uint8_t *databuff); //Databuff needs to be able to hold 3 bytes.
         int write_register(registers the_register, uint8_t *data_out, uint8_t *data_in = nullptr, uint8_t len = 3);
         int do_spi_transaction(uint8_t cmd, uint8_t len = 0, uint8_t *data_out = 0, uint8_t *data_in = 0);
@@ -95,13 +107,10 @@ class CS5463
         int halt_to_sleep();
         int read_status_register(status_register *data);
         int read_temperature(float *temp);
-
+        int set_operation_mode(mode_register reg);
+        int set_computation_cycle_duration(uint32_t millis);
     private:
-        static spi_device_handle_t spi;
-        static uint8_t device_cnt;
+        spi_device_handle_t spi;
         static bool initialised;
-        static gpio_num_t miso_pin;
-        static gpio_num_t mosi_pin;
-        static gpio_num_t clk_pin;
         static xSemaphoreHandle spi_mux;
 };

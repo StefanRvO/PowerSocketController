@@ -148,6 +148,15 @@ int PCF8574_Handler::set_output_state(const PCF8574_pin *pins, const PCF8574_pin
     return 0;
 }
 
+int PCF8574_Handler::set_output_state(const PCF8574_pin pin, const PCF8574_enum::PCF8574_pin_state state)
+{
+    return this->set_output_state(&pin, &state, 1);
+}
+int PCF8574_Handler::read_input_state(const PCF8574_pin pin, PCF8574_enum::PCF8574_pin_state *state)
+{
+    return this->set_output_state(&pin, state, 1);
+}
+
 int PCF8574_Handler::read_input_state(const PCF8574_pin *pins, PCF8574_pin_state* states, uint8_t pin_count)
 {
     if(pin_count == 0) return 0;
