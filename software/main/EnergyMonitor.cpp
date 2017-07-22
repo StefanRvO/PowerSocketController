@@ -35,7 +35,7 @@ EnergyMonitor::EnergyMonitor(gpio_num_t *slave_selects, PCF8574_pin *_reset_pin,
     PCF8574_pin_state reset_state = HIGH;
     this->pcf8574->set_as_output(_reset_pin, &reset_state, 1);
 
-    xTaskCreate(EnergyMonitor::energy_monitor_thread_wrapper, "energy_thread", 2048, (void **)this, 10, NULL);
+    xTaskCreate(EnergyMonitor::energy_monitor_thread_wrapper, "energy_thread", 4096, (void **)this, 10, NULL);
 }
 
 void EnergyMonitor::energy_monitor_thread_wrapper(void *user)
@@ -56,7 +56,7 @@ void EnergyMonitor::energy_monitor_thread()
             printf("temp, device %d: %f\n", j, temp);
 
         }
-        vTaskDelay(300 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 

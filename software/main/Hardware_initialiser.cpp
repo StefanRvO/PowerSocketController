@@ -69,8 +69,8 @@ int Hardware_Initialiser::initialise_hardware_1_1()
     button_pins[2].pin_num = 2;
     SwitchHandler::get_instance(relay_pins, &relay_voltage_pin, button_pins, button_leds, 3);
     static gpio_num_t cs5463_slave_selects[] = {
-    //    GPIO_NUM_17,
-    //    GPIO_NUM_4,
+        GPIO_NUM_17,
+        GPIO_NUM_4,
         GPIO_NUM_16,
     };
     static PCF8574_pin reset_pin;
@@ -79,6 +79,6 @@ int Hardware_Initialiser::initialise_hardware_1_1()
 
     printf("Initialisin energy monitoring\n");
     CS5463::init_spi(GPIO_NUM_22, GPIO_NUM_18, GPIO_NUM_5);
-    EnergyMonitor::get_instance(cs5463_slave_selects, &reset_pin, 1);
+    EnergyMonitor::get_instance(cs5463_slave_selects, &reset_pin, 3);
     return 0;
 }
