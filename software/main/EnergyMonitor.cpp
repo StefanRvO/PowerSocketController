@@ -7,6 +7,7 @@ extern "C"
     #include "esp_system.h"
     #include "esp_log.h"
 }
+#include <cstring>
 using namespace PCF8574_enum;
 
 EnergyMonitor *EnergyMonitor::instance;
@@ -50,21 +51,26 @@ void EnergyMonitor::energy_monitor_thread()
 
     while(true)
     {
-        if(i < 80 && ++i == 80)
+        if(i < 400 && ++i == 400)
             for(auto &device : this->devices)
-            {
+            {   //Start frequency measurement 20 seconds after boot
                 device.set_frequency_measurement(true);
             }
 
         for(uint8_t j = 0; j < this->devices.size(); j++)
         {
-            float temp;
-            printf("temp, device %d\n", j);
-            devices[j].read_temperature(&temp);
-            printf("temp, device %d: %f\n", j, temp);
-
+            status_register reg;
+            this->devices[j].read_status_register(&reg);
+            if(reg.data_ready)
+                this->handle_drdy(j);
+            if(reg.conversion_ready)
+                this->handle_crdy(j);
+            if(reg.temp_update)
+                this->handle_tup(j);
+            if(reg.epsilon_update)
+                this->handle_fup(j);
         }
-        vTaskDelay(250 / portTICK_PERIOD_MS);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
 }
 
@@ -91,6 +97,45 @@ void EnergyMonitor::cs5463_setup()
         device.set_epsilon(e);
     }
 
+}
+
+void EnergyMonitor::handle_drdy(uint8_t device)
+{
+    //printf("Device %d have DRDY\n", device);
+    status_register reg;
+    memset(&reg, 0, sizeof(reg));
+    reg.data_ready = 1;
+    this->devices[device].set_status_register(reg);
+}
+
+void EnergyMonitor::handle_crdy(uint8_t device)
+{
+    //printf("Device %d have CRDY\n", device);
+    status_register reg;
+    memset(&reg, 0, sizeof(reg));
+    reg.conversion_ready = 1;
+    this->devices[device].set_status_register(reg);
+}
+
+void EnergyMonitor::handle_tup(uint8_t device)
+{
+    //printf("Device %d have TUP\n", device);
+    float temp;
+    this->devices[device].read_temperature(&temp);
+    printf("temp, device %d: %f\n", device, temp);
+    status_register reg;
+    memset(&reg, 0, sizeof(reg));
+    reg.temp_update = 1;
+    this->devices[device].set_status_register(reg);
+}
+
+void EnergyMonitor::handle_fup(uint8_t device)
+{
+    //printf("Device %d have FUP\n", device);
+    status_register reg;
+    memset(&reg, 0, sizeof(reg));
+    reg.epsilon_update = 1;
+    this->devices[device].set_status_register(reg);
 }
 
 void EnergyMonitor::print_status_register()

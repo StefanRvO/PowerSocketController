@@ -18,4 +18,9 @@ class EnergyMonitor
         void energy_monitor_thread();
         void print_status_register();
         void cs5463_setup();
+        void handle_drdy(uint8_t device);
+        void handle_crdy(uint8_t device);
+        void handle_tup(uint8_t device);
+        void handle_fup(uint8_t device);
+
 };

@@ -119,6 +119,7 @@ int CS5463::read_status_register(status_register *data)
     int err;
     uint8_t data_out[3];
     err = this->read_register(registers::status, data_out);
+
     data->data_ready = data_out[0] & 0x80;
     data->conversion_ready = data_out[0] & 0x10;
     data->current_out_range = data_out[0] & 0x02;
@@ -137,6 +138,29 @@ int CS5463::read_status_register(status_register *data)
     data->invalid_command = data_out[2] & 0x01;
     return err;
 }
+
+int CS5463::set_status_register(status_register reg)
+{
+    uint8_t data[3] = { 0 };
+    data[0] = reg.data_ready << 7;
+    data[0] |= reg.conversion_ready << 4;
+    data[0] |= reg.current_out_range << 1;
+    data[0] |= reg.voltage_out_range;
+    data[1] = reg.irms_out_range << 6;
+    data[1] |= reg.vrms_out_range << 5;
+    data[1] |= reg.energy_out_range << 4;
+    data[1] |= reg.current_fault << 3;
+    data[1] |= reg.voltage_sag << 2;
+    data[2] = reg.temp_update << 7;
+    data[2] |= reg.temp_modu_oscilation << 6;
+    data[2] |= reg.voltage_modu_oscilation << 4;
+    data[2] |= reg.current_modu_oscilation << 3;
+    data[2] |= reg.low_supply_detected << 2;
+    data[2] |= reg.epsilon_update << 1;
+    data[2] |= reg.invalid_command;
+    return this->write_register(registers::status, data);
+}
+
 
 int CS5463::set_computation_cycle_duration(uint32_t milliseconds) //Assume MCLK = 4.096 MHz
 {

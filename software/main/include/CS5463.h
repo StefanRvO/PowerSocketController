@@ -139,7 +139,7 @@ class CS5463
         int get_offset(registers type, float *offset);
         int get_gain(registers type, float *result);
         int set_gain(registers type, float gain);
-
+        int set_status_register(status_register reg);
         uint32_t owr = 4000;
     private:
         spi_device_handle_t spi;
