@@ -77,5 +77,4 @@ class PCF8574_Handler
                                                            //Only the bits set as input will be valid.
         int write_state(PCF8574_State *device); //Write the state to the device.
         PCF8574_Handler(gpio_num_t scl, gpio_num_t sda, PCF8574 *_devices, uint8_t device_count);
-
 };

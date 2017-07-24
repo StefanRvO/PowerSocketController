@@ -21,7 +21,6 @@ enum calibration_type
     u_i_ac_offset   = 0b10101,
     u_i_ac_gain     = 0b10110,
 };
-
 enum registers : uint8_t
 {
     config = 0,
@@ -131,6 +130,16 @@ class CS5463
         int set_computation_cycle_duration(uint32_t milliseconds);
         int get_epsilon(float *e);
         int set_epsilon(float e);
+        int get_operation_mode(mode_register *reg); //Assume MCLK = 4.096 MHz
+        int set_frequency_measurement(bool afc);
+        int set_control(ctrl_register reg);
+        int get_i_v_p_q_measurement(registers type, float *result);
+        int get_rms_measurement(registers type, float *result);
+        int set_offset(registers type, float offset);
+        int get_offset(registers type, float *offset);
+        int get_gain(registers type, float *result);
+        int set_gain(registers type, float gain);
+
         uint32_t owr = 4000;
     private:
         spi_device_handle_t spi;

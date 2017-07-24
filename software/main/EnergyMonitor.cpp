@@ -46,8 +46,16 @@ void EnergyMonitor::energy_monitor_thread_wrapper(void *user)
 void EnergyMonitor::energy_monitor_thread()
 {
     this->cs5463_setup();
+    uint32_t i = 0;
+
     while(true)
     {
+        if(i < 80 && ++i == 80)
+            for(auto &device : this->devices)
+            {
+                device.set_frequency_measurement(true);
+            }
+
         for(uint8_t j = 0; j < this->devices.size(); j++)
         {
             float temp;
@@ -56,7 +64,7 @@ void EnergyMonitor::energy_monitor_thread()
             printf("temp, device %d: %f\n", j, temp);
 
         }
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(250 / portTICK_PERIOD_MS);
     }
 }
 
@@ -73,11 +81,14 @@ void EnergyMonitor::cs5463_setup()
         device.start_conversions();
 
         device.set_computation_cycle_duration(250); //250 ms per cycle
+        ctrl_register reg;
+        reg.stop = 0;
+        reg.int_opendrain = 0;
+        reg.no_cpu = 1;
+        reg.no_osc = 0;
+        device.set_control(reg);
         float e = 50. / device.owr;
         device.set_epsilon(e);
-        float e_read;
-        device.get_epsilon(&e_read);
-        printf("epsilon set: %f, epsilon read: %f\n", e, e_read);
     }
 
 }
